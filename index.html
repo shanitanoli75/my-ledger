@@ -996,7 +996,7 @@
             clearTimeout(inactivityTimer);
             if(localStorage.getItem('usman_logged_in') === 'true') {
                 inactivityTimer = setTimeout(() => {
-                    alert("سسٹم پر 5 منٹ تک کوئی سرگرمی نہ ہونے کی وجہ سے آپ کو آٹو لاگ آؤٹ کر دیا گیا ہے!");
+                    alert("You have been automatically logged out due to no activity on the system for 5 minutes!");
                     handleLogout();
                 }, 300000);
             }
@@ -1098,7 +1098,7 @@
 
         function saveNewPassword() {
             if(currentUser !== 'admin') {
-                alert("صرف ایڈمن پاس ورڈ تبدیل کر سکتا ہے!");
+                alert("Only the Admin can change the password!");
                 return;
             }
             const currentPass = document.getElementById('current-pass-input').value;
@@ -1106,14 +1106,14 @@
             const msg = document.getElementById('pass-msg');
 
             if(currentPass !== savedPassword) {
-                msg.innerText = "پرانا پاس ورڈ غلط ہے!";
+                msg.innerText = "The old password is incorrect!";
                 msg.className = "text-xs text-center text-red-600";
                 msg.classList.remove('hidden');
                 return;
             }
 
             if(!newPass || newPass.length < 3) {
-                msg.innerText = "نیا پاس ورڈ کم از کم 3 حروف کا ہونا چاہیے!";
+                msg.innerText = "The new password must be at least 3 characters long!";
                 msg.className = "text-xs text-center text-red-600";
                 msg.classList.remove('hidden');
                 return;
@@ -1121,7 +1121,7 @@
 
             savedPassword = newPass;
             localStorage.setItem('usman_password', newPass);
-            msg.innerText = "پاس ورڈ کامیابی سے تبدیل ہو گیا!";
+            msg.innerText = "Password changed successfully!";
             msg.className = "text-xs text-center text-emerald-600";
             msg.classList.remove('hidden');
 
@@ -1159,8 +1159,8 @@
             const password = document.getElementById('form-userpass').value.trim();
             const index = parseInt(document.getElementById('edit-user-index').value);
 
-            if(!username || !password) return alert("یوزر نیم اور پاس ورڈ دونوں درج کریں!");
-            if(username === 'admin') return alert("یوزر نیم 'admin' استعمال نہیں کیا جا سکتا!");
+            if(!username || !password) return alert("Please enter both username and password!");
+            if(username === 'admin') return alert("The username 'admin' cannot be used!");
 
             let permissions = [];
             document.querySelectorAll('.perm-chk:checked').forEach(c => permissions.push(c.value));
@@ -1177,7 +1177,7 @@
         }
 
         function deleteUserRecord(index) {
-            if(confirm("کیا آپ اس یوزر کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
+            if(confirm("Are you sure you want to delete this user?")) {
                 customUsers.splice(index, 1);
                 localStorage.setItem('usman_custom_users', JSON.stringify(customUsers));
                 updateUI();
@@ -1264,7 +1264,7 @@
             const status = document.getElementById('fleek-status').value;
             const index = parseInt(document.getElementById('edit-fleek-index').value);
 
-            if(!customer) return alert("آرڈر آئی ڈی یا کسٹمر کا نام درج کریں!");
+            if(!customer) return alert("Please enter the Order ID or Customer Name!");
 
             if(index >= 0) {
                 fleekOrders[index] = { ...fleekOrders[index], customer, item, qty, cost, amount, payStatus, status };
@@ -1298,7 +1298,7 @@
         }
 
         function deleteFleekOrder(index) {
-            if(confirm("کیا آپ اس فلییک آرڈر کو ڈیلیٹ کرنا चाहते हैं؟")) {
+            if(confirm("Are you sure you want to delete this Fleek order?")) {
                 fleekOrders.splice(index, 1);
                 localStorage.setItem('usman_fleek_orders_v2', JSON.stringify(fleekOrders));
                 updateUI();
@@ -1357,7 +1357,7 @@
         }
 
         function deleteSale(index) {
-            if(confirm("کیا آپ اس سیلز ریکارڈ کو ڈیلیٹ کرنا چاہتے हैं؟")) {
+            if(confirm("Are you sure you want to delete this sales record?")) {
                 sales.splice(index, 1);
                 localStorage.setItem('usman_sales', JSON.stringify(sales));
                 updateUI();
