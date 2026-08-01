@@ -130,7 +130,7 @@
             </nav>
         </div>
         <div class="p-2 border-t border-gray-800 flex justify-between items-center text-[10px] text-gray-500">
-            <span>Usman Trade v8.4</span>
+            <span>Usman Trade v8.5</span>
             <div class="space-x-2">
                 <button onclick="openModal('change-pass')" class="text-amber-400 hover:underline">Change Pass</button>
                 <button onclick="handleLogout()" class="text-red-400 hover:underline">Logout</button>
@@ -145,7 +145,7 @@
         <div id="dashboard-cards" class="grid grid-cols-4 gap-6 mb-8">
             <div class="bg-white p-5 rounded-xl card-shadow border-t-4 border-emerald-700">
                 <div class="flex justify-between items-center text-xs font-semibold text-gray-500 tracking-wider">
-                    TOTAL SALES VALUE
+                    TOTAL SALES VALUE (DISPATCHED)
                     <span class="text-emerald-700">🛒</span>
                 </div>
                 <div id="card-total-sales" class="text-2xl font-bold font-mono my-2">0.00</div>
@@ -198,7 +198,7 @@
             </div>
 
             <div class="bg-white rounded-xl card-shadow p-6">
-                <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-4">Profit & Cost Breakdown</h3>
+                <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-4">Profit & Cost Breakdown (Dispatched Orders Only)</h3>
                 <div class="space-y-3 text-sm">
                     <div class="flex justify-between py-1 border-b border-gray-100">
                         <span class="text-gray-600">Total Sales Value (General + Fleek)</span>
@@ -315,6 +315,7 @@
                             <th class="py-2">Sale Price</th>
                             <th class="py-2">Total Sale</th>
                             <th class="py-2">Payment Status</th>
+                            <th class="py-2">Dispatch Status</th>
                             <th class="py-2 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -1097,7 +1098,7 @@
 
         function saveNewPassword() {
             if(currentUser !== 'admin') {
-                alert("صرف ایڈمن پاس ورڈ تبدیل कर सकता है!");
+                alert("صرف ایڈمن پاس ورڈ تبدیل کر سکتا ہے!");
                 return;
             }
             const currentPass = document.getElementById('current-pass-input').value;
@@ -1407,7 +1408,7 @@
         }
 
         function deleteExpense(index) {
-            if(confirm("کیا آپ اس ایکسپینس کو ڈیلیٹ کرنا चाहते हैं؟")) {
+            if(confirm("کیا آپ اس ایکسپینس کو ڈیلیٹ کرنا چاہتے हैं؟")) {
                 expenses.splice(index, 1);
                 localStorage.setItem('usman_expenses', JSON.stringify(expenses));
                 updateUI();
@@ -1446,7 +1447,7 @@
         }
 
         function deletePayout(index) {
-            if(confirm("کیا آپ اس پے آؤٹ को ڈیلیٹ کرنا چاہتے हैं؟")) {
+            if(confirm("کیا آپ اس پے آؤٹ کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
                 payouts.splice(index, 1);
                 localStorage.setItem('usman_payouts', JSON.stringify(payouts));
                 updateUI();
@@ -1491,7 +1492,7 @@
         }
 
         function deleteStock(itemKey) {
-            if(confirm(`کیا آپ (${itemKey}) की تمام مینوئل اسٹاک اینٹریز ڈیلیٹ करना चाहते हैं؟`)) {
+            if(confirm(`کیا آپ (${itemKey}) کی تمام مینوئل اسٹاک اینٹریز ڈیلیٹ کرنا چاہتے ہیں؟`)) {
                 manualStock = manualStock.filter(m => m.item !== itemKey);
                 localStorage.setItem('usman_manual_stock', JSON.stringify(manualStock));
                 updateUI();
@@ -1534,7 +1535,7 @@
         }
 
         function deleteSupplier(index) {
-            if(confirm(`کیا آپ (${suppliers[index].name}) کو ڈیلیٹ करना चाहते हैं؟`)) {
+            if(confirm(`کیا آپ (${suppliers[index].name}) کو ڈیلیٹ کرنا چاہتے ہیں؟`)) {
                 suppliers.splice(index, 1);
                 localStorage.setItem('usman_suppliers_v2', JSON.stringify(suppliers));
                 initDropdowns();
@@ -1605,7 +1606,7 @@
         }
 
         function deletePurchase(index) {
-            if(confirm("کیا آپ اس پرچیز ریکارڈ کو ڈیلیٹ کرنا चाहते हैं؟")) {
+            if(confirm("کیا آپ اس پرچیز ریکارڈ کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
                 purchases.splice(index, 1);
                 localStorage.setItem('usman_purchases', JSON.stringify(purchases));
                 updateUI();
@@ -1624,7 +1625,7 @@
             const notes = document.getElementById('spay-notes').value || "Payment";
             const index = parseInt(document.getElementById('edit-spay-index').value);
 
-            if(amount <= 0) return alert("درست رقم درج करें!");
+            if(amount <= 0) return alert("درست رقم درج کریں!");
 
             if(index >= 0) {
                 supplierPayments[index] = { ...supplierPayments[index], supplier, amount, notes };
@@ -1651,7 +1652,7 @@
         }
 
         function deleteSupplierPayment(index) {
-            if(confirm("کیا آپ اس سپلائر پیمنٹ को ڈیلیٹ करना चाहते हैं؟")) {
+            if(confirm("کیا آپ اس سپلائر پیمنٹ کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
                 supplierPayments.splice(index, 1);
                 localStorage.setItem('usman_supp_payments', JSON.stringify(supplierPayments));
                 updateUI();
@@ -1666,7 +1667,7 @@
             const itemType = document.getElementById('item-type-input').value;
             const index = parseInt(document.getElementById('edit-item-index').value);
 
-            if(!name) return alert("آئٹم کا نام ضروری है!");
+            if(!name) return alert("آئٹم کا نام ضروری ہے!");
 
             if(index >= 0) {
                 catalog[index] = { name, color, styleTag, ageGroup, itemType };
@@ -1698,7 +1699,7 @@
         }
 
         function deleteItem(index) {
-            if(confirm("کیا آپ اس آئٹم کو ڈیلیٹ کرنا चाहते हैं؟")) {
+            if(confirm("کیا آپ اس آئٹم کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
                 catalog.splice(index, 1);
                 localStorage.setItem('usman_catalog', JSON.stringify(catalog));
                 initDropdowns();
@@ -1835,16 +1836,20 @@
         }
 
         function updateUI() {
-            let genSalesVal = sales.reduce((a, b) => a + (parseFloat(b.total)||0), 0);
-            let fleekSalesVal = fleekOrders.reduce((a, b) => a + (parseFloat(b.amount)||0), 0);
+            // ONLY INCLUDE DISPATCHED SALES & FLEEK ORDERS FOR PROFIT & SALES VALUES
+            let dispatchedGenSales = sales.filter(s => (s.dispatchStatus || 'Pending') === 'Dispatched');
+            let dispatchedFleekOrders = fleekOrders.filter(fo => (fo.status || 'Pending') === 'Dispatched');
+
+            let genSalesVal = dispatchedGenSales.reduce((a, b) => a + (parseFloat(b.total)||0), 0);
+            let fleekSalesVal = dispatchedFleekOrders.reduce((a, b) => a + (parseFloat(b.amount)||0), 0);
             let totalSalesVal = genSalesVal + fleekSalesVal;
 
             let genCollected = sales.filter(s => s.status === 'Paid').reduce((a, b) => a + (parseFloat(b.total)||0), 0);
             let fleekCollected = fleekOrders.filter(fo => fo.payStatus === 'Paid').reduce((a, b) => a + (parseFloat(b.amount)||0), 0);
             let collectedVal = genCollected + fleekCollected;
 
-            let genCogs = sales.reduce((a, b) => a + ((parseFloat(b.cost)||0) * (parseFloat(b.qty)||0)), 0);
-            let fleekCogs = fleekOrders.reduce((a, b) => a + ((parseFloat(b.cost)||0) * (parseFloat(b.qty)||0)), 0);
+            let genCogs = dispatchedGenSales.reduce((a, b) => a + ((parseFloat(b.cost)||0) * (parseFloat(b.qty)||0)), 0);
+            let fleekCogs = dispatchedFleekOrders.reduce((a, b) => a + ((parseFloat(b.cost)||0) * (parseFloat(b.qty)||0)), 0);
             let cogsVal = genCogs + fleekCogs;
 
             let grossProfit = totalSalesVal - cogsVal;
@@ -1896,23 +1901,25 @@
 
             // Render Fleek Orders Table
             const foBody = document.getElementById('fleek-orders-table-body');
-            foBody.innerHTML = fleekOrders.length === 0 ? `<tr><td colspan="9" class="text-gray-400 text-center py-4">No Fleek orders logged.</td></tr>` : '';
+            foBody.innerHTML = fleekOrders.length === 0 ? `<tr><td colspan="9" class="text-gray-400 text-center py-4">No Fleek orders logged yet.</td></tr>` : '';
             fleekOrders.forEach((fo, idx) => {
+                let isDispatched = fo.status === 'Dispatched';
+                let isPaid = fo.payStatus === 'Paid';
                 foBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2">${fo.date}</td>
-                    <td class="py-2 font-semibold">${fo.customer}</td>
-                    <td class="py-2">${fo.item}</td>
-                    <td class="py-2 font-mono">${fo.qty}</td>
-                    <td class="py-2 font-mono">${formatMoney(fo.cost || 0)}</td>
-                    <td class="py-2 font-mono font-bold">${formatMoney(fo.amount)}</td>
+                    <td class="py-2 text-gray-500">${fo.date}</td>
+                    <td class="py-2 font-semibold text-gray-800">${fo.customer}</td>
+                    <td class="py-2 text-gray-600">${fo.item}</td>
+                    <td class="py-2 font-mono">${fo.qty} Pcs</td>
+                    <td class="py-2 font-mono text-gray-600">${formatMoney(fo.cost || 0)}</td>
+                    <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(fo.amount)}</td>
                     <td class="py-2">
-                        <button onclick="toggleFleekPaymentStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${(fo.payStatus || 'Paid') === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
-                            ${fo.payStatus || 'Paid'}
+                        <button onclick="toggleFleekPaymentStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                            ${isPaid ? '✅ PAID' : '⏳ PENDING'}
                         </button>
                     </td>
                     <td class="py-2">
-                        <button onclick="toggleFleekStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${fo.status === 'Dispatched' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
-                            ${fo.status}
+                        <button onclick="toggleFleekStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${isDispatched ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                            ${isDispatched ? '🚚 DISPATCHED' : '⏳ PENDING'}
                         </button>
                     </td>
                     <td class="py-2 text-right space-x-2">
@@ -1924,18 +1931,25 @@
 
             // Render General Sales Table
             const sBody = document.getElementById('sales-table-body');
-            sBody.innerHTML = sales.length === 0 ? `<tr><td colspan="8" class="text-gray-400 text-center py-4">No sales logged.</td></tr>` : '';
+            sBody.innerHTML = sales.length === 0 ? `<tr><td colspan="9" class="text-gray-400 text-center py-4">No general sales logged yet.</td></tr>` : '';
             sales.forEach((s, idx) => {
+                let isDispatched = s.dispatchStatus === 'Dispatched';
+                let isPaid = s.status === 'Paid';
                 sBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2">${s.date}</td>
-                    <td class="py-2 font-semibold">${s.customer}</td>
-                    <td class="py-2">${s.item}</td>
+                    <td class="py-2 text-gray-500">${s.date}</td>
+                    <td class="py-2 font-semibold text-gray-800">${s.customer}</td>
+                    <td class="py-2 text-gray-600">${s.item}</td>
                     <td class="py-2 font-mono">${s.qty}</td>
                     <td class="py-2 font-mono">${formatMoney(s.price)}</td>
-                    <td class="py-2 font-mono font-bold">${formatMoney(s.total)}</td>
+                    <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(s.total)}</td>
                     <td class="py-2">
-                        <button onclick="toggleSaleStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${s.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
-                            ${s.status}
+                        <button onclick="toggleSaleStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                            ${isPaid ? '✅ PAID' : '⏳ PENDING'}
+                        </button>
+                    </td>
+                    <td class="py-2">
+                        <button onclick="toggleSaleDispatchStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${isDispatched ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                            ${isDispatched ? '🚚 DISPATCHED' : '⏳ PENDING'}
                         </button>
                     </td>
                     <td class="py-2 text-right space-x-2">
@@ -1945,61 +1959,40 @@
                 </tr>`;
             });
 
-            // Render Dispatches Table (Combines General Sales & Fleek Orders)
+            // Render Dispatches Table
             const dBody = document.getElementById('dispatches-table-body');
-            let allDispatches = [];
-            sales.forEach((s, sIdx) => {
-                allDispatches.push({
-                    date: s.date,
-                    source: 'General Sale',
-                    customer: s.customer,
-                    item: s.item,
-                    qty: s.qty,
-                    status: s.dispatchStatus || 'Pending',
-                    originalType: 'sale',
-                    originalIdx: sIdx
-                });
-            });
-            fleekOrders.forEach((fo, fIdx) => {
-                allDispatches.push({
-                    date: fo.date,
-                    source: 'Fleek App',
-                    customer: fo.customer,
-                    item: fo.item,
-                    qty: fo.qty,
-                    status: fo.status,
-                    originalType: 'fleek',
-                    originalIdx: fIdx
-                });
-            });
+            let combinedDispatches = [];
+            sales.forEach((s, idx) => combinedDispatches.push({ type: 'General Sale', date: s.date, customer: s.customer, item: s.item, qty: s.qty, status: s.dispatchStatus || 'Pending', origIndex: idx, isFleek: false }));
+            fleekOrders.forEach((fo, idx) => combinedDispatches.push({ type: 'Fleek Order', date: fo.date, customer: fo.customer, item: fo.item, qty: fo.qty, status: fo.status || 'Pending', origIndex: idx, isFleek: true }));
 
-            dBody.innerHTML = allDispatches.length === 0 ? `<tr><td colspan="7" class="text-gray-400 text-center py-4">No dispatch records found.</td></tr>` : '';
-            allDispatches.forEach((d) => {
-                let toggleFn = d.originalType === 'sale' ? `toggleSaleDispatchStatus(${d.originalIdx})` : `toggleFleekStatus(${d.originalIdx})`;
+            dBody.innerHTML = combinedDispatches.length === 0 ? `<tr><td colspan="7" class="text-gray-400 text-center py-4">No dispatch records found.</td></tr>` : '';
+            combinedDispatches.forEach((d, i) => {
+                let isDispatched = d.status === 'Dispatched';
                 dBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2">${d.date}</td>
-                    <td class="py-2 font-semibold text-amber-700">${d.source}</td>
-                    <td class="py-2">${d.customer}</td>
-                    <td class="py-2">${d.item}</td>
-                    <td class="py-2 font-mono">${d.qty}</td>
+                    <td class="py-2 text-gray-500">${d.date}</td>
+                    <td class="py-2 font-semibold text-amber-700">${d.type}</td>
+                    <td class="py-2 font-semibold text-gray-800">${d.customer}</td>
+                    <td class="py-2 text-gray-600">${d.item}</td>
+                    <td class="py-2 font-mono">${d.qty} Pcs</td>
                     <td class="py-2">
-                        <button onclick="${toggleFn}" class="px-2 py-0.5 rounded text-[10px] font-bold ${d.status === 'Dispatched' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
-                            ${d.status}
-                        </button>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isDispatched ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                            ${isDispatched ? '🚚 DISPATCHED' : '⏳ PENDING'}
+                        </span>
                     </td>
                     <td class="py-2 text-right">
-                        <span class="text-xs text-gray-400 italic">Managed in source</span>
+                        <button onclick="${d.isFleek ? `toggleFleekStatus(${d.origIndex})` : `toggleSaleDispatchStatus(${d.origIndex})`}" class="text-xs text-indigo-600 font-semibold hover:underline">Toggle Status</button>
                     </td>
                 </tr>`;
             });
 
-            const eBody = document.getElementById('expenses-table-body');
-            eBody.innerHTML = expenses.length === 0 ? `<tr><td colspan="4" class="text-gray-400 text-center py-4">No expenses logged.</td></tr>` : '';
+            // Render Expenses Table
+            const expBody = document.getElementById('expenses-table-body');
+            expBody.innerHTML = expenses.length === 0 ? `<tr><td colspan="4" class="text-gray-400 text-center py-4">No expenses logged yet.</td></tr>` : '';
             expenses.forEach((e, idx) => {
-                eBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2">${e.date}</td>
-                    <td class="py-2 font-semibold">${e.title}</td>
-                    <td class="py-2 font-mono font-bold text-red-600">${formatMoney(e.amount)}</td>
+                expBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2 text-gray-500">${e.date}</td>
+                    <td class="py-2 font-semibold text-gray-800">${e.title}</td>
+                    <td class="py-2 font-mono font-bold text-red-600">-${formatMoney(e.amount)}</td>
                     <td class="py-2 text-right space-x-2">
                         <button onclick="editExpense(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
                         <button onclick="deleteExpense(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
@@ -2007,29 +2000,16 @@
                 </tr>`;
             });
 
-            const payBody = document.getElementById('payouts-table-body');
-            payBody.innerHTML = payouts.length === 0 ? `<tr><td colspan="4" class="text-gray-400 text-center py-4">No payouts recorded.</td></tr>` : '';
-            payouts.forEach((p, idx) => {
-                payBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2">${p.date}</td>
-                    <td class="py-2 font-mono font-bold text-emerald-700">${formatMoney(p.amount)}</td>
-                    <td class="py-2 text-gray-500">${p.notes}</td>
-                    <td class="py-2 text-right space-x-2">
-                        <button onclick="editPayout(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deletePayout(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                    </td>
-                </tr>`;
-            });
-
-            const suppTableBody = document.getElementById('suppliers-table-body');
-            suppTableBody.innerHTML = suppliers.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No suppliers added yet.</td></tr>` : '';
+            // Render Suppliers Table
+            const suppBody = document.getElementById('suppliers-table-body');
+            suppBody.innerHTML = suppliers.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No suppliers registered yet.</td></tr>` : '';
             suppliers.forEach((s, idx) => {
-                let p = calculateSupplierPending(s.name);
-                suppTableBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                let pendingBal = calculateSupplierPending(s.name);
+                suppBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2 font-semibold text-gray-800">${s.name}</td>
-                    <td class="py-2 text-gray-600 font-mono">${s.phone || '-'}</td>
-                    <td class="py-2 text-gray-600">${s.address || '-'}</td>
-                    <td class="py-2 font-mono font-bold ${p > 0 ? 'text-red-600' : 'text-emerald-600'}">${formatMoney(p)}</td>
+                    <td class="py-2 text-gray-600">${s.phone}</td>
+                    <td class="py-2 text-gray-600">${s.address}</td>
+                    <td class="py-2 font-mono font-bold text-red-600">${formatMoney(pendingBal)}</td>
                     <td class="py-2 text-right space-x-2">
                         <button onclick="editSupplier(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
                         <button onclick="deleteSupplier(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
@@ -2037,30 +2017,41 @@
                 </tr>`;
             });
 
-            const catBody = document.getElementById('items-table-body');
-            catBody.innerHTML = catalog.length === 0 ? `<tr><td colspan="6" class="text-gray-400 text-center py-4">No items in catalog.</td></tr>` : '';
-            catalog.forEach((c, idx) => {
-                catBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2 font-semibold text-gray-800">${c.name}</td>
-                    <td class="py-2 text-gray-600">${c.color}</td>
-                    <td class="py-2 text-gray-600"><span class="bg-gray-100 px-2 py-0.5 rounded text-[10px] font-bold">${c.styleTag || 'Y2K'}</span></td>
-                    <td class="py-2 text-gray-600">${c.ageGroup || 'Adults'}</td>
-                    <td class="py-2 text-gray-600 font-medium">${c.itemType || 'Other'}</td>
+            // Render Purchases Table
+            const purBody = document.getElementById('purchases-table-body');
+            purBody.innerHTML = purchases.length === 0 ? `<tr><td colspan="9" class="text-gray-400 text-center py-4">No purchase records found.</td></tr>` : '';
+            purchases.forEach((p, idx) => {
+                let totalBill = parseFloat(p.total) || 0;
+                let paidAmt = parseFloat(p.paid) || 0;
+                let extraPaid = supplierPayments.filter(sp => sp.supplier && sp.supplier.toLowerCase() === (p.supplier||'').toLowerCase()).reduce((a,b)=>a+(parseFloat(b.amount)||0),0);
+                let bal = totalBill - (paidAmt + extraPaid);
+                if(bal < 0) bal = 0;
+
+                purBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2 text-gray-500">${p.date}</td>
+                    <td class="py-2 font-semibold text-gray-800">${p.supplier || 'General'}</td>
+                    <td class="py-2 text-gray-600">${p.item}</td>
+                    <td class="py-2 font-mono">${p.qty} Pcs</td>
+                    <td class="py-2 font-mono">${formatMoney(p.cost)}</td>
+                    <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(totalBill)}</td>
+                    <td class="py-2 font-mono text-emerald-700">${formatMoney(paidAmt)}</td>
+                    <td class="py-2 font-mono font-bold text-red-600">${formatMoney(bal)}</td>
                     <td class="py-2 text-right space-x-2">
-                        <button onclick="editItem(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deleteItem(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
+                        <button onclick="editPurchase(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
+                        <button onclick="deletePurchase(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
                     </td>
                 </tr>`;
             });
 
-            const suppPayBody = document.getElementById('supplier-payments-table-body');
-            suppPayBody.innerHTML = supplierPayments.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No supplier payment history recorded.</td></tr>` : '';
+            // Render Supplier Payments Table
+            const spayBody = document.getElementById('supplier-payments-table-body');
+            spayBody.innerHTML = supplierPayments.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No supplier payments recorded yet.</td></tr>` : '';
             supplierPayments.forEach((sp, idx) => {
-                suppPayBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2">${sp.date}</td>
+                spayBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2 text-gray-500">${sp.date}</td>
                     <td class="py-2 font-semibold text-gray-800">${sp.supplier}</td>
                     <td class="py-2 font-mono font-bold text-amber-700">${formatMoney(sp.amount)}</td>
-                    <td class="py-2 text-gray-500">${sp.notes}</td>
+                    <td class="py-2 text-gray-600">${sp.notes}</td>
                     <td class="py-2 text-right space-x-2">
                         <button onclick="editSupplierPayment(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
                         <button onclick="deleteSupplierPayment(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
@@ -2068,79 +2059,102 @@
                 </tr>`;
             });
 
-            renderReports();
+            // Render Payouts Table
+            const payBody = document.getElementById('payouts-table-body');
+            payBody.innerHTML = payouts.length === 0 ? `<tr><td colspan="4" class="text-gray-400 text-center py-4">No payouts recorded yet.</td></tr>` : '';
+            payouts.forEach((po, idx) => {
+                payBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2 text-gray-500">${po.date}</td>
+                    <td class="py-2 font-mono font-bold text-emerald-700">${formatMoney(po.amount)}</td>
+                    <td class="py-2 text-gray-600">${po.notes}</td>
+                    <td class="py-2 text-right space-x-2">
+                        <button onclick="editPayout(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
+                        <button onclick="deletePayout(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
+                    </td>
+                </tr>`;
+            });
+
+            // Render Catalog Table
+            const catBody = document.getElementById('items-table-body');
+            catBody.innerHTML = catalog.length === 0 ? `<tr><td colspan="6" class="text-gray-400 text-center py-4">No items in catalog.</td></tr>` : '';
+            catalog.forEach((item, idx) => {
+                catBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2 font-semibold text-gray-800">${item.name}</td>
+                    <td class="py-2 text-gray-600">${item.color}</td>
+                    <td class="py-2"><span class="px-2 py-0.5 bg-gray-100 rounded text-[10px] font-bold">${item.styleTag || 'Y2K'}</span></td>
+                    <td class="py-2 text-gray-600">${item.ageGroup || 'Adults'}</td>
+                    <td class="py-2 text-gray-600">${item.itemType || 'Other'}</td>
+                    <td class="py-2 text-right space-x-2">
+                        <button onclick="editItem(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
+                        <button onclick="deleteItem(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
+                    </td>
+                </tr>`;
+            });
+
+            // Render Top / Least Selling Items
+            let itemSalesCount = {};
+            sales.filter(s => (s.dispatchStatus || 'Pending') === 'Dispatched').forEach(s => {
+                itemSalesCount[s.item] = (itemSalesCount[s.item] || 0) + (parseInt(s.qty) || 0);
+            });
+            fleekOrders.filter(fo => (fo.status || 'Pending') === 'Dispatched').forEach(fo => {
+                itemSalesCount[fo.item] = (itemSalesCount[fo.item] || 0) + (parseInt(fo.qty) || 0);
+            });
+
+            let sortedItems = Object.keys(itemSalesCount).map(k => ({ name: k, qty: itemSalesCount[k] })).sort((a,b) => b.qty - a.qty);
+
+            const topList = document.getElementById('top-selling-list');
+            const leastList = document.getElementById('least-selling-list');
+
+            if(sortedItems.length === 0) {
+                topList.innerHTML = `<p class="text-xs text-gray-400 italic">No dispatched sales logged yet.</p>`;
+                leastList.innerHTML = `<p class="text-xs text-gray-400 italic">No dispatched sales logged yet.</p>`;
+            } else {
+                topList.innerHTML = sortedItems.slice(0, 3).map(i => `<div class="flex justify-between py-1 border-b border-gray-100"><span>🔥 ${i.name}</span><span class="font-mono font-bold text-gray-800">${i.qty} Pcs Sold</span></div>`).join('');
+                let reverseSorted = [...sortedItems].reverse();
+                leastList.innerHTML = reverseSorted.slice(0, 3).map(i => `<div class="flex justify-between py-1 border-b border-gray-100"><span>❄️ ${i.name}</span><span class="font-mono font-bold text-gray-800">${i.qty} Pcs Sold</span></div>`).join('');
+            }
         }
 
         function filterReports() {
-            renderReports();
-        }
-
-        function renderReports() {
-            const fromDate = document.getElementById('filter-from').value;
-            const toDate = document.getElementById('filter-to').value;
-            const searchTerm = document.getElementById('filter-search').value.trim().toLowerCase();
+            const from = document.getElementById('filter-from').value;
+            const to = document.getElementById('filter-to').value;
+            const search = document.getElementById('filter-search').value.trim().toLowerCase();
 
             let filteredSales = sales.filter(s => {
-                if(fromDate && s.date < fromDate) return false;
-                if(toDate && s.date > toDate) return false;
-                if(searchTerm && !s.item.toLowerCase().includes(searchTerm) && !s.customer.toLowerCase().includes(searchTerm)) return false;
-                return true;
+                let matchDate = (!from || s.date >= from) && (!to || s.date <= to);
+                let matchSearch = !search || s.customer.toLowerCase().includes(search) || s.item.toLowerCase().includes(search);
+                let isDispatched = (s.dispatchStatus || 'Pending') === 'Dispatched';
+                return matchDate && matchSearch && isDispatched;
             });
 
             let filteredFleek = fleekOrders.filter(fo => {
-                if(fromDate && fo.date < fromDate) return false;
-                if(toDate && fo.date > toDate) return false;
-                if(searchTerm && !fo.item.toLowerCase().includes(searchTerm) && !fo.customer.toLowerCase().includes(searchTerm)) return false;
-                return true;
+                let matchDate = (!from || fo.date >= from) && (!to || fo.date <= to);
+                let matchSearch = !search || fo.customer.toLowerCase().includes(search) || fo.item.toLowerCase().includes(search);
+                let isDispatched = (fo.status || 'Pending') === 'Dispatched';
+                return matchDate && matchSearch && isDispatched;
             });
 
-            let totalRev = filteredSales.reduce((a,b)=>a+(parseFloat(b.total)||0),0) + filteredFleek.reduce((a,b)=>a+(parseFloat(b.amount)||0),0);
-            let totalQty = filteredSales.reduce((a,b)=>a+(parseInt(b.qty)||0),0) + filteredFleek.reduce((a,b)=>a+(parseInt(b.qty)||0),0);
+            let totalRev = filteredSales.reduce((a,b)=>a+(parseFloat(b.total)||0), 0) + filteredFleek.reduce((a,b)=>a+(parseFloat(b.amount)||0), 0);
+            let totalCost = filteredSales.reduce((a,b)=>a+((parseFloat(b.cost)||0)*(parseFloat(b.qty)||0)), 0) + filteredFleek.reduce((a,b)=>a+((parseFloat(b.cost)||0)*(parseFloat(b.qty)||0)), 0);
+            let profit = totalRev - totalCost;
 
-            let resDiv = document.getElementById('report-results');
+            const resDiv = document.getElementById('report-results');
             resDiv.innerHTML = `
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                        <div class="text-xs text-gray-500 uppercase font-bold">Filtered Total Sales Revenue</div>
-                        <div class="text-xl font-bold font-mono text-emerald-700 mt-1">${formatMoney(totalRev)}</div>
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <div class="text-[10px] text-gray-500 uppercase font-bold">Filtered Revenue (Dispatched)</div>
+                        <div class="text-lg font-mono font-bold text-emerald-700">${formatMoney(totalRev)}</div>
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                        <div class="text-xs text-gray-500 uppercase font-bold">Filtered Total Items Sold</div>
-                        <div class="text-xl font-bold font-mono text-gray-800 mt-1">${totalQty} Pcs</div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <div class="text-[10px] text-gray-500 uppercase font-bold">Filtered Cost</div>
+                        <div class="text-lg font-mono font-bold text-red-600">-${formatMoney(totalCost)}</div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <div class="text-[10px] text-gray-500 uppercase font-bold">Filtered Profit</div>
+                        <div class="text-lg font-mono font-bold text-emerald-800">${formatMoney(profit)}</div>
                     </div>
                 </div>
-                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Matching General Sales Records (${filteredSales.length})</div>
-                <table class="w-full text-left text-xs mb-6">
-                    <thead>
-                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
-                            <th class="py-1">Date</th>
-                            <th class="py-1">Customer</th>
-                            <th class="py-1">Item</th>
-                            <th class="py-1">Qty</th>
-                            <th class="py-1">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${filteredSales.length === 0 ? `<tr><td colspan="5" class="text-gray-400 py-2">No matching general sales.</td></tr>` : 
-                          filteredSales.map(s => `<tr class="border-b border-gray-100 py-1"><td>${s.date}</td><td>${s.customer}</td><td>${s.item}</td><td>${s.qty}</td><td class="font-mono">${formatMoney(s.total)}</td></tr>`).join('')}
-                    </tbody>
-                </table>
-                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Matching Fleek Orders (${filteredFleek.length})</div>
-                <table class="w-full text-left text-xs">
-                    <thead>
-                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
-                            <th class="py-1">Date</th>
-                            <th class="py-1">Customer</th>
-                            <th class="py-1">Item</th>
-                            <th class="py-1">Qty</th>
-                            <th class="py-1">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${filteredFleek.length === 0 ? `<tr><td colspan="5" class="text-gray-400 py-2">No matching Fleek orders.</td></tr>` : 
-                          filteredFleek.map(fo => `<tr class="border-b border-gray-100 py-1"><td>${fo.date}</td><td>${fo.customer}</td><td>${fo.item}</td><td>${fo.qty}</td><td class="font-mono">${formatMoney(fo.amount)}</td></tr>`).join('')}
-                    </tbody>
-                </table>
+                <p class="text-xs text-gray-400 italic">Showing ${filteredSales.length} general sales and ${filteredFleek.length} Fleek orders matching criteria.</p>
             `;
         }
     </script>
