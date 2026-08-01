@@ -62,6 +62,9 @@
                 <button onclick="switchTab('items')" id="btn-items" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
                     <span>📦</span> Item Catalog
                 </button>
+                <button onclick="switchTab('inventory')" id="btn-inventory" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
+                    <span>🏬</span> Inventory / Stock
+                </button>
                 <button onclick="switchTab('reports')" id="btn-reports" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
                     <span>📈</span> Sales & Date Report
                 </button>
@@ -80,7 +83,7 @@
             </nav>
         </div>
         <div class="p-2 border-t border-gray-800 text-[10px] text-gray-500">
-            Usman Trade Ledger System v6.0
+            Usman Trade Ledger System v7.0
         </div>
     </aside>
 
@@ -119,6 +122,15 @@
 
         <!-- TAB 1: DASHBOARD -->
         <div id="tab-dashboard" class="tab-content space-y-6">
+            <!-- LOW STOCK ALERT PANEL (ONLY VISIBLE IF STOCK IS LOW) -->
+            <div id="low-stock-alert-panel" class="hidden bg-red-50 border border-red-200 p-4 rounded-xl card-shadow">
+                <h3 class="text-xs font-bold text-red-700 tracking-wider uppercase mb-2 flex items-center gap-2">
+                    ⚠️ Low Stock Warning (5 or fewer items remaining)
+                </h3>
+                <div id="low-stock-items-list" class="flex flex-wrap gap-2 text-xs">
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-6">
                 <div class="bg-white p-5 rounded-xl card-shadow">
                     <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-3">🔥 Top Selling Items</h3>
@@ -185,6 +197,33 @@
             </div>
         </div>
 
+        <!-- TAB: INVENTORY / STOCK MANAGER -->
+        <div id="tab-inventory" class="tab-content hidden space-y-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Inventory & Stock Status</h2>
+                    <p class="text-xs text-gray-500">Live quantity tracker calculated automatically from Purchases and Sales.</p>
+                </div>
+                <button onclick="openModal('adj-stock')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-indigo-700">⚙️ Manual Stock Adjustment</button>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                            <th class="py-2">Item Name</th>
+                            <th class="py-2">Available Quantity (Pcs)</th>
+                            <th class="py-2">Avg Unit Cost</th>
+                            <th class="py-2">Total Stock Value</th>
+                            <th class="py-2 text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- TAB 2: REPORTS -->
         <div id="tab-reports" class="tab-content hidden space-y-6">
             <h2 class="text-xl font-bold text-gray-800">Sales & Date Filter Report</h2>
@@ -244,6 +283,7 @@
                 </div>
             </div>
 
+            <!-- Purchase Records & Payments Table with EDIT & DELETE -->
             <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto space-y-4">
                 <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Purchase Records & Payments</h3>
                 <table class="w-full text-left text-xs">
@@ -257,6 +297,7 @@
                             <th class="py-2">Total Bill</th>
                             <th class="py-2">Amount Paid</th>
                             <th class="py-2">Pending Balance</th>
+                            <th class="py-2 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="purchases-table-body">
@@ -264,6 +305,7 @@
                 </table>
             </div>
 
+            <!-- Supplier Payment History Log Table with EDIT & DELETE -->
             <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto space-y-4">
                 <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Supplier Payment History Log</h3>
                 <table class="w-full text-left text-xs">
@@ -273,6 +315,7 @@
                             <th class="py-2">Supplier</th>
                             <th class="py-2">Payment Made</th>
                             <th class="py-2">Notes</th>
+                            <th class="py-2 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="supplier-payments-table-body">
@@ -301,7 +344,7 @@
                             <th class="py-2">Sale Price</th>
                             <th class="py-2">Total Sale</th>
                             <th class="py-2">Payment Status</th>
-                            <th class="py-2">Action</th>
+                            <th class="py-2 text-right">Action</th>
                         </tr>
                     </thead>
                     <tbody id="sales-table-body">
@@ -429,6 +472,30 @@
         </div>
     </div>
 
+    <!-- MODAL: MANUAL STOCK ADJUSTMENT -->
+    <div id="modal-adj-stock" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-bold">Manual Stock Adjustment</h3>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Select Item</label>
+                <select id="adj-item-select" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Additional Quantity (Pcs)</label>
+                <input type="number" id="adj-qty-input" value="10" placeholder="e.g. 20" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Unit Price / Cost</label>
+                <input type="number" id="adj-cost-input" value="0" placeholder="e.g. 500" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('adj-stock')" class="px-4 py-2 text-xs font-semibold text-gray-500">Cancel</button>
+                <button onclick="saveManualStock()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold">Save Adjustment</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: ADD SALE -->
     <div id="modal-sale" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
@@ -470,10 +537,11 @@
         </div>
     </div>
 
-    <!-- MODAL: ADD PURCHASE WITH SUPPLIER DROPDOWN -->
+    <!-- MODAL: ADD / EDIT PURCHASE -->
     <div id="modal-purchase" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
-            <h3 class="text-lg font-bold">Log Item Purchase</h3>
+            <h3 class="text-lg font-bold" id="pur-modal-title">Log Item Purchase</h3>
+            <input type="hidden" id="edit-pur-index" value="-1">
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Select Supplier</label>
                 <select id="pur-supplier-select" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
@@ -504,23 +572,22 @@
         </div>
     </div>
 
-    <!-- MODAL: RECORD SUPPLIER PAYMENT (WITH MANUAL SUPPLIER INPUT OPTION) -->
+    <!-- MODAL: RECORD / EDIT SUPPLIER PAYMENT -->
     <div id="modal-supp-payout" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
-            <h3 class="text-lg font-bold">Record Payment to Supplier</h3>
+            <h3 class="text-lg font-bold" id="spay-modal-title">Record Payment to Supplier</h3>
+            <input type="hidden" id="edit-spay-index" value="-1">
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Select Supplier</label>
                 <select id="spay-supplier-select" onchange="handleSupplierSelectChange()" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
                 </select>
             </div>
             
-            <!-- Manual Input Option -->
             <div id="manual-supp-container" class="hidden">
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Enter Supplier Name (Manual)</label>
                 <input type="text" id="spay-manual-name" placeholder="Type supplier name..." class="w-full border border-gray-300 rounded-lg p-2 text-sm">
             </div>
 
-            <!-- Dynamic Pending Display Box -->
             <div id="pending-display-box" class="p-3 bg-red-50 border border-red-200 rounded-lg flex justify-between items-center text-xs">
                 <span class="text-red-700 font-semibold">Current Total Pending:</span>
                 <span id="supp-calculated-pending" class="font-mono font-bold text-red-800 text-sm">0.00</span>
@@ -608,22 +675,11 @@
         ];
 
         let catalog = JSON.parse(localStorage.getItem('usman_catalog')) || defaultItems;
-        
-        // Load suppliers with object structure migration
-        let rawSuppliers = JSON.parse(localStorage.getItem('usman_suppliers_v2'));
-        if(!rawSuppliers) {
-            let oldSupps = JSON.parse(localStorage.getItem('usman_suppliers')) || [];
-            if(oldSupps.length > 0) {
-                rawSuppliers = oldSupps.map(s => typeof s === 'string' ? { name: s, phone: '-', address: '-' } : s);
-            } else {
-                rawSuppliers = defaultSuppliersObj;
-            }
-        }
-        let suppliers = rawSuppliers;
-
+        let suppliers = JSON.parse(localStorage.getItem('usman_suppliers_v2')) || defaultSuppliersObj;
         let sales = JSON.parse(localStorage.getItem('usman_sales')) || [];
         let purchases = JSON.parse(localStorage.getItem('usman_purchases')) || [];
         let supplierPayments = JSON.parse(localStorage.getItem('usman_supp_payments')) || [];
+        let manualStock = JSON.parse(localStorage.getItem('usman_manual_stock')) || [];
         let expenses = JSON.parse(localStorage.getItem('usman_expenses')) || [];
         let payouts = JSON.parse(localStorage.getItem('usman_payouts')) || [];
         let partnerPct = parseFloat(localStorage.getItem('usman_partner_pct')) || 25;
@@ -643,17 +699,19 @@
         }
 
         function initDropdowns() {
-            // Items
             const sSelect = document.getElementById('sale-item-select');
             const pSelect = document.getElementById('pur-item-select');
-            sSelect.innerHTML = ''; pSelect.innerHTML = '';
+            const adjSelect = document.getElementById('adj-item-select');
+            
+            sSelect.innerHTML = ''; pSelect.innerHTML = ''; adjSelect.innerHTML = '';
+            
             catalog.forEach(item => {
                 let label = `${item.name} (${item.color})`;
                 sSelect.innerHTML += `<option value="${label}">${label}</option>`;
                 pSelect.innerHTML += `<option value="${label}">${label}</option>`;
+                adjSelect.innerHTML += `<option value="${label}">${label}</option>`;
             });
 
-            // Suppliers
             const purSuppSelect = document.getElementById('pur-supplier-select');
             const spaySuppSelect = document.getElementById('spay-supplier-select');
             purSuppSelect.innerHTML = ''; spaySuppSelect.innerHTML = '';
@@ -663,7 +721,6 @@
                 spaySuppSelect.innerHTML += `<option value="${supp.name}">${supp.name}</option>`;
             });
 
-            // Add Manual Option for Supplier Payment
             spaySuppSelect.innerHTML += `<option value="__MANUAL__">➕ Other / Manual Supplier</option>`;
 
             document.getElementById('partner-pct-input').value = partnerPct;
@@ -692,7 +749,7 @@
             el.classList.remove('flex'); 
         }
 
-        // SUPPLIER MANAGEMENT WITH EDIT & DELETE
+        // SUPPLIERS EDIT / DELETE
         function saveSupplier() {
             const name = document.getElementById('supp-name-input').value.trim();
             const phone = document.getElementById('supp-phone-input').value.trim() || '-';
@@ -730,7 +787,7 @@
         }
 
         function deleteSupplier(index) {
-            if(confirm(`کشت کیا آپ (${suppliers[index].name}) کو ڈیلیٹ کرنا چاہتے ہیں؟`)) {
+            if(confirm(`کیا آپ (${suppliers[index].name}) کو ڈیلیٹ کرنا چاہتے ہیں؟`)) {
                 suppliers.splice(index, 1);
                 localStorage.setItem('usman_suppliers_v2', JSON.stringify(suppliers));
                 initDropdowns();
@@ -762,6 +819,112 @@
                 let pending = calculateSupplierPending(val);
                 document.getElementById('supp-calculated-pending').innerText = formatMoney(pending);
             }
+        }
+
+        // PURCHASES EDIT & DELETE
+        function savePurchase() {
+            const supplier = document.getElementById('pur-supplier-select').value || "General Supplier";
+            const item = document.getElementById('pur-item-select').value;
+            const qty = parseInt(document.getElementById('pur-qty').value) || 0;
+            const cost = parseFloat(document.getElementById('pur-cost').value) || 0;
+            const paid = parseFloat(document.getElementById('pur-paid').value) || 0;
+            const total = qty * cost;
+            const index = parseInt(document.getElementById('edit-pur-index').value);
+
+            if(qty <= 0) return alert("Sahi quantity likhein!");
+
+            if(index >= 0) {
+                purchases[index] = { ...purchases[index], supplier, item, qty, cost, total, paid };
+            } else {
+                purchases.push({ date: new Date().toISOString().slice(0,10), supplier, item, qty, cost, total, paid });
+            }
+
+            localStorage.setItem('usman_purchases', JSON.stringify(purchases));
+            document.getElementById('edit-pur-index').value = '-1';
+            document.getElementById('pur-modal-title').innerText = "Log Item Purchase";
+            closeModal('purchase');
+            updateUI();
+        }
+
+        function editPurchase(index) {
+            let p = purchases[index];
+            document.getElementById('pur-modal-title').innerText = "Edit Purchase Record";
+            document.getElementById('pur-supplier-select').value = p.supplier;
+            document.getElementById('pur-item-select').value = p.item;
+            document.getElementById('pur-qty').value = p.qty;
+            document.getElementById('pur-cost').value = p.cost;
+            document.getElementById('pur-paid').value = p.paid;
+            document.getElementById('edit-pur-index').value = index;
+            openModal('purchase');
+        }
+
+        function deletePurchase(index) {
+            if(confirm("Kya aap is purchase record ko delete karna chahte hain?")) {
+                purchases.splice(index, 1);
+                localStorage.setItem('usman_purchases', JSON.stringify(purchases));
+                updateUI();
+            }
+        }
+
+        // SUPPLIER PAYMENTS EDIT & DELETE
+        function saveSupplierPayment() {
+            const selectVal = document.getElementById('spay-supplier-select').value;
+            let supplier = selectVal;
+            if(selectVal === '__MANUAL__') {
+                supplier = document.getElementById('spay-manual-name').value.trim();
+                if(!supplier) return alert("سپلائر کا نام لکھیں!");
+            }
+
+            const amount = parseFloat(document.getElementById('spay-amount').value) || 0;
+            const notes = document.getElementById('spay-notes').value || "Payment";
+            const index = parseInt(document.getElementById('edit-spay-index').value);
+
+            if(amount <= 0) return alert("Sahi Payment amount likhein!");
+
+            if(index >= 0) {
+                supplierPayments[index] = { ...supplierPayments[index], supplier, amount, notes };
+            } else {
+                supplierPayments.push({ date: new Date().toISOString().slice(0,10), supplier, amount, notes });
+            }
+
+            localStorage.setItem('usman_supp_payments', JSON.stringify(supplierPayments));
+            document.getElementById('spay-manual-name').value = '';
+            document.getElementById('edit-spay-index').value = '-1';
+            document.getElementById('spay-modal-title').innerText = "Record Payment to Supplier";
+            closeModal('supp-payout');
+            updateUI();
+        }
+
+        function editSupplierPayment(index) {
+            let sp = supplierPayments[index];
+            document.getElementById('spay-modal-title').innerText = "Edit Supplier Payment";
+            document.getElementById('spay-supplier-select').value = sp.supplier;
+            document.getElementById('spay-amount').value = sp.amount;
+            document.getElementById('spay-notes').value = sp.notes;
+            document.getElementById('edit-spay-index').value = index;
+            openModal('supp-payout');
+        }
+
+        function deleteSupplierPayment(index) {
+            if(confirm("Kya aap is supplier payment record ko delete karna chahte hain?")) {
+                supplierPayments.splice(index, 1);
+                localStorage.setItem('usman_supp_payments', JSON.stringify(supplierPayments));
+                updateUI();
+            }
+        }
+
+        // MANUAL STOCK ADJUSTMENT
+        function saveManualStock() {
+            const item = document.getElementById('adj-item-select').value;
+            const qty = parseInt(document.getElementById('adj-qty-input').value) || 0;
+            const cost = parseFloat(document.getElementById('adj-cost-input').value) || 0;
+
+            if(qty === 0) return alert("Enter valid quantity!");
+
+            manualStock.push({ item, qty, cost });
+            localStorage.setItem('usman_manual_stock', JSON.stringify(manualStock));
+            closeModal('adj-stock');
+            updateUI();
         }
 
         // ITEM CATALOG FUNCTIONS
@@ -804,7 +967,7 @@
             }
         }
 
-        // SAVING FUNCTIONS
+        // SALES SAVING
         function saveSale() {
             const customer = document.getElementById('sale-customer').value || "General";
             const item = document.getElementById('sale-item-select').value;
@@ -824,42 +987,6 @@
         function toggleSaleStatus(id) {
             sales = sales.map(s => s.id === id ? { ...s, status: s.status === 'Paid' ? 'Pending' : 'Paid' } : s);
             localStorage.setItem('usman_sales', JSON.stringify(sales));
-            updateUI();
-        }
-
-        function savePurchase() {
-            const supplier = document.getElementById('pur-supplier-select').value || "General Supplier";
-            const item = document.getElementById('pur-item-select').value;
-            const qty = parseInt(document.getElementById('pur-qty').value) || 0;
-            const cost = parseFloat(document.getElementById('pur-cost').value) || 0;
-            const paid = parseFloat(document.getElementById('pur-paid').value) || 0;
-            const total = qty * cost;
-
-            purchases.push({ date: new Date().toISOString().slice(0,10), supplier, item, qty, cost, total, paid });
-            localStorage.setItem('usman_purchases', JSON.stringify(purchases));
-            closeModal('purchase');
-            updateUI();
-        }
-
-        function saveSupplierPayment() {
-            const selectVal = document.getElementById('spay-supplier-select').value;
-            let supplier = selectVal;
-            
-            if(selectVal === '__MANUAL__') {
-                supplier = document.getElementById('spay-manual-name').value.trim();
-                if(!supplier) return alert("سپلائر کا نام لکھیں!");
-            }
-
-            const amount = parseFloat(document.getElementById('spay-amount').value) || 0;
-            const notes = document.getElementById('spay-notes').value || "Payment";
-
-            if(amount <= 0) return alert("Sahi Payment amount likhein!");
-
-            supplierPayments.push({ date: new Date().toISOString().slice(0,10), supplier, amount, notes });
-            localStorage.setItem('usman_supp_payments', JSON.stringify(supplierPayments));
-            
-            document.getElementById('spay-manual-name').value = '';
-            closeModal('supp-payout');
             updateUI();
         }
 
@@ -919,10 +1046,73 @@
             document.getElementById('partner-total-paid-display').innerText = formatMoney(totalPaidPartner);
             document.getElementById('partner-pending-balance-display').innerText = formatMoney(partnerPending);
 
-            // Render Suppliers Directory Table
+            // CALCULATE INVENTORY
+            let inventory = {};
+            catalog.forEach(item => {
+                let label = `${item.name} (${item.color})`;
+                inventory[label] = { qty: 0, totalCost: 0, avgCost: 0 };
+            });
+
+            purchases.forEach(p => {
+                if(!inventory[p.item]) inventory[p.item] = { qty: 0, totalCost: 0, avgCost: 0 };
+                inventory[p.item].qty += (parseInt(p.qty)||0);
+                inventory[p.item].totalCost += (parseFloat(p.total)||0);
+            });
+
+            manualStock.forEach(m => {
+                if(!inventory[m.item]) inventory[m.item] = { qty: 0, totalCost: 0, avgCost: 0 };
+                inventory[m.item].qty += (parseInt(m.qty)||0);
+                inventory[m.item].totalCost += ((parseInt(m.qty)||0) * (parseFloat(m.cost)||0));
+            });
+
+            sales.forEach(s => {
+                if(inventory[s.item]) {
+                    inventory[s.item].qty -= (parseInt(s.qty)||0);
+                }
+            });
+
+            // RENDER INVENTORY TABLE & LOW STOCK ALERT
+            const invBody = document.getElementById('inventory-table-body');
+            invBody.innerHTML = '';
+            let lowStockItems = [];
+
+            Object.keys(inventory).forEach(key => {
+                let itemData = inventory[key];
+                let currentQty = itemData.qty;
+                let avgCost = currentQty > 0 && itemData.totalCost > 0 ? (itemData.totalCost / (currentQty + sales.filter(s=>s.item===key).reduce((a,b)=>a+(parseInt(b.qty)||0),0))) : 0;
+                let stockVal = currentQty * avgCost;
+
+                let isLow = currentQty <= 5;
+                if(isLow) {
+                    lowStockItems.push({ name: key, qty: currentQty });
+                }
+
+                invBody.innerHTML += `<tr class="border-b border-gray-100 py-2 ${isLow ? 'bg-red-50/50' : ''}">
+                    <td class="py-2 font-semibold text-gray-800">${key}</td>
+                    <td class="py-2 font-mono font-bold ${isLow ? 'text-red-600' : 'text-gray-700'}">${currentQty} Pcs</td>
+                    <td class="py-2 font-mono text-gray-600">${formatMoney(avgCost)}</td>
+                    <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(stockVal)}</td>
+                    <td class="py-2 text-right">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isLow ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
+                            ${isLow ? '⚠️ LOW STOCK' : 'IN STOCK'}
+                        </span>
+                    </td>
+                </tr>`;
+            });
+
+            // DASHBOARD LOW STOCK HIGHLIGHT PANEL
+            const lowPanel = document.getElementById('low-stock-alert-panel');
+            const lowList = document.getElementById('low-stock-items-list');
+            if(lowStockItems.length > 0) {
+                lowPanel.classList.remove('hidden');
+                lowList.innerHTML = lowStockItems.map(i => `<span class="px-2 py-1 bg-red-100 text-red-800 font-semibold rounded border border-red-300">${i.name} (<strong>${i.qty} remaining</strong>)</span>`).join('');
+            } else {
+                lowPanel.classList.add('hidden');
+            }
+
+            // Suppliers Directory Table
             const suppTableBody = document.getElementById('suppliers-table-body');
             suppTableBody.innerHTML = suppliers.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No suppliers added yet.</td></tr>` : '';
-            
             suppliers.forEach((s, idx) => {
                 let p = calculateSupplierPending(s.name);
                 suppTableBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
@@ -951,11 +1141,10 @@
                 </tr>`;
             });
 
-            // Render Purchases
+            // Purchases Table WITH EDIT & DELETE
             const pBody = document.getElementById('purchases-table-body');
-            pBody.innerHTML = purchases.length === 0 ? `<tr><td colspan="8" class="text-gray-400 text-center py-4">No purchases logged.</td></tr>` : '';
-            
-            purchases.forEach(p => {
+            pBody.innerHTML = purchases.length === 0 ? `<tr><td colspan="9" class="text-gray-400 text-center py-4">No purchases logged.</td></tr>` : '';
+            purchases.forEach((p, idx) => {
                 let pPaid = parseFloat(p.paid) || 0;
                 let pTotal = parseFloat(p.total) || 0;
                 let totalSuppPaid = supplierPayments.filter(sp => sp.supplier && sp.supplier.toLowerCase() === (p.supplier||'').toLowerCase()).reduce((a,b) => a + (parseFloat(b.amount)||0), 0);
@@ -970,18 +1159,26 @@
                     <td class="py-2 font-mono font-bold">${formatMoney(pTotal)}</td>
                     <td class="py-2 font-mono text-emerald-700 font-semibold">${formatMoney(pPaid + totalSuppPaid)}</td>
                     <td class="py-2 font-mono font-bold ${overallPending > 0 ? 'text-red-600' : 'text-gray-500'}">${formatMoney(overallPending)}</td>
+                    <td class="py-2 text-right space-x-2">
+                        <button onclick="editPurchase(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
+                        <button onclick="deletePurchase(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
+                    </td>
                 </tr>`;
             });
 
-            // Render Supplier Payment Log
+            // Supplier Payment History Log WITH EDIT & DELETE
             const spBody = document.getElementById('supplier-payments-table-body');
-            spBody.innerHTML = supplierPayments.length === 0 ? `<tr><td colspan="4" class="text-gray-400 text-center py-4">No supplier payments logged.</td></tr>` : '';
-            supplierPayments.forEach(sp => {
+            spBody.innerHTML = supplierPayments.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No supplier payments logged.</td></tr>` : '';
+            supplierPayments.forEach((sp, idx) => {
                 spBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2">${sp.date}</td>
                     <td class="py-2 font-semibold">${sp.supplier}</td>
                     <td class="py-2 font-mono font-bold text-emerald-700">${formatMoney(sp.amount)}</td>
                     <td class="py-2 text-gray-500">${sp.notes}</td>
+                    <td class="py-2 text-right space-x-2">
+                        <button onclick="editSupplierPayment(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
+                        <button onclick="deleteSupplierPayment(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
+                    </td>
                 </tr>`;
             });
 
@@ -1001,7 +1198,7 @@
                             ${s.status}
                         </span>
                     </td>
-                    <td class="py-2">
+                    <td class="py-2 text-right">
                         <button onclick="toggleSaleStatus(${s.id})" class="text-[10px] underline text-gray-600 hover:text-black">Change Status</button>
                     </td>
                 </tr>`;
