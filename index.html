@@ -1447,7 +1447,7 @@
         }
 
         function deletePayout(index) {
-            if(confirm("کیا آپ اس پے آؤٹ کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
+            if(confirm("Are you sure you want to delete this Fleek order?")) {
                 payouts.splice(index, 1);
                 localStorage.setItem('usman_payouts', JSON.stringify(payouts));
                 updateUI();
