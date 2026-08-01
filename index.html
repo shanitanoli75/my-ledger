@@ -109,7 +109,7 @@
             </nav>
         </div>
         <div class="p-2 border-t border-gray-800 flex justify-between items-center text-[10px] text-gray-500">
-            <span>Usman Trade v8.1</span>
+            <span>Usman Trade v8.2</span>
             <div class="space-x-2">
                 <button onclick="openModal('change-pass')" class="text-amber-400 hover:underline">Change Pass</button>
                 <button onclick="handleLogout()" class="text-red-400 hover:underline">Logout</button>
@@ -349,7 +349,38 @@
                 </div>
                 <button onclick="openModal('sale')" class="bg-[#121816] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-gray-800">+ Log New Sale</button>
             </div>
+            
+            <!-- FLEEK ORDERS & DISPATCH SUB-SECTION -->
+            <div class="bg-white p-6 rounded-xl card-shadow space-y-4 border-l-4 border-amber-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wide">📦 Fleek App Orders & Dispatch Status</h3>
+                        <p class="text-xs text-gray-500">Manage orders coming from Fleek app. Keep track of pending dispatches.</p>
+                    </div>
+                    <button onclick="openModal('fleek-order')" class="bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-700">+ Add Fleek Order</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                                <th class="py-2">Date</th>
+                                <th class="py-2">Order ID / Customer</th>
+                                <th class="py-2">Item Details</th>
+                                <th class="py-2">Qty</th>
+                                <th class="py-2">Amount</th>
+                                <th class="py-2">Dispatch Status</th>
+                                <th class="py-2 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fleek-orders-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Standard Sales Table -->
             <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">General Sales Records</h3>
                 <table class="w-full text-left text-xs">
                     <thead>
                         <tr class="border-b border-gray-200 text-gray-400 uppercase">
@@ -471,6 +502,43 @@
     </main>
 
     <!-- MODALS SECTION -->
+    <!-- MODAL: ADD / EDIT FLEEK ORDER -->
+    <div id="modal-fleek-order" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-bold" id="fleek-modal-title">Add Fleek Order</h3>
+            <input type="hidden" id="edit-fleek-index" value="-1">
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Order ID / Customer Name</label>
+                <input type="text" id="fleek-customer" placeholder="e.g. Fleek #1023 - John" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Item Details</label>
+                <input type="text" id="fleek-item" placeholder="e.g. Baby Tees (White)" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Quantity</label>
+                    <input type="number" id="fleek-qty" value="1" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Total Amount</label>
+                    <input type="number" id="fleek-amount" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Dispatch Status</label>
+                <select id="fleek-status" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                    <option value="Pending">Pending (Not Dispatched)</option>
+                    <option value="Dispatched">Dispatched</option>
+                </select>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('fleek-order')" class="px-4 py-2 text-xs font-semibold text-gray-500">Cancel</button>
+                <button onclick="saveFleekOrder()" class="px-4 py-2 bg-amber-600 text-white rounded-lg text-xs font-semibold">Save Order</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: ADD / EDIT USER -->
     <div id="modal-user-form" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
@@ -635,7 +703,7 @@
             <input type="hidden" id="edit-sale-index" value="-1">
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Customer / Client Name</label>
-                <input type="text" id="sale-customer" placeholder="e.g. Fleck, Usman, etc." class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                <input type="text" id="sale-customer" placeholder="e.g. Usman, etc." class="w-full border border-gray-300 rounded-lg p-2 text-sm">
             </div>
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Select Item</label>
@@ -823,6 +891,7 @@
         let catalog = JSON.parse(localStorage.getItem('usman_catalog')) || defaultItems;
         let suppliers = JSON.parse(localStorage.getItem('usman_suppliers_v2')) || defaultSuppliersObj;
         let sales = JSON.parse(localStorage.getItem('usman_sales')) || [];
+        let fleekOrders = JSON.parse(localStorage.getItem('usman_fleek_orders')) || [];
         let purchases = JSON.parse(localStorage.getItem('usman_purchases')) || [];
         let supplierPayments = JSON.parse(localStorage.getItem('usman_supp_payments')) || [];
         let manualStock = JSON.parse(localStorage.getItem('usman_manual_stock')) || [];
@@ -841,7 +910,6 @@
         function resetInactivityTimer() {
             clearTimeout(inactivityTimer);
             if(localStorage.getItem('usman_logged_in') === 'true') {
-                // 5 minutes = 300,000 milliseconds
                 inactivityTimer = setTimeout(() => {
                     alert("سسٹم پر 5 منٹ تک کوئی سرگرمی نہ ہونے کی وجہ سے آپ کو آٹو لاگ آؤٹ کر دیا گیا ہے!");
                     handleLogout();
@@ -849,7 +917,6 @@
             }
         }
 
-        // Track user mouse movements, clicks and keypresses to reset timer
         window.onload = () => {
             ['mousemove', 'keydown', 'click', 'scroll'].forEach(evt => {
                 window.addEventListener(evt, resetInactivityTimer);
@@ -915,7 +982,6 @@
             if(!uData) return;
 
             let allowed = uData.permissions || [];
-            // Always allow users & permissions tab for management or hide it if needed. Let's hide 'users' tab for sub-users unless specified.
             allNavBtns.forEach(b => {
                 let tabName = b.id.replace('btn-', '');
                 if(tabName === 'users') {
@@ -927,7 +993,6 @@
                 }
             });
 
-            // Switch to first allowed tab
             if(allowed.length > 0) {
                 switchTab(allowed[0]);
             }
@@ -1084,6 +1149,60 @@
             const el = document.getElementById('modal-' + id);
             el.classList.add('hidden'); 
             el.classList.remove('flex'); 
+        }
+
+        // FLEEK ORDERS FUNCTIONS
+        function saveFleekOrder() {
+            const customer = document.getElementById('fleek-customer').value.trim() || "Fleek Order";
+            const item = document.getElementById('fleek-item').value.trim() || "General Item";
+            const qty = parseInt(document.getElementById('fleek-qty').value) || 1;
+            const amount = parseFloat(document.getElementById('fleek-amount').value) || 0;
+            const status = document.getElementById('fleek-status').value;
+            const index = parseInt(document.getElementById('edit-fleek-index').value);
+
+            if(!customer) return alert("آرڈر آئی ڈی یا کسٹمر کا نام درج کریں!");
+
+            if(index >= 0) {
+                fleekOrders[index] = { ...fleekOrders[index], customer, item, qty, amount, status };
+            } else {
+                fleekOrders.push({ id: Date.now(), date: new Date().toISOString().slice(0,10), customer, item, qty, amount, status });
+            }
+
+            localStorage.setItem('usman_fleek_orders', JSON.stringify(fleekOrders));
+            document.getElementById('edit-fleek-index').value = '-1';
+            document.getElementById('fleek-modal-title').innerText = "Add Fleek Order";
+            document.getElementById('fleek-customer').value = '';
+            document.getElementById('fleek-item').value = '';
+            document.getElementById('fleek-qty').value = '1';
+            document.getElementById('fleek-amount').value = '0';
+            closeModal('fleek-order');
+            updateUI();
+        }
+
+        function editFleekOrder(index) {
+            let fo = fleekOrders[index];
+            document.getElementById('fleek-modal-title').innerText = "Edit Fleek Order";
+            document.getElementById('fleek-customer').value = fo.customer;
+            document.getElementById('fleek-item').value = fo.item;
+            document.getElementById('fleek-qty').value = fo.qty;
+            document.getElementById('fleek-amount').value = fo.amount;
+            document.getElementById('fleek-status').value = fo.status;
+            document.getElementById('edit-fleek-index').value = index;
+            openModal('fleek-order');
+        }
+
+        function deleteFleekOrder(index) {
+            if(confirm("کیا آپ اس فلییک آرڈر کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
+                fleekOrders.splice(index, 1);
+                localStorage.setItem('usman_fleek_orders', JSON.stringify(fleekOrders));
+                updateUI();
+            }
+        }
+
+        function toggleFleekStatus(index) {
+            fleekOrders[index].status = fleekOrders[index].status === 'Dispatched' ? 'Pending' : 'Dispatched';
+            localStorage.setItem('usman_fleek_orders', JSON.stringify(fleekOrders));
+            updateUI();
         }
 
         // SALES EDIT & DELETE
@@ -1670,6 +1789,28 @@
                 </tr>`;
             });
 
+            // Render Fleek Orders Table
+            const foBody = document.getElementById('fleek-orders-table-body');
+            foBody.innerHTML = fleekOrders.length === 0 ? `<tr><td colspan="7" class="text-gray-400 text-center py-4">No Fleek orders logged.</td></tr>` : '';
+            fleekOrders.forEach((fo, idx) => {
+                foBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2">${fo.date}</td>
+                    <td class="py-2 font-semibold">${fo.customer}</td>
+                    <td class="py-2">${fo.item}</td>
+                    <td class="py-2 font-mono">${fo.qty}</td>
+                    <td class="py-2 font-mono font-bold">${formatMoney(fo.amount)}</td>
+                    <td class="py-2">
+                        <button onclick="toggleFleekStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${fo.status === 'Dispatched' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                            ${fo.status}
+                        </button>
+                    </td>
+                    <td class="py-2 text-right space-x-2">
+                        <button onclick="editFleekOrder(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
+                        <button onclick="deleteFleekOrder(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
+                    </td>
+                </tr>`;
+            });
+
             const sBody = document.getElementById('sales-table-body');
             sBody.innerHTML = sales.length === 0 ? `<tr><td colspan="8" class="text-gray-400 text-center py-4">No sales logged.</td></tr>` : '';
             sales.forEach((s, idx) => {
@@ -1777,7 +1918,7 @@
             });
 
             const spBody = document.getElementById('supplier-payments-table-body');
-            spBody.innerHTML = supplierPayments.length ===`<tr><td colspan="5" class="text-gray-400 text-center py-4">No supplier payments logged.</td></tr>` ? `` : '';
+            spBody.innerHTML = supplierPayments.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No supplier payments logged.</td></tr>` : '';
             supplierPayments.forEach((sp, idx) => {
                 spBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2">${sp.date}</td>
