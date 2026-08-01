@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ur">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1327,7 +1327,7 @@
             const dispatchStatus = document.getElementById('sale-dispatch-status').value;
             const index = parseInt(document.getElementById('edit-sale-index').value);
 
-            if(qty <= 0 || price <= 0) return alert("Quantity اور Price درج کریں!");
+            if(qty <= 0 || price <= 0) return alert("Please enter correct quantity and price!");
 
             if(index >= 0) {
                 sales[index] = { ...sales[index], customer, item, qty, cost, price, total: qty * price, status, dispatchStatus };
@@ -1381,7 +1381,7 @@
             const amount = parseFloat(document.getElementById('exp-amount').value) || 0;
             const index = parseInt(document.getElementById('edit-exp-index').value);
 
-            if(amount <= 0) return alert("درست رقم درج کریں!");
+            if(amount <= 0) return alert("Please enter a correct amount!");
 
             if(index >= 0) {
                 expenses[index] = { ...expenses[index], title, amount };
@@ -1408,7 +1408,7 @@
         }
 
         function deleteExpense(index) {
-            if(confirm("کیا آپ اس ایکسپینس کو ڈیلیٹ کرنا چاہتے हैं؟")) {
+            if(confirm("Are you sure you want to delete this expense?")) {
                 expenses.splice(index, 1);
                 localStorage.setItem('usman_expenses', JSON.stringify(expenses));
                 updateUI();
@@ -1420,7 +1420,7 @@
             const notes = document.getElementById('pay-notes').value || "Payout";
             const index = parseInt(document.getElementById('edit-pay-index').value);
 
-            if(amount <= 0) return alert("درست رقم درج کریں!");
+            if(amount <= 0) return alert("Please enter a correct amount!");
 
             if(index >= 0) {
                 payouts[index] = { ...payouts[index], amount, notes };
@@ -1447,7 +1447,7 @@
         }
 
         function deletePayout(index) {
-            if(confirm("Are you sure you want to delete this Fleek order?")) {
+            if(confirm("Are you sure you want to delete this payout record?")) {
                 payouts.splice(index, 1);
                 localStorage.setItem('usman_payouts', JSON.stringify(payouts));
                 updateUI();
@@ -1492,7 +1492,7 @@
         }
 
         function deleteStock(itemKey) {
-            if(confirm(`کیا آپ (${itemKey}) کی تمام مینوئل اسٹاک اینٹریز ڈیلیٹ کرنا چاہتے ہیں؟`)) {
+            if(confirm(`Are you sure you want to delete all manual stock entries for (${itemKey})?`)) {
                 manualStock = manualStock.filter(m => m.item !== itemKey);
                 localStorage.setItem('usman_manual_stock', JSON.stringify(manualStock));
                 updateUI();
@@ -1505,7 +1505,7 @@
             const address = document.getElementById('supp-address-input').value.trim() || '-';
             const index = parseInt(document.getElementById('edit-supp-index').value);
 
-            if(!name) return alert("سپلائر کا نام درج کریں!");
+            if(!name) return alert("Please enter the supplier name!");
 
             if(index >= 0) {
                 suppliers[index] = { name, phone, address };
@@ -1535,7 +1535,7 @@
         }
 
         function deleteSupplier(index) {
-            if(confirm(`کیا آپ (${suppliers[index].name}) کو ڈیلیٹ کرنا چاہتے ہیں؟`)) {
+            if(confirm(`Are you sure you want to delete (${suppliers[index].name})?`)) {
                 suppliers.splice(index, 1);
                 localStorage.setItem('usman_suppliers_v2', JSON.stringify(suppliers));
                 initDropdowns();
@@ -1578,7 +1578,7 @@
             const total = qty * cost;
             const index = parseInt(document.getElementById('edit-pur-index').value);
 
-            if(qty <= 0) return alert("درست کوانٹٹی لکھیں!");
+            if(qty <= 0) return alert("Please enter a correct quantity!");
 
             if(index >= 0) {
                 purchases[index] = { ...purchases[index], supplier, item, qty, cost, total, paid };
@@ -1606,7 +1606,7 @@
         }
 
         function deletePurchase(index) {
-            if(confirm("کیا آپ اس پرچیز ریکارڈ کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
+            if(confirm("Are you sure you want to delete this purchase record?")) {
                 purchases.splice(index, 1);
                 localStorage.setItem('usman_purchases', JSON.stringify(purchases));
                 updateUI();
@@ -1618,14 +1618,14 @@
             let supplier = selectVal;
             if(selectVal === '__MANUAL__') {
                 supplier = document.getElementById('spay-manual-name').value.trim();
-                if(!supplier) return alert("سپلائر کا نام لکھیں!");
+                if(!supplier) return alert("Please enter the supplier name!");
             }
 
             const amount = parseFloat(document.getElementById('spay-amount').value) || 0;
             const notes = document.getElementById('spay-notes').value || "Payment";
             const index = parseInt(document.getElementById('edit-spay-index').value);
 
-            if(amount <= 0) return alert("درست رقم درج کریں!");
+            if(amount <= 0) return alert("Please enter a correct amount!");
 
             if(index >= 0) {
                 supplierPayments[index] = { ...supplierPayments[index], supplier, amount, notes };
@@ -1652,7 +1652,7 @@
         }
 
         function deleteSupplierPayment(index) {
-            if(confirm("کیا آپ اس سپلائر پیمنٹ کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
+            if(confirm("Are you sure you want to delete this supplier payment?")) {
                 supplierPayments.splice(index, 1);
                 localStorage.setItem('usman_supp_payments', JSON.stringify(supplierPayments));
                 updateUI();
@@ -1667,7 +1667,7 @@
             const itemType = document.getElementById('item-type-input').value;
             const index = parseInt(document.getElementById('edit-item-index').value);
 
-            if(!name) return alert("آئٹم کا نام ضروری ہے!");
+            if(!name) return alert("Item name is required!");
 
             if(index >= 0) {
                 catalog[index] = { name, color, styleTag, ageGroup, itemType };
@@ -1699,7 +1699,7 @@
         }
 
         function deleteItem(index) {
-            if(confirm("کیا آپ اس آئٹم کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
+            if(confirm("Are you sure you want to delete this item?")) {
                 catalog.splice(index, 1);
                 localStorage.setItem('usman_catalog', JSON.stringify(catalog));
                 initDropdowns();
@@ -2029,12 +2029,12 @@
 
                 purBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2 text-gray-500">${p.date}</td>
-                    <td class="py-2 font-semibold text-gray-800">${p.supplier || 'General'}</td>
+                    <td class="py-2 font-semibold text-gray-800">${p.supplier}</td>
                     <td class="py-2 text-gray-600">${p.item}</td>
                     <td class="py-2 font-mono">${p.qty} Pcs</td>
                     <td class="py-2 font-mono">${formatMoney(p.cost)}</td>
                     <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(totalBill)}</td>
-                    <td class="py-2 font-mono text-emerald-700">${formatMoney(paidAmt)}</td>
+                    <td class="py-2 font-mono text-emerald-600">${formatMoney(paidAmt)}</td>
                     <td class="py-2 font-mono font-bold text-red-600">${formatMoney(bal)}</td>
                     <td class="py-2 text-right space-x-2">
                         <button onclick="editPurchase(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
@@ -2044,13 +2044,13 @@
             });
 
             // Render Supplier Payments Table
-            const spayBody = document.getElementById('supplier-payments-table-body');
-            spayBody.innerHTML = supplierPayments.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No supplier payments recorded yet.</td></tr>` : '';
+            const spBody = document.getElementById('supplier-payments-table-body');
+            spBody.innerHTML = supplierPayments.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No supplier payments recorded yet.</td></tr>` : '';
             supplierPayments.forEach((sp, idx) => {
-                spayBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                spBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2 text-gray-500">${sp.date}</td>
                     <td class="py-2 font-semibold text-gray-800">${sp.supplier}</td>
-                    <td class="py-2 font-mono font-bold text-amber-700">${formatMoney(sp.amount)}</td>
+                    <td class="py-2 font-mono font-bold text-emerald-600">${formatMoney(sp.amount)}</td>
                     <td class="py-2 text-gray-600">${sp.notes}</td>
                     <td class="py-2 text-right space-x-2">
                         <button onclick="editSupplierPayment(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
@@ -2061,11 +2061,11 @@
 
             // Render Payouts Table
             const payBody = document.getElementById('payouts-table-body');
-            payBody.innerHTML = payouts.length === 0 ? `<tr><td colspan="4" class="text-gray-400 text-center py-4">No payouts recorded yet.</td></tr>` : '';
+            payBody.innerHTML = payouts.length === 0 ? `<tr><td colspan="4" class="text-gray-400 text-center py-4">No payout records found.</td></tr>` : '';
             payouts.forEach((po, idx) => {
                 payBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2 text-gray-500">${po.date}</td>
-                    <td class="py-2 font-mono font-bold text-emerald-700">${formatMoney(po.amount)}</td>
+                    <td class="py-2 font-mono font-bold text-emerald-600">${formatMoney(po.amount)}</td>
                     <td class="py-2 text-gray-600">${po.notes}</td>
                     <td class="py-2 text-right space-x-2">
                         <button onclick="editPayout(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
@@ -2074,14 +2074,14 @@
                 </tr>`;
             });
 
-            // Render Catalog Table
-            const catBody = document.getElementById('items-table-body');
-            catBody.innerHTML = catalog.length === 0 ? `<tr><td colspan="6" class="text-gray-400 text-center py-4">No items in catalog.</td></tr>` : '';
+            // Render Item Catalog Table
+            const itemBody = document.getElementById('items-table-body');
+            itemBody.innerHTML = catalog.length === 0 ? `<tr><td colspan="6" class="text-gray-400 text-center py-4">No items in catalog.</td></tr>` : '';
             catalog.forEach((item, idx) => {
-                catBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                itemBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2 font-semibold text-gray-800">${item.name}</td>
                     <td class="py-2 text-gray-600">${item.color}</td>
-                    <td class="py-2"><span class="px-2 py-0.5 bg-gray-100 rounded text-[10px] font-bold">${item.styleTag || 'Y2K'}</span></td>
+                    <td class="py-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700">${item.styleTag || 'Y2K'}</span></td>
                     <td class="py-2 text-gray-600">${item.ageGroup || 'Adults'}</td>
                     <td class="py-2 text-gray-600">${item.itemType || 'Other'}</td>
                     <td class="py-2 text-right space-x-2">
@@ -2091,72 +2091,69 @@
                 </tr>`;
             });
 
-            // Render Top / Least Selling Items
-            let itemSalesCount = {};
-            sales.filter(s => (s.dispatchStatus || 'Pending') === 'Dispatched').forEach(s => {
-                itemSalesCount[s.item] = (itemSalesCount[s.item] || 0) + (parseInt(s.qty) || 0);
+            updateTopAndLeastSelling();
+        }
+
+        function updateTopAndLeastSelling() {
+            let itemCounts = {};
+            sales.forEach(s => {
+                if(!itemCounts[s.item]) itemCounts[s.item] = 0;
+                itemCounts[s.item] += (parseInt(s.qty) || 0);
             });
-            fleekOrders.filter(fo => (fo.status || 'Pending') === 'Dispatched').forEach(fo => {
-                itemSalesCount[fo.item] = (itemSalesCount[fo.item] || 0) + (parseInt(fo.qty) || 0);
+            fleekOrders.forEach(fo => {
+                if(!itemCounts[fo.item]) itemCounts[fo.item] = 0;
+                itemCounts[fo.item] += (parseInt(fo.qty) || 0);
             });
 
-            let sortedItems = Object.keys(itemSalesCount).map(k => ({ name: k, qty: itemSalesCount[k] })).sort((a,b) => b.qty - a.qty);
+            let sortedArr = Object.keys(itemCounts).map(k => ({ name: k, qty: itemCounts[k] })).sort((a,b) => b.qty - a.qty);
 
-            const topList = document.getElementById('top-selling-list');
-            const leastList = document.getElementById('least-selling-list');
+            const topDiv = document.getElementById('top-selling-list');
+            const leastDiv = document.getElementById('least-selling-list');
 
-            if(sortedItems.length === 0) {
-                topList.innerHTML = `<p class="text-xs text-gray-400 italic">No dispatched sales logged yet.</p>`;
-                leastList.innerHTML = `<p class="text-xs text-gray-400 italic">No dispatched sales logged yet.</p>`;
-            } else {
-                topList.innerHTML = sortedItems.slice(0, 3).map(i => `<div class="flex justify-between py-1 border-b border-gray-100"><span>🔥 ${i.name}</span><span class="font-mono font-bold text-gray-800">${i.qty} Pcs Sold</span></div>`).join('');
-                let reverseSorted = [...sortedItems].reverse();
-                leastList.innerHTML = reverseSorted.slice(0, 3).map(i => `<div class="flex justify-between py-1 border-b border-gray-100"><span>❄️ ${i.name}</span><span class="font-mono font-bold text-gray-800">${i.qty} Pcs Sold</span></div>`).join('');
+            if(sortedArr.length === 0) {
+                topDiv.innerHTML = `<p class="text-xs text-gray-400 italic">No sales logged yet.</p>`;
+                leastDiv.innerHTML = `<p class="text-xs text-gray-400 italic">No sales logged yet.</p>`;
+                return;
             }
+
+            topDiv.innerHTML = sortedArr.slice(0, 3).map(i => `<div class="flex justify-between py-1 border-b border-gray-50"><span class="font-medium text-gray-800">${i.name}</span><span class="font-mono font-bold text-emerald-700">${i.qty} Sold</span></div>`).join('');
+            
+            let reversed = [...sortedArr].reverse();
+            leastDiv.innerHTML = reversed.slice(0, 3).map(i => `<div class="flex justify-between py-1 border-b border-gray-50"><span class="font-medium text-gray-800">${i.name}</span><span class="font-mono font-bold text-amber-700">${i.qty} Sold</span></div>`).join('');
         }
 
         function filterReports() {
             const from = document.getElementById('filter-from').value;
             const to = document.getElementById('filter-to').value;
-            const search = document.getElementById('filter-search').value.trim().toLowerCase();
+            const search = document.getElementById('filter-search').value.toLowerCase();
+            const resultsDiv = document.getElementById('report-results');
 
             let filteredSales = sales.filter(s => {
-                let matchDate = (!from || s.date >= from) && (!to || s.date <= to);
-                let matchSearch = !search || s.customer.toLowerCase().includes(search) || s.item.toLowerCase().includes(search);
-                let isDispatched = (s.dispatchStatus || 'Pending') === 'Dispatched';
-                return matchDate && matchSearch && isDispatched;
+                if(from && s.date < from) return false;
+                if(to && s.date > to) return false;
+                if(search && !s.customer.toLowerCase().includes(search) && !s.item.toLowerCase().includes(search)) return false;
+                return true;
             });
 
             let filteredFleek = fleekOrders.filter(fo => {
-                let matchDate = (!from || fo.date >= from) && (!to || fo.date <= to);
-                let matchSearch = !search || fo.customer.toLowerCase().includes(search) || fo.item.toLowerCase().includes(search);
-                let isDispatched = (fo.status || 'Pending') === 'Dispatched';
-                return matchDate && matchSearch && isDispatched;
+                if(from && fo.date < from) return false;
+                if(to && fo.date > to) return false;
+                if(search && !fo.customer.toLowerCase().includes(search) && !fo.item.toLowerCase().includes(search)) return false;
+                return true;
             });
 
-            let totalRev = filteredSales.reduce((a,b)=>a+(parseFloat(b.total)||0), 0) + filteredFleek.reduce((a,b)=>a+(parseFloat(b.amount)||0), 0);
-            let totalCost = filteredSales.reduce((a,b)=>a+((parseFloat(b.cost)||0)*(parseFloat(b.qty)||0)), 0) + filteredFleek.reduce((a,b)=>a+((parseFloat(b.cost)||0)*(parseFloat(b.qty)||0)), 0);
-            let profit = totalRev - totalCost;
-
-            const resDiv = document.getElementById('report-results');
-            resDiv.innerHTML = `
-                <div class="grid grid-cols-3 gap-4 mb-4">
-                    <div class="p-3 bg-gray-50 rounded-lg">
-                        <div class="text-[10px] text-gray-500 uppercase font-bold">Filtered Revenue (Dispatched)</div>
-                        <div class="text-lg font-mono font-bold text-emerald-700">${formatMoney(totalRev)}</div>
+            let totalRev = filteredSales.reduce((a,b)=>a+(parseFloat(b.total)||0),0) + filteredFleek.reduce((a,b)=>a+(parseFloat(b.amount)||0),0);
+            
+            resultsDiv.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between bg-gray-50 p-3 rounded-lg font-bold">
+                        <span>Filtered Total Revenue:</span>
+                        <span class="font-mono text-emerald-700">${formatMoney(totalRev)}</span>
                     </div>
-                    <div class="p-3 bg-gray-50 rounded-lg">
-                        <div class="text-[10px] text-gray-500 uppercase font-bold">Filtered Cost</div>
-                        <div class="text-lg font-mono font-bold text-red-600">-${formatMoney(totalCost)}</div>
-                    </div>
-                    <div class="p-3 bg-gray-50 rounded-lg">
-                        <div class="text-[10px] text-gray-500 uppercase font-bold">Filtered Profit</div>
-                        <div class="text-lg font-mono font-bold text-emerald-800">${formatMoney(profit)}</div>
-                    </div>
-                </div>
-                <p class="text-xs text-gray-400 italic">Showing ${filteredSales.length} general sales and ${filteredFleek.length} Fleek orders matching criteria.</p>
-            `;
+                    <p class="text-xs text-gray-500">Showing ${filteredSales.length} general sales and ${filteredFleek.length} Fleek orders matching your filter criteria.</p>
+                </div>`;
         }
     </script>
 </body>
 </html>
+[cite: 1]
