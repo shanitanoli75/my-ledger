@@ -179,6 +179,9 @@
                         <tr class="border-b border-gray-200 text-gray-400 uppercase">
                             <th class="py-2">Item Name</th>
                             <th class="py-2">Color / Variant</th>
+                            <th class="py-2">Style</th>
+                            <th class="py-2">Age Group</th>
+                            <th class="py-2">Type</th>
                             <th class="py-2 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -193,35 +196,17 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-xl font-bold text-gray-800">Inventory & Stock Status</h2>
-                    <p class="text-xs text-gray-500">Live quantity tracker calculated automatically from Purchases and Sales.</p>
+                    <p class="text-xs text-gray-500">Live quantity tracker calculated automatically from Purchases and Sales, organized by age group and item type.</p>
                 </div>
                 <button onclick="openModal('adj-stock')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-indigo-700">⚙️ Manual Stock Adjustment</button>
             </div>
 
-            <!-- LOW STOCK ALERT PANEL (ONLY SHOWN INSIDE INVENTORY TAB) -->
-            <div id="low-stock-alert-panel" class="hidden bg-red-50 border border-red-200 p-4 rounded-xl card-shadow">
-                <h3 class="text-xs font-bold text-red-700 tracking-wider uppercase mb-2 flex items-center gap-2">
-                    ⚠️ Low Stock Warning (5 or fewer items remaining)
-                </h3>
-                <div id="low-stock-items-list" class="flex flex-wrap gap-2 text-xs">
-                </div>
+            <div class="bg-white p-4 rounded-xl card-shadow">
+                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Search by Item Name or Color</label>
+                <input type="text" id="inventory-search" onkeyup="renderInventoryGroups()" placeholder="Type an item name or color to filter..." class="w-full border border-gray-300 px-3 py-2 rounded-lg text-sm">
             </div>
 
-            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead>
-                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
-                            <th class="py-2">Item Name</th>
-                            <th class="py-2">Available Quantity (Pcs)</th>
-                            <th class="py-2">Avg Unit Cost</th>
-                            <th class="py-2">Total Stock Value</th>
-                            <th class="py-2">Status</th>
-                            <th class="py-2 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventory-table-body">
-                    </tbody>
-                </table>
+            <div id="inventory-groups-container" class="space-y-8">
             </div>
         </div>
 
@@ -469,6 +454,42 @@
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Color / Variant</label>
                 <input type="text" id="item-color-input" placeholder="e.g. Black" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
             </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Category Style</label>
+                <select id="item-style-input" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                    <option value="Y2K">Y2K</option>
+                    <option value="Vintage">Vintage</option>
+                    <option value="Local Item">Local Item</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Age Group</label>
+                <select id="item-age-input" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                    <option value="Adults">Adults</option>
+                    <option value="Kids">Kids</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Item Type</label>
+                <select id="item-type-input" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                    <option value="Shirts">Shirts</option>
+                    <option value="Shorts">Shorts</option>
+                    <option value="Pants">Pants</option>
+                    <option value="Skirts">Skirts</option>
+                    <option value="Jackets">Jackets</option>
+                    <option value="Tracksuits">Tracksuits</option>
+                    <option value="Shoes">Shoes</option>
+                    <option value="Bags">Bags</option>
+                    <option value="Glasses">Glasses</option>
+                    <option value="Hats">Hats</option>
+                    <option value="Accessories">Accessories</option>
+                    <option value="Jewelry">Jewelry</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Home Decor">Home Decor</option>
+                    <option value="Beauty">Beauty</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeModal('add-item')" class="px-4 py-2 text-xs font-semibold text-gray-500">Cancel</button>
                 <button onclick="saveItemCatalog()" class="px-4 py-2 bg-[#121816] text-white rounded-lg text-xs font-semibold">Save Item</button>
@@ -649,23 +670,40 @@
 
     <script>
         const defaultItems = [
-            { name: "Baby Tees", color: "White" }, { name: "Butterfly Tops", color: "Pink" }, 
-            { name: "Mesh & Sheer Tops", color: "Black" }, { name: "Halter & Tube Tops", color: "Red" }, 
-            { name: "Corset Tops", color: "Beige" }, { name: "Cargo Pants", color: "Olive Green" }, 
-            { name: "Cargo Skirts", color: "Khaki" }, { name: "Low-Rise Denim Jeans", color: "Blue" }, 
-            { name: "Velour Tracksuits", color: "Purple" }, { name: "Denim Mini Skirts", color: "Light Blue" }, 
-            { name: "Parachute Pants", color: "Grey" }, { name: "Puffer Jackets", color: "Black" }, 
-            { name: "Faux Fur Trim Coats", color: "Brown" }, { name: "Chunky Dad Sneakers", color: "White" }, 
-            { name: "Platform Boots & Loafers", color: "Black" }, { name: "Strappy Minimal Heels", color: "Silver" }, 
-            { name: "Ugg Boots", color: "Tan" }, { name: "Baguette Shoulder Bags", color: "Black" }, 
-            { name: "Mini PVC Backpacks", color: "Clear" }, { name: "Shield & Wrap Sunglasses", color: "Black" }, 
-            { name: "Trucker Hats", color: "Navy" }, { name: "Bucket Hats & Bandanas", color: "Multicolor" }, 
-            { name: "Butterfly & Claw Clips", color: "Assorted" }, { name: "Beaded Jewelry & Charms", color: "Gold/Beads" }, 
-            { name: "Chain Belts & Grommets", color: "Silver" }, { name: "Flip Phones", color: "Pink" }, 
-            { name: "iPods & MP3 Players", color: "Silver" }, { name: "CCD Digital Cameras", color: "Silver" }, 
-            { name: "Handheld Consoles", color: "Black" }, { name: "Clear Translucent Tech", color: "Transparent" }, 
-            { name: "Inflatable Chairs", color: "Neon" }, { name: "Lava Lamps", color: "Red/Yellow" }, 
-            { name: "CD Wall Collages", color: "Printed" }, { name: "High-Shine Lip Gloss", color: "Clear Pink" }
+            { name: "Baby Tees", color: "White", styleTag: "Y2K", ageGroup: "Adults", itemType: "Shirts" },
+            { name: "Butterfly Tops", color: "Pink", styleTag: "Y2K", ageGroup: "Adults", itemType: "Shirts" },
+            { name: "Mesh & Sheer Tops", color: "Black", styleTag: "Y2K", ageGroup: "Adults", itemType: "Shirts" },
+            { name: "Halter & Tube Tops", color: "Red", styleTag: "Y2K", ageGroup: "Adults", itemType: "Shirts" },
+            { name: "Corset Tops", color: "Beige", styleTag: "Y2K", ageGroup: "Adults", itemType: "Shirts" },
+            { name: "Cargo Pants", color: "Olive Green", styleTag: "Y2K", ageGroup: "Adults", itemType: "Pants" },
+            { name: "Cargo Skirts", color: "Khaki", styleTag: "Y2K", ageGroup: "Adults", itemType: "Skirts" },
+            { name: "Low-Rise Denim Jeans", color: "Blue", styleTag: "Y2K", ageGroup: "Adults", itemType: "Pants" },
+            { name: "Velour Tracksuits", color: "Purple", styleTag: "Y2K", ageGroup: "Adults", itemType: "Tracksuits" },
+            { name: "Denim Mini Skirts", color: "Light Blue", styleTag: "Y2K", ageGroup: "Adults", itemType: "Skirts" },
+            { name: "Parachute Pants", color: "Grey", styleTag: "Y2K", ageGroup: "Adults", itemType: "Pants" },
+            { name: "Puffer Jackets", color: "Black", styleTag: "Y2K", ageGroup: "Adults", itemType: "Jackets" },
+            { name: "Faux Fur Trim Coats", color: "Brown", styleTag: "Vintage", ageGroup: "Adults", itemType: "Jackets" },
+            { name: "Chunky Dad Sneakers", color: "White", styleTag: "Y2K", ageGroup: "Adults", itemType: "Shoes" },
+            { name: "Platform Boots & Loafers", color: "Black", styleTag: "Y2K", ageGroup: "Adults", itemType: "Shoes" },
+            { name: "Strappy Minimal Heels", color: "Silver", styleTag: "Y2K", ageGroup: "Adults", itemType: "Shoes" },
+            { name: "Ugg Boots", color: "Tan", styleTag: "Y2K", ageGroup: "Adults", itemType: "Shoes" },
+            { name: "Baguette Shoulder Bags", color: "Black", styleTag: "Y2K", ageGroup: "Adults", itemType: "Bags" },
+            { name: "Mini PVC Backpacks", color: "Clear", styleTag: "Y2K", ageGroup: "Adults", itemType: "Bags" },
+            { name: "Shield & Wrap Sunglasses", color: "Black", styleTag: "Y2K", ageGroup: "Adults", itemType: "Glasses" },
+            { name: "Trucker Hats", color: "Navy", styleTag: "Y2K", ageGroup: "Adults", itemType: "Hats" },
+            { name: "Bucket Hats & Bandanas", color: "Multicolor", styleTag: "Y2K", ageGroup: "Adults", itemType: "Hats" },
+            { name: "Butterfly & Claw Clips", color: "Assorted", styleTag: "Y2K", ageGroup: "Adults", itemType: "Accessories" },
+            { name: "Beaded Jewelry & Charms", color: "Gold/Beads", styleTag: "Y2K", ageGroup: "Adults", itemType: "Jewelry" },
+            { name: "Chain Belts & Grommets", color: "Silver", styleTag: "Y2K", ageGroup: "Adults", itemType: "Accessories" },
+            { name: "Flip Phones", color: "Pink", styleTag: "Y2K", ageGroup: "Adults", itemType: "Electronics" },
+            { name: "iPods & MP3 Players", color: "Silver", styleTag: "Y2K", ageGroup: "Adults", itemType: "Electronics" },
+            { name: "CCD Digital Cameras", color: "Silver", styleTag: "Y2K", ageGroup: "Adults", itemType: "Electronics" },
+            { name: "Handheld Consoles", color: "Black", styleTag: "Y2K", ageGroup: "Adults", itemType: "Electronics" },
+            { name: "Clear Translucent Tech", color: "Transparent", styleTag: "Y2K", ageGroup: "Adults", itemType: "Electronics" },
+            { name: "Inflatable Chairs", color: "Neon", styleTag: "Y2K", ageGroup: "Adults", itemType: "Home Decor" },
+            { name: "Lava Lamps", color: "Red/Yellow", styleTag: "Y2K", ageGroup: "Adults", itemType: "Home Decor" },
+            { name: "CD Wall Collages", color: "Printed", styleTag: "Y2K", ageGroup: "Adults", itemType: "Home Decor" },
+            { name: "High-Shine Lip Gloss", color: "Clear Pink", styleTag: "Y2K", ageGroup: "Adults", itemType: "Beauty" }
         ];
 
         const defaultSuppliersObj = [
@@ -1095,20 +1133,26 @@
         function saveItemCatalog() {
             const name = document.getElementById('item-name-input').value.trim();
             const color = document.getElementById('item-color-input').value.trim() || 'Standard';
+            const styleTag = document.getElementById('item-style-input').value;
+            const ageGroup = document.getElementById('item-age-input').value;
+            const itemType = document.getElementById('item-type-input').value;
             const index = parseInt(document.getElementById('edit-item-index').value);
 
             if(!name) return alert("آئٹم کا نام ضروری ہے!");
 
             if(index >= 0) {
-                catalog[index] = { name, color };
+                catalog[index] = { name, color, styleTag, ageGroup, itemType };
             } else {
-                catalog.push({ name, color });
+                catalog.push({ name, color, styleTag, ageGroup, itemType });
             }
 
             localStorage.setItem('usman_catalog', JSON.stringify(catalog));
             closeModal('add-item');
             document.getElementById('item-name-input').value = '';
             document.getElementById('item-color-input').value = '';
+            document.getElementById('item-style-input').value = 'Y2K';
+            document.getElementById('item-age-input').value = 'Adults';
+            document.getElementById('item-type-input').value = 'Shirts';
             document.getElementById('edit-item-index').value = '-1';
             initDropdowns();
             updateUI();
@@ -1118,6 +1162,9 @@
             document.getElementById('item-modal-title').innerText = "Edit Item";
             document.getElementById('item-name-input').value = catalog[index].name;
             document.getElementById('item-color-input').value = catalog[index].color;
+            document.getElementById('item-style-input').value = catalog[index].styleTag || 'Y2K';
+            document.getElementById('item-age-input').value = catalog[index].ageGroup || 'Adults';
+            document.getElementById('item-type-input').value = catalog[index].itemType || 'Other';
             document.getElementById('edit-item-index').value = index;
             openModal('add-item');
         }
@@ -1135,6 +1182,154 @@
             partnerPct = parseFloat(val) || 0;
             localStorage.setItem('usman_partner_pct', partnerPct);
             updateUI();
+        }
+
+        // Builds live inventory numbers (qty, avg cost, stock value) per catalog item,
+        // then renders it grouped by Age Group -> Item Type, filtered by the search box.
+        function renderInventoryGroups() {
+            const searchBox = document.getElementById('inventory-search');
+            const searchTerm = searchBox ? searchBox.value.trim().toLowerCase() : '';
+
+            // CALCULATE INVENTORY
+            let inventory = {};
+            catalog.forEach(item => {
+                let label = `${item.name} (${item.color})`;
+                inventory[label] = { qty: 0, totalCost: 0 };
+            });
+
+            purchases.forEach(p => {
+                if(!inventory[p.item]) inventory[p.item] = { qty: 0, totalCost: 0 };
+                inventory[p.item].qty += (parseInt(p.qty)||0);
+                inventory[p.item].totalCost += (parseFloat(p.total)||0);
+            });
+
+            manualStock.forEach(m => {
+                if(!inventory[m.item]) inventory[m.item] = { qty: 0, totalCost: 0 };
+                inventory[m.item].qty += (parseInt(m.qty)||0);
+                inventory[m.item].totalCost += ((parseInt(m.qty)||0) * (parseFloat(m.cost)||0));
+            });
+
+            sales.forEach(s => {
+                if(inventory[s.item]) {
+                    inventory[s.item].qty -= (parseInt(s.qty)||0);
+                }
+            });
+
+            // Note: the old summary pop-up alert panel has been removed. The per-row
+            // "LOW STOCK" status badge below is retained exactly as before.
+            let catalogMeta = {};
+            catalog.forEach(item => {
+                let label = `${item.name} (${item.color})`;
+                catalogMeta[label] = {
+                    styleTag: item.styleTag || 'Y2K',
+                    ageGroup: item.ageGroup || 'Adults',
+                    itemType: item.itemType || 'Other'
+                };
+            });
+
+            const typePriority = ['Shirts','Shorts','Pants','Skirts','Jackets','Tracksuits','Shoes','Bags','Glasses','Hats','Accessories','Jewelry','Electronics','Home Decor','Beauty','Other'];
+            let grouped = { Adults: {}, Kids: {} };
+
+            Object.keys(inventory).forEach(key => {
+                // Live search filter: match against item name or color (the label itself contains both, e.g. "Cargo Pants (Olive Green)")
+                if(searchTerm && !key.toLowerCase().includes(searchTerm)) return;
+
+                let itemData = inventory[key];
+                let currentQty = itemData.qty;
+                let avgCost = currentQty > 0 && itemData.totalCost > 0 ? (itemData.totalCost / (currentQty + sales.filter(s=>s.item===key).reduce((a,b)=>a+(parseInt(b.qty)||0),0))) : 0;
+                let stockVal = currentQty * avgCost;
+                let isLow = currentQty <= 5;
+
+                let meta = catalogMeta[key] || { styleTag: 'Y2K', ageGroup: 'Adults', itemType: 'Other' };
+                let ageGrp = meta.ageGroup === 'Kids' ? 'Kids' : 'Adults';
+                let type = meta.itemType || 'Other';
+
+                if(!grouped[ageGrp][type]) grouped[ageGrp][type] = [];
+                grouped[ageGrp][type].push({ key, currentQty, avgCost, stockVal, isLow });
+            });
+
+            const invContainer = document.getElementById('inventory-groups-container');
+            invContainer.innerHTML = '';
+
+            const ageSections = [
+                { key: 'Adults', label: '🧑 Adults Category' },
+                { key: 'Kids', label: '🧒 Kids Category' }
+            ];
+
+            let anyItemsAtAll = Object.keys(grouped.Adults).length > 0 || Object.keys(grouped.Kids).length > 0;
+
+            if(!anyItemsAtAll) {
+                invContainer.innerHTML = searchTerm
+                    ? `<p class="text-xs text-gray-400 italic text-center py-6">No matching items found for "${searchTerm}".</p>`
+                    : `<p class="text-xs text-gray-400 italic text-center py-6">No items in inventory yet.</p>`;
+                return;
+            }
+
+            ageSections.forEach(age => {
+                const typesForAge = grouped[age.key];
+                let typeKeys = Object.keys(typesForAge);
+
+                let ageBlock = document.createElement('div');
+                ageBlock.className = 'space-y-4';
+                let heading = document.createElement('h2');
+                heading.className = 'text-lg font-bold text-gray-800 border-b-2 border-[#c59b27] pb-2';
+                heading.innerText = age.label;
+                ageBlock.appendChild(heading);
+
+                if(typeKeys.length === 0) {
+                    let empty = document.createElement('p');
+                    empty.className = 'text-xs text-gray-400 italic';
+                    empty.innerText = searchTerm ? 'No matching items in this category.' : 'No items in this category yet.';
+                    ageBlock.appendChild(empty);
+                } else {
+                    typeKeys.sort((a, b) => {
+                        let ia = typePriority.indexOf(a); if(ia === -1) ia = 999;
+                        let ib = typePriority.indexOf(b); if(ib === -1) ib = 999;
+                        return ia - ib;
+                    });
+
+                    typeKeys.forEach(type => {
+                        const items = typesForAge[type];
+                        let rows = items.map(it => `
+                            <tr class="border-b border-gray-100 py-2 ${it.isLow ? 'bg-red-50/50' : ''}">
+                                <td class="py-2 font-semibold text-gray-800">${it.key}</td>
+                                <td class="py-2 font-mono font-bold ${it.isLow ? 'text-red-600' : 'text-gray-700'}">${it.currentQty} Pcs</td>
+                                <td class="py-2 font-mono text-gray-600">${formatMoney(it.avgCost)}</td>
+                                <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(it.stockVal)}</td>
+                                <td class="py-2">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${it.isLow ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
+                                        ${it.isLow ? '⚠️ LOW STOCK' : 'IN STOCK'}
+                                    </span>
+                                </td>
+                                <td class="py-2 text-right space-x-2">
+                                    <button onclick="editStock('${it.key}')" class="text-xs text-blue-600 font-semibold hover:underline">Edit Stock</button>
+                                    <button onclick="deleteStock('${it.key}')" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
+                                </td>
+                            </tr>`).join('');
+
+                        let typeCard = document.createElement('div');
+                        typeCard.className = 'bg-white p-5 rounded-xl card-shadow overflow-x-auto';
+                        typeCard.innerHTML = `
+                            <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-3">📁 ${type}</h3>
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                                        <th class="py-2">Item Name</th>
+                                        <th class="py-2">Available Quantity (Pcs)</th>
+                                        <th class="py-2">Avg Unit Cost</th>
+                                        <th class="py-2">Total Stock Value</th>
+                                        <th class="py-2">Status</th>
+                                        <th class="py-2 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${rows}</tbody>
+                            </table>`;
+                        ageBlock.appendChild(typeCard);
+                    });
+                }
+
+                invContainer.appendChild(ageBlock);
+            });
         }
 
         function updateUI() {
@@ -1167,73 +1362,8 @@
             document.getElementById('partner-total-paid-display').innerText = formatMoney(totalPaidPartner);
             document.getElementById('partner-pending-balance-display').innerText = formatMoney(partnerPending);
 
-            // CALCULATE INVENTORY
-            let inventory = {};
-            catalog.forEach(item => {
-                let label = `${item.name} (${item.color})`;
-                inventory[label] = { qty: 0, totalCost: 0 };
-            });
-
-            purchases.forEach(p => {
-                if(!inventory[p.item]) inventory[p.item] = { qty: 0, totalCost: 0 };
-                inventory[p.item].qty += (parseInt(p.qty)||0);
-                inventory[p.item].totalCost += (parseFloat(p.total)||0);
-            });
-
-            manualStock.forEach(m => {
-                if(!inventory[m.item]) inventory[m.item] = { qty: 0, totalCost: 0 };
-                inventory[m.item].qty += (parseInt(m.qty)||0);
-                inventory[m.item].totalCost += ((parseInt(m.qty)||0) * (parseFloat(m.cost)||0));
-            });
-
-            sales.forEach(s => {
-                if(inventory[s.item]) {
-                    inventory[s.item].qty -= (parseInt(s.qty)||0);
-                }
-            });
-
-            // RENDER INVENTORY TABLE & LOW STOCK ALERT (ONLY IN INVENTORY TAB)
-            const invBody = document.getElementById('inventory-table-body');
-            invBody.innerHTML = '';
-            let lowStockItems = [];
-
-            Object.keys(inventory).forEach(key => {
-                let itemData = inventory[key];
-                let currentQty = itemData.qty;
-                let avgCost = currentQty > 0 && itemData.totalCost > 0 ? (itemData.totalCost / (currentQty + sales.filter(s=>s.item===key).reduce((a,b)=>a+(parseInt(b.qty)||0),0))) : 0;
-                let stockVal = currentQty * avgCost;
-
-                let isLow = currentQty <= 5;
-                if(isLow) {
-                    lowStockItems.push({ name: key, qty: currentQty });
-                }
-
-                invBody.innerHTML += `<tr class="border-b border-gray-100 py-2 ${isLow ? 'bg-red-50/50' : ''}">
-                    <td class="py-2 font-semibold text-gray-800">${key}</td>
-                    <td class="py-2 font-mono font-bold ${isLow ? 'text-red-600' : 'text-gray-700'}">${currentQty} Pcs</td>
-                    <td class="py-2 font-mono text-gray-600">${formatMoney(avgCost)}</td>
-                    <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(stockVal)}</td>
-                    <td class="py-2">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isLow ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
-                            ${isLow ? '⚠️ LOW STOCK' : 'IN STOCK'}
-                        </span>
-                    </td>
-                    <td class="py-2 text-right space-x-2">
-                        <button onclick="editStock('${key}')" class="text-xs text-blue-600 font-semibold hover:underline">Edit Stock</button>
-                        <button onclick="deleteStock('${key}')" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                    </td>
-                </tr>`;
-            });
-
-            // INVENTORY TAB LOW STOCK ALERT
-            const lowPanel = document.getElementById('low-stock-alert-panel');
-            const lowList = document.getElementById('low-stock-items-list');
-            if(lowStockItems.length > 0) {
-                lowPanel.classList.remove('hidden');
-                lowList.innerHTML = lowStockItems.map(i => `<span class="px-2 py-1 bg-red-100 text-red-800 font-semibold rounded border border-red-300">${i.name} (<strong>${i.qty} remaining</strong>)</span>`).join('');
-            } else {
-                lowPanel.classList.add('hidden');
-            }
+            // RENDER INVENTORY (grouped by Age Group -> Item Type, with live search filtering)
+            renderInventoryGroups();
 
             // RENDER SALES TABLE WITH EDIT & DELETE
             const sBody = document.getElementById('sales-table-body');
@@ -1307,11 +1437,14 @@
 
             // Catalog Table
             const catBody = document.getElementById('items-table-body');
-            catBody.innerHTML = catalog.length === 0 ? `<tr><td colspan="3" class="text-gray-400 text-center py-4">No items in catalog.</td></tr>` : '';
+            catBody.innerHTML = catalog.length === 0 ? `<tr><td colspan="6" class="text-gray-400 text-center py-4">No items in catalog.</td></tr>` : '';
             catalog.forEach((it, idx) => {
                 catBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2 font-semibold text-gray-800">${it.name}</td>
                     <td class="py-2"><span class="px-2 py-0.5 rounded bg-gray-100 font-mono text-[11px]">${it.color}</span></td>
+                    <td class="py-2"><span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold text-[11px]">${it.styleTag || 'Y2K'}</span></td>
+                    <td class="py-2"><span class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-semibold text-[11px]">${it.ageGroup || 'Adults'}</span></td>
+                    <td class="py-2"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold text-[11px]">${it.itemType || 'Other'}</span></td>
                     <td class="py-2 text-right space-x-2">
                         <button onclick="editItem(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
                         <button onclick="deleteItem(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
