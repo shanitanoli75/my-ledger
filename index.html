@@ -46,7 +46,7 @@
                 </div>
             </div>
 
-            <!-- Currency Switcher inside Sidebar -->
+            <!-- Currency Switcher -->
             <div class="mb-4 px-2">
                 <label class="block text-[10px] text-gray-400 uppercase font-bold mb-1">Select Currency</label>
                 <select id="currency-select" onchange="changeCurrency(this.value)" class="w-full bg-gray-800 text-white text-xs p-2 rounded border border-gray-700 font-mono">
@@ -80,7 +80,7 @@
             </nav>
         </div>
         <div class="p-2 border-t border-gray-800 text-[10px] text-gray-500">
-            Usman Trade Ledger System v5.0
+            Usman Trade Ledger System v6.0
         </div>
     </aside>
 
@@ -215,7 +215,7 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-xl font-bold text-gray-800">Suppliers & Stock Purchases</h2>
-                    <p class="text-xs text-gray-500">Track purchase costs, supplier payments, and pending dues.</p>
+                    <p class="text-xs text-gray-500">Track purchase costs, supplier contact, payments, and pending dues.</p>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="openModal('add-supplier')" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700">+ Add Supplier</button>
@@ -224,11 +224,23 @@
                 </div>
             </div>
 
-            <!-- Manage Suppliers Section -->
+            <!-- Manage Suppliers Section Table with Edit & Delete -->
             <div class="bg-white p-6 rounded-xl card-shadow space-y-3">
                 <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Registered Suppliers Directory</h3>
-                <div id="suppliers-list-tags" class="flex flex-wrap gap-2">
-                    <!-- Dynamic Supplier Badges -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                                <th class="py-2">Supplier Name</th>
+                                <th class="py-2">Phone</th>
+                                <th class="py-2">Address</th>
+                                <th class="py-2">Pending Balance</th>
+                                <th class="py-2 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suppliers-table-body">
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -373,17 +385,26 @@
 
     </main>
 
-    <!-- MODAL: ADD SUPPLIER -->
+    <!-- MODAL: ADD / EDIT SUPPLIER -->
     <div id="modal-add-supplier" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
-            <h3 class="text-lg font-bold">Add New Supplier</h3>
+            <h3 class="text-lg font-bold" id="supp-modal-title">Add New Supplier</h3>
+            <input type="hidden" id="edit-supp-index" value="-1">
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Supplier / Vendor Name</label>
                 <input type="text" id="supp-name-input" placeholder="e.g. Ali Fabrics, Ahmed Traders" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
             </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Phone Number</label>
+                <input type="text" id="supp-phone-input" placeholder="e.g. 0300-1234567" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Address / Location</label>
+                <input type="text" id="supp-address-input" placeholder="e.g. Karachi, Market Area" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeModal('add-supplier')" class="px-4 py-2 text-xs font-semibold text-gray-500">Cancel</button>
-                <button onclick="saveNewSupplier()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">Save Supplier</button>
+                <button onclick="saveSupplier()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">Save Supplier</button>
             </div>
         </div>
     </div>
@@ -483,18 +504,24 @@
         </div>
     </div>
 
-    <!-- MODAL: RECORD SUPPLIER PAYMENT (WITH AUTO PENDING DISPLAY) -->
+    <!-- MODAL: RECORD SUPPLIER PAYMENT (WITH MANUAL SUPPLIER INPUT OPTION) -->
     <div id="modal-supp-payout" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
             <h3 class="text-lg font-bold">Record Payment to Supplier</h3>
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Select Supplier</label>
-                <select id="spay-supplier-select" onchange="updateSupplierPendingDisplay()" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                <select id="spay-supplier-select" onchange="handleSupplierSelectChange()" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
                 </select>
             </div>
             
+            <!-- Manual Input Option -->
+            <div id="manual-supp-container" class="hidden">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Enter Supplier Name (Manual)</label>
+                <input type="text" id="spay-manual-name" placeholder="Type supplier name..." class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+
             <!-- Dynamic Pending Display Box -->
-            <div class="p-3 bg-red-50 border border-red-200 rounded-lg flex justify-between items-center text-xs">
+            <div id="pending-display-box" class="p-3 bg-red-50 border border-red-200 rounded-lg flex justify-between items-center text-xs">
                 <span class="text-red-700 font-semibold">Current Total Pending:</span>
                 <span id="supp-calculated-pending" class="font-mono font-bold text-red-800 text-sm">0.00</span>
             </div>
@@ -573,10 +600,27 @@
             { name: "CD Wall Collages", color: "Printed" }, { name: "High-Shine Lip Gloss", color: "Clear Pink" }
         ];
 
-        const defaultSuppliers = ["General Supplier", "Ali Fabrics", "Kaiser Tekstil", "YKK Fasteners"];
+        const defaultSuppliersObj = [
+            { name: "General Supplier", phone: "-", address: "-" },
+            { name: "Ali Fabrics", phone: "0300-0000000", address: "Karachi" },
+            { name: "Kaiser Tekstil", phone: "0311-0000000", address: "Karachi" },
+            { name: "YKK Fasteners", phone: "0322-0000000", address: "Karachi" }
+        ];
 
         let catalog = JSON.parse(localStorage.getItem('usman_catalog')) || defaultItems;
-        let suppliers = JSON.parse(localStorage.getItem('usman_suppliers')) || defaultSuppliers;
+        
+        // Load suppliers with object structure migration
+        let rawSuppliers = JSON.parse(localStorage.getItem('usman_suppliers_v2'));
+        if(!rawSuppliers) {
+            let oldSupps = JSON.parse(localStorage.getItem('usman_suppliers')) || [];
+            if(oldSupps.length > 0) {
+                rawSuppliers = oldSupps.map(s => typeof s === 'string' ? { name: s, phone: '-', address: '-' } : s);
+            } else {
+                rawSuppliers = defaultSuppliersObj;
+            }
+        }
+        let suppliers = rawSuppliers;
+
         let sales = JSON.parse(localStorage.getItem('usman_sales')) || [];
         let purchases = JSON.parse(localStorage.getItem('usman_purchases')) || [];
         let supplierPayments = JSON.parse(localStorage.getItem('usman_supp_payments')) || [];
@@ -586,8 +630,10 @@
         let currentCurrency = localStorage.getItem('usman_currency') || 'PKR';
 
         function formatMoney(val) {
+            let num = parseFloat(val);
+            if(isNaN(num)) num = 0;
             const sym = currentCurrency === 'PKR' ? 'Rs. ' : '$';
-            return `${sym}${parseFloat(val).toFixed(2)}`;
+            return `${sym}${num.toFixed(2)}`;
         }
 
         function changeCurrency(val) {
@@ -611,10 +657,14 @@
             const purSuppSelect = document.getElementById('pur-supplier-select');
             const spaySuppSelect = document.getElementById('spay-supplier-select');
             purSuppSelect.innerHTML = ''; spaySuppSelect.innerHTML = '';
+            
             suppliers.forEach(supp => {
-                purSuppSelect.innerHTML += `<option value="${supp}">${supp}</option>`;
-                spaySuppSelect.innerHTML += `<option value="${supp}">${supp}</option>`;
+                purSuppSelect.innerHTML += `<option value="${supp.name}">${supp.name}</option>`;
+                spaySuppSelect.innerHTML += `<option value="${supp.name}">${supp.name}</option>`;
             });
+
+            // Add Manual Option for Supplier Payment
+            spaySuppSelect.innerHTML += `<option value="__MANUAL__">➕ Other / Manual Supplier</option>`;
 
             document.getElementById('partner-pct-input').value = partnerPct;
             document.getElementById('currency-select').value = currentCurrency;
@@ -632,7 +682,7 @@
             el.classList.remove('hidden'); 
             el.classList.add('flex');
             if(id === 'supp-payout') {
-                updateSupplierPendingDisplay();
+                handleSupplierSelectChange();
             }
         }
 
@@ -642,34 +692,76 @@
             el.classList.remove('flex'); 
         }
 
-        // SUPPLIER MANAGEMENT
-        function saveNewSupplier() {
+        // SUPPLIER MANAGEMENT WITH EDIT & DELETE
+        function saveSupplier() {
             const name = document.getElementById('supp-name-input').value.trim();
+            const phone = document.getElementById('supp-phone-input').value.trim() || '-';
+            const address = document.getElementById('supp-address-input').value.trim() || '-';
+            const index = parseInt(document.getElementById('edit-supp-index').value);
+
             if(!name) return alert("سپلائر کا نام درج کریں!");
-            if(!suppliers.includes(name)) {
-                suppliers.push(name);
-                localStorage.setItem('usman_suppliers', JSON.stringify(suppliers));
+
+            if(index >= 0) {
+                suppliers[index] = { name, phone, address };
+            } else {
+                suppliers.push({ name, phone, address });
             }
+
+            localStorage.setItem('usman_suppliers_v2', JSON.stringify(suppliers));
+            
             document.getElementById('supp-name-input').value = '';
+            document.getElementById('supp-phone-input').value = '';
+            document.getElementById('supp-address-input').value = '';
+            document.getElementById('edit-supp-index').value = '-1';
+            document.getElementById('supp-modal-title').innerText = "Add New Supplier";
+
             closeModal('add-supplier');
             initDropdowns();
             updateUI();
         }
 
+        function editSupplier(index) {
+            document.getElementById('supp-modal-title').innerText = "Edit Supplier";
+            document.getElementById('supp-name-input').value = suppliers[index].name;
+            document.getElementById('supp-phone-input').value = suppliers[index].phone;
+            document.getElementById('supp-address-input').value = suppliers[index].address;
+            document.getElementById('edit-supp-index').value = index;
+            openModal('add-supplier');
+        }
+
+        function deleteSupplier(index) {
+            if(confirm(`کشت کیا آپ (${suppliers[index].name}) کو ڈیلیٹ کرنا چاہتے ہیں؟`)) {
+                suppliers.splice(index, 1);
+                localStorage.setItem('usman_suppliers_v2', JSON.stringify(suppliers));
+                initDropdowns();
+                updateUI();
+            }
+        }
+
         function calculateSupplierPending(suppName) {
-            let totalBills = purchases.filter(p => p.supplier.toLowerCase() === suppName.toLowerCase()).reduce((a, b) => a + b.total, 0);
-            let initialPaid = purchases.filter(p => p.supplier.toLowerCase() === suppName.toLowerCase()).reduce((a, b) => a + b.paid, 0);
-            let totalExtraPaid = supplierPayments.filter(sp => sp.supplier.toLowerCase() === suppName.toLowerCase()).reduce((a, b) => a + b.amount, 0);
+            if(!suppName) return 0;
+            let totalBills = purchases.filter(p => p.supplier && p.supplier.toLowerCase() === suppName.toLowerCase()).reduce((a, b) => a + (parseFloat(b.total) || 0), 0);
+            let initialPaid = purchases.filter(p => p.supplier && p.supplier.toLowerCase() === suppName.toLowerCase()).reduce((a, b) => a + (parseFloat(b.paid) || 0), 0);
+            let totalExtraPaid = supplierPayments.filter(sp => sp.supplier && sp.supplier.toLowerCase() === suppName.toLowerCase()).reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
             
             let pending = totalBills - (initialPaid + totalExtraPaid);
             return pending > 0 ? pending : 0;
         }
 
-        function updateSupplierPendingDisplay() {
-            const suppName = document.getElementById('spay-supplier-select').value;
-            if(!suppName) return;
-            let pending = calculateSupplierPending(suppName);
-            document.getElementById('supp-calculated-pending').innerText = formatMoney(pending);
+        function handleSupplierSelectChange() {
+            const val = document.getElementById('spay-supplier-select').value;
+            const manualContainer = document.getElementById('manual-supp-container');
+            const pendingBox = document.getElementById('pending-display-box');
+
+            if(val === '__MANUAL__') {
+                manualContainer.classList.remove('hidden');
+                pendingBox.classList.add('hidden');
+            } else {
+                manualContainer.classList.add('hidden');
+                pendingBox.classList.remove('hidden');
+                let pending = calculateSupplierPending(val);
+                document.getElementById('supp-calculated-pending').innerText = formatMoney(pending);
+            }
         }
 
         // ITEM CATALOG FUNCTIONS
@@ -712,7 +804,7 @@
             }
         }
 
-        // SALES & PURCHASES SAVING
+        // SAVING FUNCTIONS
         function saveSale() {
             const customer = document.getElementById('sale-customer').value || "General";
             const item = document.getElementById('sale-item-select').value;
@@ -750,7 +842,14 @@
         }
 
         function saveSupplierPayment() {
-            const supplier = document.getElementById('spay-supplier-select').value || "General Supplier";
+            const selectVal = document.getElementById('spay-supplier-select').value;
+            let supplier = selectVal;
+            
+            if(selectVal === '__MANUAL__') {
+                supplier = document.getElementById('spay-manual-name').value.trim();
+                if(!supplier) return alert("سپلائر کا نام لکھیں!");
+            }
+
             const amount = parseFloat(document.getElementById('spay-amount').value) || 0;
             const notes = document.getElementById('spay-notes').value || "Payment";
 
@@ -758,6 +857,8 @@
 
             supplierPayments.push({ date: new Date().toISOString().slice(0,10), supplier, amount, notes });
             localStorage.setItem('usman_supp_payments', JSON.stringify(supplierPayments));
+            
+            document.getElementById('spay-manual-name').value = '';
             closeModal('supp-payout');
             updateUI();
         }
@@ -791,18 +892,18 @@
         function updateUI() {
             document.getElementById('partner-nav-pct').innerText = partnerPct;
 
-            let totalSalesVal = sales.reduce((a, b) => a + b.total, 0);
-            let collectedVal = sales.filter(s => s.status === 'Paid').reduce((a, b) => a + b.total, 0);
-            let cogsVal = sales.reduce((a, b) => a + (b.cost * b.qty), 0);
+            let totalSalesVal = sales.reduce((a, b) => a + (parseFloat(b.total)||0), 0);
+            let collectedVal = sales.filter(s => s.status === 'Paid').reduce((a, b) => a + (parseFloat(b.total)||0), 0);
+            let cogsVal = sales.reduce((a, b) => a + ((parseFloat(b.cost)||0) * (parseFloat(b.qty)||0)), 0);
             let grossProfit = totalSalesVal - cogsVal;
             let partnerCut = grossProfit > 0 ? (grossProfit * (partnerPct / 100)) : 0;
-            let totalExpensesVal = expenses.reduce((a, b) => a + b.amount, 0);
+            let totalExpensesVal = expenses.reduce((a, b) => a + (parseFloat(b.amount)||0), 0);
             let ownerNet = (grossProfit - partnerCut) - totalExpensesVal;
 
-            let totalPaidPartner = payouts.reduce((a, b) => a + b.amount, 0);
+            let totalPaidPartner = payouts.reduce((a, b) => a + (parseFloat(b.amount)||0), 0);
             let partnerPending = partnerCut - totalPaidPartner;
 
-            // DASHBOARD STATS ONLY
+            // DASHBOARD STATS
             document.getElementById('card-total-sales').innerText = formatMoney(totalSalesVal);
             document.getElementById('card-collected-sub').innerText = `${formatMoney(collectedVal)} collected`;
             document.getElementById('card-owner-expenses').innerText = formatMoney(totalExpensesVal);
@@ -818,14 +919,23 @@
             document.getElementById('partner-total-paid-display').innerText = formatMoney(totalPaidPartner);
             document.getElementById('partner-pending-balance-display').innerText = formatMoney(partnerPending);
 
-            // Render Suppliers Directory Tags
-            const suppTags = document.getElementById('suppliers-list-tags');
-            suppTags.innerHTML = suppliers.map(s => {
-                let p = calculateSupplierPending(s);
-                return `<span class="px-3 py-1 bg-gray-100 border border-gray-300 rounded-full text-xs font-semibold text-gray-700 flex items-center gap-2">
-                    👤 ${s} <span class="${p > 0 ? 'text-red-600' : 'text-emerald-600'} font-mono">(${formatMoney(p)})</span>
-                </span>`;
-            }).join('');
+            // Render Suppliers Directory Table
+            const suppTableBody = document.getElementById('suppliers-table-body');
+            suppTableBody.innerHTML = suppliers.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No suppliers added yet.</td></tr>` : '';
+            
+            suppliers.forEach((s, idx) => {
+                let p = calculateSupplierPending(s.name);
+                suppTableBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2 font-semibold text-gray-800">${s.name}</td>
+                    <td class="py-2 text-gray-600 font-mono">${s.phone || '-'}</td>
+                    <td class="py-2 text-gray-600">${s.address || '-'}</td>
+                    <td class="py-2 font-mono font-bold ${p > 0 ? 'text-red-600' : 'text-emerald-600'}">${formatMoney(p)}</td>
+                    <td class="py-2 text-right space-x-2">
+                        <button onclick="editSupplier(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
+                        <button onclick="deleteSupplier(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
+                    </td>
+                </tr>`;
+            });
 
             // Render Catalog
             const catBody = document.getElementById('items-table-body');
@@ -841,12 +951,14 @@
                 </tr>`;
             });
 
-            // Render Purchases & Dynamic Balance Calculation
+            // Render Purchases
             const pBody = document.getElementById('purchases-table-body');
             pBody.innerHTML = purchases.length === 0 ? `<tr><td colspan="8" class="text-gray-400 text-center py-4">No purchases logged.</td></tr>` : '';
             
             purchases.forEach(p => {
-                let totalSuppPaid = supplierPayments.filter(sp => sp.supplier.toLowerCase() === p.supplier.toLowerCase()).reduce((a,b) => a + b.amount, 0);
+                let pPaid = parseFloat(p.paid) || 0;
+                let pTotal = parseFloat(p.total) || 0;
+                let totalSuppPaid = supplierPayments.filter(sp => sp.supplier && sp.supplier.toLowerCase() === (p.supplier||'').toLowerCase()).reduce((a,b) => a + (parseFloat(b.amount)||0), 0);
                 let overallPending = calculateSupplierPending(p.supplier);
 
                 pBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
@@ -855,8 +967,8 @@
                     <td class="py-2">${p.item}</td>
                     <td class="py-2 font-mono">${p.qty}</td>
                     <td class="py-2 font-mono">${formatMoney(p.cost)}</td>
-                    <td class="py-2 font-mono font-bold">${formatMoney(p.total)}</td>
-                    <td class="py-2 font-mono text-emerald-700 font-semibold">${formatMoney(p.paid + totalSuppPaid)}</td>
+                    <td class="py-2 font-mono font-bold">${formatMoney(pTotal)}</td>
+                    <td class="py-2 font-mono text-emerald-700 font-semibold">${formatMoney(pPaid + totalSuppPaid)}</td>
                     <td class="py-2 font-mono font-bold ${overallPending > 0 ? 'text-red-600' : 'text-gray-500'}">${formatMoney(overallPending)}</td>
                 </tr>`;
             });
@@ -919,7 +1031,7 @@
 
             // Top / Least Selling
             let tracker = {};
-            sales.forEach(s => tracker[s.item] = (tracker[s.item] || 0) + s.qty);
+            sales.forEach(s => tracker[s.item] = (tracker[s.item] || 0) + (parseInt(s.qty)||0));
             let sorted = Object.entries(tracker).sort((a,b) => b[1] - a[1]);
 
             let topEl = document.getElementById('top-selling-list');
@@ -950,7 +1062,7 @@
             if(filtered.length === 0) {
                 resDiv.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-4">No matching records found.</p>`;
             } else {
-                let tot = filtered.reduce((a,b) => a+b.total, 0);
+                let tot = filtered.reduce((a,b) => a+(parseFloat(b.total)||0), 0);
                 resDiv.innerHTML = `<p class="font-semibold mb-2">Found ${filtered.length} records (Filtered Total Sales: <span class="font-mono text-emerald-700">${formatMoney(tot)}</span>)</p>
                 <div class="space-y-1">${filtered.map(f => `<div class="flex justify-between py-1 border-b text-xs"><span>${f.date} — <strong>${f.customer}</strong> (${f.item})</span><span class="font-mono font-bold">${formatMoney(f.total)} [${f.status}]</span></div>`).join('')}</div>`;
             }
