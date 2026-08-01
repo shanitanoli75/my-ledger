@@ -31,6 +31,7 @@
         body { background-color: #f6f5f0; color: #1a1d1b; font-family: 'Plus Jakarta Sans', sans-serif; }
         .card-shadow { box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #e5e3da; }
         .nav-item.active { background-color: rgba(255,255,255,0.08); border-right: 3px solid #c59b27; color: #ffffff; font-weight: 600; }
+        .sub-nav-item.active { color: #c59b27; font-weight: 700; }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
@@ -91,25 +92,45 @@
                 <button onclick="switchTab('reports')" id="btn-reports" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
                     <span>📈</span> Sales & Date Report
                 </button>
-                <button onclick="switchTab('suppliers')" id="btn-suppliers" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
-                    <span>👥</span> Suppliers & Purchases
+
+                <!-- SALES SECTION WITH SUB-TABS -->
+                <div>
+                    <button onclick="toggleSubMenu('sales-submenu', 'btn-sales-main')" id="btn-sales-main" class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:text-white transition">
+                        <div class="flex items-center gap-3"><span>🛍️</span> Sales</div>
+                        <span id="sales-arrow">▼</span>
+                    </button>
+                    <div id="sales-submenu" class="hidden pl-8 space-y-1 mt-1">
+                        <button onclick="switchTab('sales-general')" id="btn-sales-general" class="sub-nav-item w-full text-left py-1.5 text-gray-400 hover:text-white transition">General Sales</button>
+                        <button onclick="switchTab('sales-fleek')" id="btn-sales-fleek" class="sub-nav-item w-full text-left py-1.5 text-gray-400 hover:text-white transition">Fleek App Orders</button>
+                    </div>
+                </div>
+
+                <!-- DISPATCHES SECTION -->
+                <button onclick="switchTab('dispatches')" id="btn-dispatches" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
+                    <span>🚚</span> Dispatches
                 </button>
-                <button onclick="switchTab('sales')" id="btn-sales" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
-                    <span>🛍️</span> Sales / Dispatches
-                </button>
-                <button onclick="switchTab('expenses')" id="btn-expenses" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
-                    <span>💵</span> Owner Expenses
-                </button>
-                <button onclick="switchTab('partner')" id="btn-partner" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
-                    <span>⚖️</span> Partner Profit (<span id="partner-nav-pct">25</span>%)
-                </button>
+
+                <!-- ACCOUNTS SECTION WITH SUB-TABS -->
+                <div>
+                    <button onclick="toggleSubMenu('accounts-submenu', 'btn-accounts-main')" id="btn-accounts-main" class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:text-white transition">
+                        <div class="flex items-center gap-3"><span>💳</span> Accounts</div>
+                        <span id="accounts-arrow">▼</span>
+                    </button>
+                    <div id="accounts-submenu" class="hidden pl-8 space-y-1 mt-1">
+                        <button onclick="switchTab('expenses')" id="btn-expenses" class="sub-nav-item w-full text-left py-1.5 text-gray-400 hover:text-white transition">Owner Expenses</button>
+                        <button onclick="switchTab('suppliers')" id="btn-suppliers" class="sub-nav-item w-full text-left py-1.5 text-gray-400 hover:text-white transition">Suppliers & Purchases</button>
+                        <button onclick="switchTab('supplier-payments')" id="btn-supplier-payments" class="sub-nav-item w-full text-left py-1.5 text-gray-400 hover:text-white transition">Supplier Payments</button>
+                        <button onclick="switchTab('partner')" id="btn-partner" class="sub-nav-item w-full text-left py-1.5 text-gray-400 hover:text-white transition">Partner Share Payment</button>
+                    </div>
+                </div>
+
                 <button onclick="switchTab('users')" id="btn-users" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition text-amber-400">
                     <span>🔐</span> Users & Permissions
                 </button>
             </nav>
         </div>
         <div class="p-2 border-t border-gray-800 flex justify-between items-center text-[10px] text-gray-500">
-            <span>Usman Trade v8.2</span>
+            <span>Usman Trade v8.3</span>
             <div class="space-x-2">
                 <button onclick="openModal('change-pass')" class="text-amber-400 hover:underline">Change Pass</button>
                 <button onclick="handleLogout()" class="text-red-400 hover:underline">Logout</button>
@@ -226,7 +247,7 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-xl font-bold text-gray-800">Inventory & Stock Status</h2>
-                    <p class="text-xs text-gray-500">Live quantity tracker calculated automatically from Purchases and Sales, organized by age group and item type.</p>
+                    <p class="text-xs text-gray-500">Live quantity tracker calculated automatically from Purchases and Sales, organized by item type.</p>
                 </div>
                 <button onclick="openModal('adj-stock')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-indigo-700">⚙️ Manual Stock Adjustment</button>
             </div>
@@ -240,7 +261,7 @@
             </div>
         </div>
 
-        <!-- TAB 2: REPORTS -->
+        <!-- TAB: REPORTS -->
         <div id="tab-reports" class="tab-content hidden space-y-6">
             <h2 class="text-xl font-bold text-gray-800">Sales & Date Filter Report</h2>
             <div class="bg-white p-6 rounded-xl card-shadow space-y-4">
@@ -265,122 +286,16 @@
             </div>
         </div>
 
-        <!-- TAB 3: SUPPLIERS & PURCHASES -->
-        <div id="tab-suppliers" class="tab-content hidden space-y-6">
+        <!-- SUB-TAB: GENERAL SALES -->
+        <div id="tab-sales-general" class="tab-content hidden space-y-6">
             <div class="flex justify-between items-center">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-800">Suppliers & Stock Purchases</h2>
-                    <p class="text-xs text-gray-500">Track purchase costs, supplier contact, payments, and pending dues.</p>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="openModal('add-supplier')" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700">+ Add Supplier</button>
-                    <button onclick="openModal('supp-payout')" class="bg-amber-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-amber-700">💳 Record Supplier Payment</button>
-                    <button onclick="openModal('purchase')" class="bg-[#121816] text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-gray-800">+ Log Purchase</button>
-                </div>
-            </div>
-
-            <!-- Manage Suppliers Section -->
-            <div class="bg-white p-6 rounded-xl card-shadow space-y-3">
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Registered Suppliers Directory</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="border-b border-gray-200 text-gray-400 uppercase">
-                                <th class="py-2">Supplier Name</th>
-                                <th class="py-2">Phone</th>
-                                <th class="py-2">Address</th>
-                                <th class="py-2">Pending Balance</th>
-                                <th class="py-2 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="suppliers-table-body">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Purchase Records & Payments Table -->
-            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto space-y-4">
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Purchase Records & Payments</h3>
-                <table class="w-full text-left text-xs">
-                    <thead>
-                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
-                            <th class="py-2">Date</th>
-                            <th class="py-2">Supplier</th>
-                            <th class="py-2">Item</th>
-                            <th class="py-2">Qty</th>
-                            <th class="py-2">Cost/Unit</th>
-                            <th class="py-2">Total Bill</th>
-                            <th class="py-2">Amount Paid</th>
-                            <th class="py-2">Pending Balance</th>
-                            <th class="py-2 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="purchases-table-body">
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Supplier Payment History Log Table -->
-            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto space-y-4">
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Supplier Payment History Log</h3>
-                <table class="w-full text-left text-xs">
-                    <thead>
-                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
-                            <th class="py-2">Date</th>
-                            <th class="py-2">Supplier</th>
-                            <th class="py-2">Payment Made</th>
-                            <th class="py-2">Notes</th>
-                            <th class="py-2 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="supplier-payments-table-body">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- TAB 4: SALES / DISPATCHES -->
-        <div id="tab-sales" class="tab-content hidden space-y-6">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800">Sales & Dispatches Log</h2>
-                    <p class="text-xs text-gray-500">Track dispatches and customer payment status (Paid / Pending).</p>
+                    <h2 class="text-xl font-bold text-gray-800">General Sales Records</h2>
+                    <p class="text-xs text-gray-500">Track standard general sales and customer payment status.</p>
                 </div>
                 <button onclick="openModal('sale')" class="bg-[#121816] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-gray-800">+ Log New Sale</button>
             </div>
-            
-            <!-- FLEEK ORDERS & DISPATCH SUB-SECTION -->
-            <div class="bg-white p-6 rounded-xl card-shadow space-y-4 border-l-4 border-amber-500">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wide">📦 Fleek App Orders & Dispatch Status</h3>
-                        <p class="text-xs text-gray-500">Manage orders coming from Fleek app. Keep track of pending dispatches.</p>
-                    </div>
-                    <button onclick="openModal('fleek-order')" class="bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-700">+ Add Fleek Order</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="border-b border-gray-200 text-gray-400 uppercase">
-                                <th class="py-2">Date</th>
-                                <th class="py-2">Order ID / Customer</th>
-                                <th class="py-2">Item Details</th>
-                                <th class="py-2">Qty</th>
-                                <th class="py-2">Amount</th>
-                                <th class="py-2">Dispatch Status</th>
-                                <th class="py-2 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="fleek-orders-table-body">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Standard Sales Table -->
             <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto">
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">General Sales Records</h3>
                 <table class="w-full text-left text-xs">
                     <thead>
                         <tr class="border-b border-gray-200 text-gray-400 uppercase">
@@ -400,7 +315,62 @@
             </div>
         </div>
 
-        <!-- TAB 5: OWNER EXPENSES -->
+        <!-- SUB-TAB: FLEEK APP ORDERS -->
+        <div id="tab-sales-fleek" class="tab-content hidden space-y-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Fleek App Orders</h2>
+                    <p class="text-xs text-gray-500">Manage orders coming from Fleek app with item breakdowns.</p>
+                </div>
+                <button onclick="openModal('fleek-order')" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-amber-700">+ Add Fleek Order</button>
+            </div>
+            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                            <th class="py-2">Date</th>
+                            <th class="py-2">Order ID / Customer</th>
+                            <th class="py-2">Item Details</th>
+                            <th class="py-2">Qty</th>
+                            <th class="py-2">Amount</th>
+                            <th class="py-2">Dispatch Status</th>
+                            <th class="py-2 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fleek-orders-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: DISPATCHES -->
+        <div id="tab-dispatches" class="tab-content hidden space-y-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Dispatches Management</h2>
+                    <p class="text-xs text-gray-500">Track and manage dispatch statuses for all orders.</p>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                            <th class="py-2">Date</th>
+                            <th class="py-2">Source / Type</th>
+                            <th class="py-2">Order ID / Customer</th>
+                            <th class="py-2">Item Details</th>
+                            <th class="py-2">Qty</th>
+                            <th class="py-2">Status</th>
+                            <th class="py-2 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dispatches-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: OWNER EXPENSES -->
         <div id="tab-expenses" class="tab-content hidden space-y-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -425,11 +395,93 @@
             </div>
         </div>
 
-        <!-- TAB 6: PARTNER PROFIT -->
+        <!-- TAB: SUPPLIERS & PURCHASES -->
+        <div id="tab-suppliers" class="tab-content hidden space-y-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Suppliers & Stock Purchases</h2>
+                    <p class="text-xs text-gray-500">Track purchase costs, supplier contact, and pending dues.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="openModal('add-supplier')" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700">+ Add Supplier</button>
+                    <button onclick="openModal('purchase')" class="bg-[#121816] text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-gray-800">+ Log Purchase</button>
+                </div>
+            </div>
+
+            <!-- Manage Suppliers Section -->
+            <div class="bg-white p-6 rounded-xl card-shadow space-y-3">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Registered Suppliers Directory</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                                <th class="py-2">Supplier Name</th>
+                                <th class="py-2">Phone</th>
+                                <th class="py-2">Address</th>
+                                <th class="py-2">Pending Balance</th>
+                                <th class="py-2 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suppliers-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Purchase Records Table -->
+            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto space-y-4">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Purchase Records</h3>
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                            <th class="py-2">Date</th>
+                            <th class="py-2">Supplier</th>
+                            <th class="py-2">Item</th>
+                            <th class="py-2">Qty</th>
+                            <th class="py-2">Cost/Unit</th>
+                            <th class="py-2">Total Bill</th>
+                            <th class="py-2">Amount Paid</th>
+                            <th class="py-2">Pending Balance</th>
+                            <th class="py-2 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="purchases-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: SUPPLIER PAYMENTS -->
+        <div id="tab-supplier-payments" class="tab-content hidden space-y-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Supplier Payments</h2>
+                    <p class="text-xs text-gray-500">Record and review all supplier payment histories.</p>
+                </div>
+                <button onclick="openModal('supp-payout')" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-amber-700">💳 Record Supplier Payment</button>
+            </div>
+            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto space-y-4">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                            <th class="py-2">Date</th>
+                            <th class="py-2">Supplier</th>
+                            <th class="py-2">Payment Made</th>
+                            <th class="py-2">Notes</th>
+                            <th class="py-2 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="supplier-payments-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: PARTNER PROFIT -->
         <div id="tab-partner" class="tab-content hidden space-y-6">
             <div class="flex justify-between items-center">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-800">Partner Profit & Payouts</h2>
+                    <h2 class="text-xl font-bold text-gray-800">Partner Share Payment & Payouts</h2>
                     <p class="text-xs text-gray-500">Manage custom percentage share and payout records.</p>
                 </div>
                 <button onclick="openModal('payout')" class="bg-[#121816] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-gray-800">+ Record Payout</button>
@@ -475,7 +527,7 @@
             </div>
         </div>
 
-        <!-- TAB 7: USERS & PERMISSIONS (Admin Only) -->
+        <!-- TAB: USERS & PERMISSIONS (Admin Only) -->
         <div id="tab-users" class="tab-content hidden space-y-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -512,8 +564,8 @@
                 <input type="text" id="fleek-customer" placeholder="e.g. Fleek #1023 - John" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Item Details</label>
-                <input type="text" id="fleek-item" placeholder="e.g. Baby Tees (White)" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Select Item from Catalog</label>
+                <select id="fleek-item-select" class="w-full border border-gray-300 rounded-lg p-2 text-sm"></select>
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
@@ -559,10 +611,13 @@
                     <label class="flex items-center gap-2"><input type="checkbox" value="items" class="perm-chk"> Item Catalog</label>
                     <label class="flex items-center gap-2"><input type="checkbox" value="inventory" class="perm-chk"> Inventory / Stock</label>
                     <label class="flex items-center gap-2"><input type="checkbox" value="reports" class="perm-chk"> Sales & Date Report</label>
-                    <label class="flex items-center gap-2"><input type="checkbox" value="suppliers" class="perm-chk"> Suppliers & Purchases</label>
-                    <label class="flex items-center gap-2"><input type="checkbox" value="sales" class="perm-chk"> Sales / Dispatches</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="sales-general" class="perm-chk"> General Sales</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="sales-fleek" class="perm-chk"> Fleek App Orders</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="dispatches" class="perm-chk"> Dispatches</label>
                     <label class="flex items-center gap-2"><input type="checkbox" value="expenses" class="perm-chk"> Owner Expenses</label>
-                    <label class="flex items-center gap-2"><input type="checkbox" value="partner" class="perm-chk"> Partner Profit</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="suppliers" class="perm-chk"> Suppliers & Purchases</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="supplier-payments" class="perm-chk"> Supplier Payments</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="partner" class="perm-chk"> Partner Share Payment</label>
                 </div>
             </div>
             <div class="flex justify-end gap-2 pt-2">
@@ -672,7 +727,7 @@
         </div>
     </div>
 
-    <!-- MODAL: MANUAL STOCK ADJUSTMENT / EDIT STOCK -->
+    <!-- MODAL: MANUAL STOCK ADJUSTMENT -->
     <div id="modal-adj-stock" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
             <h3 class="text-lg font-bold" id="adj-modal-title">Manual Stock Adjustment</h3>
@@ -728,6 +783,13 @@
                 <select id="sale-status" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
                     <option value="Paid">Payment Received (Paid)</option>
                     <option value="Pending">Payment Pending (Unpaid)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Dispatch Status</label>
+                <select id="sale-dispatch-status" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                    <option value="Pending">Pending (Not Dispatched)</option>
+                    <option value="Dispatched">Dispatched</option>
                 </select>
             </div>
             <div class="flex justify-end gap-2 pt-2">
@@ -905,7 +967,6 @@
 
         let currentUser = localStorage.getItem('usman_current_user') || 'admin';
 
-        // 5 MINUTE AUTO LOGOUT TIMER LOGIC
         let inactivityTimer;
         function resetInactivityTimer() {
             clearTimeout(inactivityTimer);
@@ -930,7 +991,18 @@
             updateUI();
         };
 
-        // AUTHENTICATION LOGIC
+        function toggleSubMenu(submenuId, btnId) {
+            const sub = document.getElementById(submenuId);
+            const arrow = document.getElementById(btnId.replace('-main', '-arrow'));
+            if(sub.classList.contains('hidden')) {
+                sub.classList.remove('hidden');
+                if(arrow) arrow.innerText = '▲';
+            } else {
+                sub.classList.add('hidden');
+                if(arrow) arrow.innerText = '▼';
+            }
+        }
+
         function handleLogin() {
             const user = document.getElementById('login-user').value.trim();
             const pass = document.getElementById('login-pass').value;
@@ -986,6 +1058,8 @@
                 let tabName = b.id.replace('btn-', '');
                 if(tabName === 'users') {
                     b.style.display = 'none';
+                } else if(tabName === 'sales-main' || tabName === 'accounts-main') {
+                    b.style.display = 'flex';
                 } else if(allowed.includes(tabName)) {
                     b.style.display = 'flex';
                 } else {
@@ -1035,7 +1109,6 @@
             }, 1500);
         }
 
-        // USERS & PERMISSIONS MANAGEMENT
         function openUserModal(index) {
             document.getElementById('edit-user-index').value = index;
             const chks = document.querySelectorAll('.perm-chk');
@@ -1104,14 +1177,16 @@
             const sSelect = document.getElementById('sale-item-select');
             const pSelect = document.getElementById('pur-item-select');
             const adjSelect = document.getElementById('adj-item-select');
+            const fleekSelect = document.getElementById('fleek-item-select');
             
-            sSelect.innerHTML = ''; pSelect.innerHTML = ''; adjSelect.innerHTML = '';
+            sSelect.innerHTML = ''; pSelect.innerHTML = ''; adjSelect.innerHTML = ''; fleekSelect.innerHTML = '';
             
             catalog.forEach(item => {
                 let label = `${item.name} (${item.color})`;
                 sSelect.innerHTML += `<option value="${label}">${label}</option>`;
                 pSelect.innerHTML += `<option value="${label}">${label}</option>`;
                 adjSelect.innerHTML += `<option value="${label}">${label}</option>`;
+                fleekSelect.innerHTML += `<option value="${label}">${label}</option>`;
             });
 
             const purSuppSelect = document.getElementById('pur-supplier-select');
@@ -1131,9 +1206,13 @@
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
-            document.getElementById('btn-' + tabId).classList.add('active');
+            document.querySelectorAll('.nav-item, .sub-nav-item').forEach(el => el.classList.remove('active'));
+            
+            const targetTab = document.getElementById('tab-' + tabId);
+            if(targetTab) targetTab.classList.remove('hidden');
+
+            const targetBtn = document.getElementById('btn-' + tabId);
+            if(targetBtn) targetBtn.classList.add('active');
         }
 
         function openModal(id) { 
@@ -1151,10 +1230,9 @@
             el.classList.remove('flex'); 
         }
 
-        // FLEEK ORDERS FUNCTIONS
         function saveFleekOrder() {
             const customer = document.getElementById('fleek-customer').value.trim() || "Fleek Order";
-            const item = document.getElementById('fleek-item').value.trim() || "General Item";
+            const item = document.getElementById('fleek-item-select').value;
             const qty = parseInt(document.getElementById('fleek-qty').value) || 1;
             const amount = parseFloat(document.getElementById('fleek-amount').value) || 0;
             const status = document.getElementById('fleek-status').value;
@@ -1172,7 +1250,6 @@
             document.getElementById('edit-fleek-index').value = '-1';
             document.getElementById('fleek-modal-title').innerText = "Add Fleek Order";
             document.getElementById('fleek-customer').value = '';
-            document.getElementById('fleek-item').value = '';
             document.getElementById('fleek-qty').value = '1';
             document.getElementById('fleek-amount').value = '0';
             closeModal('fleek-order');
@@ -1183,7 +1260,7 @@
             let fo = fleekOrders[index];
             document.getElementById('fleek-modal-title').innerText = "Edit Fleek Order";
             document.getElementById('fleek-customer').value = fo.customer;
-            document.getElementById('fleek-item').value = fo.item;
+            document.getElementById('fleek-item-select').value = fo.item;
             document.getElementById('fleek-qty').value = fo.qty;
             document.getElementById('fleek-amount').value = fo.amount;
             document.getElementById('fleek-status').value = fo.status;
@@ -1205,7 +1282,6 @@
             updateUI();
         }
 
-        // SALES EDIT & DELETE
         function saveSale() {
             const customer = document.getElementById('sale-customer').value || "General";
             const item = document.getElementById('sale-item-select').value;
@@ -1213,14 +1289,15 @@
             const cost = parseFloat(document.getElementById('sale-cost').value) || 0;
             const price = parseFloat(document.getElementById('sale-price').value) || 0;
             const status = document.getElementById('sale-status').value;
+            const dispatchStatus = document.getElementById('sale-dispatch-status').value;
             const index = parseInt(document.getElementById('edit-sale-index').value);
 
             if(qty <= 0 || price <= 0) return alert("Quantity اور Price درج کریں!");
 
             if(index >= 0) {
-                sales[index] = { ...sales[index], customer, item, qty, cost, price, total: qty * price, status };
+                sales[index] = { ...sales[index], customer, item, qty, cost, price, total: qty * price, status, dispatchStatus };
             } else {
-                sales.push({ id: Date.now(), date: new Date().toISOString().slice(0,10), customer, item, qty, cost, price, total: qty * price, status });
+                sales.push({ id: Date.now(), date: new Date().toISOString().slice(0,10), customer, item, qty, cost, price, total: qty * price, status, dispatchStatus });
             }
 
             localStorage.setItem('usman_sales', JSON.stringify(sales));
@@ -1239,6 +1316,7 @@
             document.getElementById('sale-cost').value = s.cost;
             document.getElementById('sale-price').value = s.price;
             document.getElementById('sale-status').value = s.status;
+            document.getElementById('sale-dispatch-status').value = s.dispatchStatus || 'Pending';
             document.getElementById('edit-sale-index').value = index;
             openModal('sale');
         }
@@ -1257,7 +1335,12 @@
             updateUI();
         }
 
-        // OWNER EXPENSES EDIT & DELETE
+        function toggleSaleDispatchStatus(index) {
+            sales[index].dispatchStatus = (sales[index].dispatchStatus === 'Dispatched') ? 'Pending' : 'Dispatched';
+            localStorage.setItem('usman_sales', JSON.stringify(sales));
+            updateUI();
+        }
+
         function saveExpense() {
             const title = document.getElementById('exp-title').value || "Expense";
             const amount = parseFloat(document.getElementById('exp-amount').value) || 0;
@@ -1297,7 +1380,6 @@
             }
         }
 
-        // PARTNER PAYOUTS EDIT & DELETE
         function savePayout() {
             const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
             const notes = document.getElementById('pay-notes').value || "Payout";
@@ -1337,7 +1419,6 @@
             }
         }
 
-        // MANUAL STOCK EDIT & DELETE
         function saveManualStock() {
             const item = document.getElementById('adj-item-select').value;
             const qty = parseInt(document.getElementById('adj-qty-input').value) || 0;
@@ -1383,7 +1464,6 @@
             }
         }
 
-        // SUPPLIERS FUNCTIONS
         function saveSupplier() {
             const name = document.getElementById('supp-name-input').value.trim();
             const phone = document.getElementById('supp-phone-input').value.trim() || '-';
@@ -1454,7 +1534,6 @@
             }
         }
 
-        // PURCHASES FUNCTIONS
         function savePurchase() {
             const supplier = document.getElementById('pur-supplier-select').value || "General Supplier";
             const item = document.getElementById('pur-item-select').value;
@@ -1499,7 +1578,6 @@
             }
         }
 
-        // SUPPLIER PAYMENTS FUNCTIONS
         function saveSupplierPayment() {
             const selectVal = document.getElementById('spay-supplier-select').value;
             let supplier = selectVal;
@@ -1546,7 +1624,6 @@
             }
         }
 
-        // ITEM CATALOG FUNCTIONS
         function saveItemCatalog() {
             const name = document.getElementById('item-name-input').value.trim();
             const color = document.getElementById('item-color-input').value.trim() || 'Standard';
@@ -1640,7 +1717,7 @@
             });
 
             const typePriority = ['Shirts','Shorts','Pants','Skirts','Jackets','Tracksuits','Shoes','Bags','Glasses','Hats','Accessories','Jewelry','Electronics','Home Decor','Beauty','Other'];
-            let grouped = { Adults: {}, Kids: {} };
+            let groupedByType = {};
 
             Object.keys(inventory).forEach(key => {
                 if(searchTerm && !key.toLowerCase().includes(searchTerm)) return;
@@ -1652,94 +1729,67 @@
                 let isLow = currentQty <= 5;
 
                 let meta = catalogMeta[key] || { styleTag: 'Y2K', ageGroup: 'Adults', itemType: 'Other' };
-                let ageGrp = meta.ageGroup === 'Kids' ? 'Kids' : 'Adults';
                 let type = meta.itemType || 'Other';
 
-                if(!grouped[ageGrp][type]) grouped[ageGrp][type] = [];
-                grouped[ageGrp][type].push({ key, currentQty, avgCost, stockVal, isLow });
+                if(!groupedByType[type]) groupedByType[type] = [];
+                groupedByType[type].push({ key, currentQty, avgCost, stockVal, isLow });
             });
 
             const invContainer = document.getElementById('inventory-groups-container');
             invContainer.innerHTML = '';
 
-            const ageSections = [
-                { key: 'Adults', label: '🧑 Adults Category' },
-                { key: 'Kids', label: '🧒 Kids Category' }
-            ];
+            let typeKeys = Object.keys(groupedByType);
 
-            let anyItemsAtAll = Object.keys(grouped.Adults).length > 0 || Object.keys(grouped.Kids).length > 0;
-
-            if(!anyItemsAtAll) {
+            if(typeKeys.length === 0) {
                 invContainer.innerHTML = searchTerm
                     ? `<p class="text-xs text-gray-400 italic text-center py-6">No matching items found for "${searchTerm}".</p>`
                     : `<p class="text-xs text-gray-400 italic text-center py-6">No items in inventory yet.</p>`;
                 return;
             }
 
-            ageSections.forEach(age => {
-                const typesForAge = grouped[age.key];
-                let typeKeys = Object.keys(typesForAge);
+            typeKeys.sort((a, b) => {
+                let ia = typePriority.indexOf(a); if(ia === -1) ia = 999;
+                let ib = typePriority.indexOf(b); if(ib === -1) ib = 999;
+                return ia - ib;
+            });
 
-                let ageBlock = document.createElement('div');
-                ageBlock.className = 'space-y-4';
-                let heading = document.createElement('h2');
-                heading.className = 'text-lg font-bold text-gray-800 border-b-2 border-[#c59b27] pb-2';
-                heading.innerText = age.label;
-                ageBlock.appendChild(heading);
+            typeKeys.forEach(type => {
+                const items = groupedByType[type];
+                let rows = items.map(it => `
+                    <tr class="border-b border-gray-100 py-2 ${it.isLow ? 'bg-red-50/50' : ''}">
+                        <td class="py-2 font-semibold text-gray-800">${it.key}</td>
+                        <td class="py-2 font-mono font-bold ${it.isLow ? 'text-red-600' : 'text-gray-700'}">${it.currentQty} Pcs</td>
+                        <td class="py-2 font-mono text-gray-600">${formatMoney(it.avgCost)}</td>
+                        <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(it.stockVal)}</td>
+                        <td class="py-2">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${it.isLow ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
+                                ${it.isLow ? '⚠️ LOW STOCK' : 'IN STOCK'}
+                            </span>
+                        </td>
+                        <td class="py-2 text-right space-x-2">
+                            <button onclick="editStock('${it.key}')" class="text-xs text-blue-600 font-semibold hover:underline">Edit Stock</button>
+                            <button onclick="deleteStock('${it.key}')" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
+                        </td>
+                    </tr>`).join('');
 
-                if(typeKeys.length === 0) {
-                    let empty = document.createElement('p');
-                    empty.className = 'text-xs text-gray-400 italic';
-                    empty.innerText = searchTerm ? 'No matching items in this category.' : 'No items in this category yet.';
-                    ageBlock.appendChild(empty);
-                } else {
-                    typeKeys.sort((a, b) => {
-                        let ia = typePriority.indexOf(a); if(ia === -1) ia = 999;
-                        let ib = typePriority.indexOf(b); if(ib === -1) ib = 999;
-                        return ia - ib;
-                    });
-
-                    typeKeys.forEach(type => {
-                        const items = typesForAge[type];
-                        let rows = items.map(it => `
-                            <tr class="border-b border-gray-100 py-2 ${it.isLow ? 'bg-red-50/50' : ''}">
-                                <td class="py-2 font-semibold text-gray-800">${it.key}</td>
-                                <td class="py-2 font-mono font-bold ${it.isLow ? 'text-red-600' : 'text-gray-700'}">${it.currentQty} Pcs</td>
-                                <td class="py-2 font-mono text-gray-600">${formatMoney(it.avgCost)}</td>
-                                <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(it.stockVal)}</td>
-                                <td class="py-2">
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${it.isLow ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
-                                        ${it.isLow ? '⚠️ LOW STOCK' : 'IN STOCK'}
-                                    </span>
-                                </td>
-                                <td class="py-2 text-right space-x-2">
-                                    <button onclick="editStock('${it.key}')" class="text-xs text-blue-600 font-semibold hover:underline">Edit Stock</button>
-                                    <button onclick="deleteStock('${it.key}')" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                                </td>
-                            </tr>`).join('');
-
-                        let typeCard = document.createElement('div');
-                        typeCard.className = 'bg-white p-5 rounded-xl card-shadow overflow-x-auto';
-                        typeCard.innerHTML = `
-                            <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-3">📁 ${type}</h3>
-                            <table class="w-full text-left text-xs">
-                                <thead>
-                                    <tr class="border-b border-gray-200 text-gray-400 uppercase">
-                                        <th class="py-2">Item Name</th>
-                                        <th class="py-2">Available Quantity (Pcs)</th>
-                                        <th class="py-2">Avg Unit Cost</th>
-                                        <th class="py-2">Total Stock Value</th>
-                                        <th class="py-2">Status</th>
-                                        <th class="py-2 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${rows}</tbody>
-                            </table>`;
-                        ageBlock.appendChild(typeCard);
-                    });
-                }
-
-                invContainer.appendChild(ageBlock);
+                let typeCard = document.createElement('div');
+                typeCard.className = 'bg-white p-5 rounded-xl card-shadow overflow-x-auto mb-6';
+                typeCard.innerHTML = `
+                    <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-3">📁 ${type}</h3>
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                                <th class="py-2">Item Name</th>
+                                <th class="py-2">Available Quantity (Pcs)</th>
+                                <th class="py-2">Avg Unit Cost</th>
+                                <th class="py-2">Total Stock Value</th>
+                                <th class="py-2">Status</th>
+                                <th class="py-2 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>`;
+                invContainer.appendChild(typeCard);
             });
         }
 
@@ -1811,6 +1861,7 @@
                 </tr>`;
             });
 
+            // Render General Sales Table
             const sBody = document.getElementById('sales-table-body');
             sBody.innerHTML = sales.length === 0 ? `<tr><td colspan="8" class="text-gray-400 text-center py-4">No sales logged.</td></tr>` : '';
             sales.forEach((s, idx) => {
@@ -1829,6 +1880,54 @@
                     <td class="py-2 text-right space-x-2">
                         <button onclick="editSale(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
                         <button onclick="deleteSale(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
+                    </td>
+                </tr>`;
+            });
+
+            // Render Dispatches Table (Combines General Sales & Fleek Orders)
+            const dBody = document.getElementById('dispatches-table-body');
+            let allDispatches = [];
+            sales.forEach((s, sIdx) => {
+                allDispatches.push({
+                    date: s.date,
+                    source: 'General Sale',
+                    customer: s.customer,
+                    item: s.item,
+                    qty: s.qty,
+                    status: s.dispatchStatus || 'Pending',
+                    originalType: 'sale',
+                    originalIdx: sIdx
+                });
+            });
+            fleekOrders.forEach((fo, fIdx) => {
+                allDispatches.push({
+                    date: fo.date,
+                    source: 'Fleek App',
+                    customer: fo.customer,
+                    item: fo.item,
+                    qty: fo.qty,
+                    status: fo.status,
+                    originalType: 'fleek',
+                    originalIdx: fIdx
+                });
+            });
+
+            dBody.innerHTML = allDispatches.length === 0 ? `<tr><td colspan="7" class="text-gray-400 text-center py-4">No dispatch records found.</td></tr>` : '';
+            allDispatches.forEach((d) => {
+                let toggleFn = d.originalType === 'sale' ? `toggleSaleDispatchStatus(${d.originalIdx})` : `toggleFleekStatus(${d.originalIdx})`;
+                dBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2">${d.date}</td>
+                    <td class="py-2 font-semibold text-amber-700">${d.source}</td>
+                    <td class="py-2">${d.customer}</td>
+                    <td class="py-2">${d.item}</td>
+                    <td class="py-2 font-mono">${d.qty}</td>
+                    <td class="py-2">
+                        <button onclick="${toggleFn}" class="px-2 py-0.5 rounded text-[10px] font-bold ${d.status === 'Dispatched' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                            ${d.status}
+                        </button>
+                    </td>
+                    <td class="py-2 text-right">
+                        <span class="text-xs text-gray-400 italic">Managed in source</span>
                     </td>
                 </tr>`;
             });
@@ -1898,7 +1997,6 @@
             purchases.forEach((p, idx) => {
                 let pPaid = parseFloat(p.paid) || 0;
                 let pTotal = parseFloat(p.total) || 0;
-                let totalSuppPaid = supplierPayments.filter(sp => sp.supplier && sp.supplier.toLowerCase() === (p.supplier||'').toLowerCase()).reduce((a,b) => a + (parseFloat(b.amount)||0), 0);
                 let overallPending = calculateSupplierPending(p.supplier);
 
                 pBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
@@ -1908,8 +2006,8 @@
                     <td class="py-2 font-mono">${p.qty}</td>
                     <td class="py-2 font-mono">${formatMoney(p.cost)}</td>
                     <td class="py-2 font-mono font-bold">${formatMoney(pTotal)}</td>
-                    <td class="py-2 font-mono text-emerald-700 font-semibold">${formatMoney(pPaid + totalSuppPaid)}</td>
-                    <td class="py-2 font-mono font-bold ${overallPending > 0 ? 'text-red-600' : 'text-gray-500'}">${formatMoney(overallPending)}</td>
+                    <td class="py-2 font-mono text-emerald-700">${formatMoney(pPaid)}</td>
+                    <td class="py-2 font-mono font-bold text-red-600">${formatMoney(overallPending)}</td>
                     <td class="py-2 text-right space-x-2">
                         <button onclick="editPurchase(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
                         <button onclick="deletePurchase(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
@@ -1918,57 +2016,21 @@
             });
 
             const spBody = document.getElementById('supplier-payments-table-body');
-            spBody.innerHTML = supplierPayments.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No supplier payments logged.</td></tr>` : '';
+            spBody.innerHTML = supplierPayments.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No supplier payments recorded.</td></tr>` : '';
             supplierPayments.forEach((sp, idx) => {
                 spBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2">${sp.date}</td>
                     <td class="py-2 font-semibold">${sp.supplier}</td>
-                    <td class="py-2 font-mono font-bold text-emerald-700">${formatMoney(sp.amount)}</td>
+                    <td class="py-2 font-mono font-bold text-amber-600">${formatMoney(sp.amount)}</td>
                     <td class="py-2 text-gray-500">${sp.notes}</td>
                     <td class="py-2 text-right space-x-2">
                         <button onclick="editSupplierPayment(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deleteSupplierPayment(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
+                        <button onclick="deleteSupplierPayment(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Dash</button>
                     </td>
                 </tr>`;
             });
-
-            let tracker = {};
-            sales.forEach(s => tracker[s.item] = (tracker[s.item] || 0) + (parseInt(s.qty)||0));
-            let sorted = Object.entries(tracker).sort((a,b) => b[1] - a[1]);
-
-            let topEl = document.getElementById('top-selling-list');
-            let leastEl = document.getElementById('least-selling-list');
-            if(sorted.length === 0) {
-                topEl.innerHTML = `<p class="text-xs text-gray-400 italic">No sales logged yet.</p>`;
-                leastEl.innerHTML = `<p class="text-xs text-gray-400 italic">No sales logged yet.</p>`;
-            } else {
-                topEl.innerHTML = sorted.slice(0, 3).map(([k,v]) => `<div class="flex justify-between font-medium"><span>${k}</span><span class="font-mono text-emerald-700 font-bold">${v} sold</span></div>`).join('');
-                leastEl.innerHTML = sorted.slice(-3).reverse().map(([k,v]) => `<div class="flex justify-between font-medium"><span>${k}</span><span class="font-mono text-amber-700 font-bold">${v} sold</span></div>`).join('');
-            }
-
-            filterReports();
-        }
-
-        function filterReports() {
-            const from = document.getElementById('filter-from').value;
-            const to = document.getElementById('filter-to').value;
-            const q = document.getElementById('filter-search').value.toLowerCase();
-
-            let filtered = sales.filter(s => {
-                let matchDate = (!from || s.date >= from) && (!to || s.date <= to);
-                let matchSearch = !q || s.item.toLowerCase().includes(q) || s.customer.toLowerCase().includes(q);
-                return matchDate && matchSearch;
-            });
-
-            const resDiv = document.getElementById('report-results');
-            if(filtered.length === 0) {
-                resDiv.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-4">No matching records found.</p>`;
-            } else {
-                let tot = filtered.reduce((a,b) => a+(parseFloat(b.total)||0), 0);
-                resDiv.innerHTML = `<p class="font-semibold mb-2">Found ${filtered.length} records (Filtered Total Sales: <span class="font-mono text-emerald-700">${formatMoney(tot)}</span>)</p>
-                <div class="space-y-1">${filtered.map(f => `<div class="flex justify-between py-1 border-b text-xs"><span>${f.date} — <strong>${f.customer}</strong> (${f.item})</span><span class="font-mono font-bold">${formatMoney(f.total)} [${f.status}]</span></div>`).join('')}</div>`;
-            }
         }
     </script>
 </body>
 </html>
+```[cite: 1]
