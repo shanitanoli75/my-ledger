@@ -46,6 +46,15 @@
                 </div>
             </div>
 
+            <!-- Currency Switcher inside Sidebar -->
+            <div class="mb-4 px-2">
+                <label class="block text-[10px] text-gray-400 uppercase font-bold mb-1">Select Currency</label>
+                <select id="currency-select" onchange="changeCurrency(this.value)" class="w-full bg-gray-800 text-white text-xs p-2 rounded border border-gray-700 font-mono">
+                    <option value="PKR">PKR (Rs.)</option>
+                    <option value="USD">USD ($)</option>
+                </select>
+            </div>
+
             <nav class="space-y-1 text-xs font-medium">
                 <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
                     <span>📊</span> Dashboard
@@ -71,22 +80,22 @@
             </nav>
         </div>
         <div class="p-2 border-t border-gray-800 text-[10px] text-gray-500">
-            Usman Trade Ledger System v4.0
+            Usman Trade Ledger System v5.0
         </div>
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto p-8">
         
-        <!-- DASHBOARD CLEAN STAT CARDS (Only Sales, Expenses, Net Profit) -->
+        <!-- DASHBOARD CLEAN STAT CARDS -->
         <div id="dashboard-cards" class="grid grid-cols-3 gap-6 mb-8">
             <div class="bg-white p-5 rounded-xl card-shadow border-t-4 border-emerald-700">
                 <div class="flex justify-between items-center text-xs font-semibold text-gray-500 tracking-wider">
                     TOTAL SALES VALUE
                     <span class="text-emerald-700">🛒</span>
                 </div>
-                <div id="card-total-sales" class="text-3xl font-bold font-mono my-2">$0.00</div>
-                <div id="card-collected-sub" class="text-xs text-gray-400">$0.00 collected</div>
+                <div id="card-total-sales" class="text-3xl font-bold font-mono my-2">0.00</div>
+                <div id="card-collected-sub" class="text-xs text-gray-400">0.00 collected</div>
             </div>
 
             <div class="bg-white p-5 rounded-xl card-shadow border-t-4 border-red-700">
@@ -94,7 +103,7 @@
                     TOTAL EXPENSES
                     <span class="text-red-700">🧾</span>
                 </div>
-                <div id="card-owner-expenses" class="text-3xl font-bold font-mono my-2">$0.00</div>
+                <div id="card-owner-expenses" class="text-3xl font-bold font-mono my-2">0.00</div>
                 <div class="text-xs text-gray-400">Business operating costs</div>
             </div>
 
@@ -103,7 +112,7 @@
                     MY NET PROFIT
                     <span class="text-emerald-800">📈</span>
                 </div>
-                <div id="card-net-profit" class="text-3xl font-bold font-mono my-2">$0.00</div>
+                <div id="card-net-profit" class="text-3xl font-bold font-mono my-2">0.00</div>
                 <div class="text-xs text-gray-400">Clean profit after cost & expenses</div>
             </div>
         </div>
@@ -130,29 +139,29 @@
                 <div class="space-y-3 text-sm">
                     <div class="flex justify-between py-1 border-b border-gray-100">
                         <span class="text-gray-600">Total Sales Value</span>
-                        <span id="pb-total-sales" class="font-mono font-medium">$0.00</span>
+                        <span id="pb-total-sales" class="font-mono font-medium">0.00</span>
                     </div>
                     <div class="flex justify-between py-1 border-b border-gray-100 text-red-600">
                         <span>Cost of Goods Sold (Purchase Cost)</span>
-                        <span id="pb-cost-goods" class="font-mono font-medium">-$0.00</span>
+                        <span id="pb-cost-goods" class="font-mono font-medium">-0.00</span>
                     </div>
                     <div class="flex justify-between py-1 border-b border-gray-100 font-bold text-gray-800">
                         <span>Gross Profit</span>
-                        <span id="pb-gross-profit" class="font-mono">$0.00</span>
+                        <span id="pb-gross-profit" class="font-mono">0.00</span>
                     </div>
                     <div class="flex justify-between py-1 border-b border-gray-100 text-red-600">
                         <span>Owner Expenses</span>
-                        <span id="pb-expenses" class="font-mono font-medium">-$0.00</span>
+                        <span id="pb-expenses" class="font-mono font-medium">-0.00</span>
                     </div>
                     <div class="flex justify-between py-2 pt-3 font-bold text-lg text-emerald-800 border-t border-gray-200">
                         <span>My Final Net Profit</span>
-                        <span id="pb-final-net" class="font-mono">$0.00</span>
+                        <span id="pb-final-net" class="font-mono">0.00</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- NEW TAB: ITEM CATALOG MANAGER -->
+        <!-- TAB: ITEM CATALOG MANAGER -->
         <div id="tab-items" class="tab-content hidden space-y-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -171,7 +180,6 @@
                         </tr>
                     </thead>
                     <tbody id="items-table-body">
-                        <!-- Dynamic Item Entries -->
                     </tbody>
                 </table>
             </div>
@@ -198,12 +206,11 @@
                     </div>
                 </div>
                 <div id="report-results" class="pt-4 border-t border-gray-100 text-sm">
-                    <!-- Dynamic Filtered Results -->
                 </div>
             </div>
         </div>
 
-        <!-- TAB 3: SUPPLIERS & PURCHASES (ENHANCED PAYMENTS & PENDING) -->
+        <!-- TAB 3: SUPPLIERS & PURCHASES -->
         <div id="tab-suppliers" class="tab-content hidden space-y-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -211,10 +218,20 @@
                     <p class="text-xs text-gray-500">Track purchase costs, supplier payments, and pending dues.</p>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="openModal('supp-payout')" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-amber-700">💳 Record Supplier Payment</button>
-                    <button onclick="openModal('purchase')" class="bg-[#121816] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-gray-800">+ Log Purchase</button>
+                    <button onclick="openModal('add-supplier')" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700">+ Add Supplier</button>
+                    <button onclick="openModal('supp-payout')" class="bg-amber-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-amber-700">💳 Record Supplier Payment</button>
+                    <button onclick="openModal('purchase')" class="bg-[#121816] text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-gray-800">+ Log Purchase</button>
                 </div>
             </div>
+
+            <!-- Manage Suppliers Section -->
+            <div class="bg-white p-6 rounded-xl card-shadow space-y-3">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Registered Suppliers Directory</h3>
+                <div id="suppliers-list-tags" class="flex flex-wrap gap-2">
+                    <!-- Dynamic Supplier Badges -->
+                </div>
+            </div>
+
             <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto space-y-4">
                 <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Purchase Records & Payments</h3>
                 <table class="w-full text-left text-xs">
@@ -231,7 +248,6 @@
                         </tr>
                     </thead>
                     <tbody id="purchases-table-body">
-                        <!-- Dynamic Purchases -->
                     </tbody>
                 </table>
             </div>
@@ -243,12 +259,11 @@
                         <tr class="border-b border-gray-200 text-gray-400 uppercase">
                             <th class="py-2">Date</th>
                             <th class="py-2">Supplier</th>
-                            <th class="py-2">Payment Made ($)</th>
+                            <th class="py-2">Payment Made</th>
                             <th class="py-2">Notes</th>
                         </tr>
                     </thead>
                     <tbody id="supplier-payments-table-body">
-                        <!-- Dynamic Supplier Payments -->
                     </tbody>
                 </table>
             </div>
@@ -278,7 +293,6 @@
                         </tr>
                     </thead>
                     <tbody id="sales-table-body">
-                        <!-- Dynamic Sales -->
                     </tbody>
                 </table>
             </div>
@@ -299,11 +313,10 @@
                         <tr class="border-b border-gray-200 text-gray-400 uppercase">
                             <th class="py-2">Date</th>
                             <th class="py-2">Expense Description</th>
-                            <th class="py-2">Amount ($)</th>
+                            <th class="py-2">Amount</th>
                         </tr>
                     </thead>
                     <tbody id="expenses-table-body">
-                        <!-- Dynamic Expenses -->
                     </tbody>
                 </table>
             </div>
@@ -330,15 +343,15 @@
             <div class="grid grid-cols-3 gap-4">
                 <div class="bg-white p-4 rounded-xl card-shadow">
                     <div class="text-xs font-semibold text-gray-400">TOTAL PARTNER SHARE</div>
-                    <div id="partner-total-share-display" class="text-xl font-bold font-mono my-1 text-amber-600">$0.00</div>
+                    <div id="partner-total-share-display" class="text-xl font-bold font-mono my-1 text-amber-600">0.00</div>
                 </div>
                 <div class="bg-white p-4 rounded-xl card-shadow">
                     <div class="text-xs font-semibold text-gray-400">TOTAL PAID TO PARTNER</div>
-                    <div id="partner-total-paid-display" class="text-xl font-bold font-mono my-1 text-emerald-600">$0.00</div>
+                    <div id="partner-total-paid-display" class="text-xl font-bold font-mono my-1 text-emerald-600">0.00</div>
                 </div>
                 <div class="bg-white p-4 rounded-xl card-shadow">
                     <div class="text-xs font-semibold text-gray-400">REMAINING PENDING BALANCE</div>
-                    <div id="partner-pending-balance-display" class="text-xl font-bold font-mono my-1 text-red-600">$0.00</div>
+                    <div id="partner-pending-balance-display" class="text-xl font-bold font-mono my-1 text-red-600">0.00</div>
                 </div>
             </div>
 
@@ -348,18 +361,32 @@
                     <thead>
                         <tr class="border-b border-gray-200 text-gray-400 uppercase">
                             <th class="py-2">Date</th>
-                            <th class="py-2">Amount Paid ($)</th>
+                            <th class="py-2">Amount Paid</th>
                             <th class="py-2">Notes</th>
                         </tr>
                     </thead>
                     <tbody id="payouts-table-body">
-                        <!-- Dynamic Payouts -->
                     </tbody>
                 </table>
             </div>
         </div>
 
     </main>
+
+    <!-- MODAL: ADD SUPPLIER -->
+    <div id="modal-add-supplier" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-bold">Add New Supplier</h3>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Supplier / Vendor Name</label>
+                <input type="text" id="supp-name-input" placeholder="e.g. Ali Fabrics, Ahmed Traders" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('add-supplier')" class="px-4 py-2 text-xs font-semibold text-gray-500">Cancel</button>
+                <button onclick="saveNewSupplier()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">Save Supplier</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL: ADD / EDIT ITEM -->
     <div id="modal-add-item" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
@@ -400,11 +427,11 @@
                     <input type="number" id="sale-qty" value="1" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Cost/Unit ($)</label>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Cost/Unit</label>
                     <input type="number" id="sale-cost" value="0" placeholder="Buying cost" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Sale Price ($)</label>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Sale Price</label>
                     <input type="number" id="sale-price" value="0" placeholder="Selling price" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
                 </div>
             </div>
@@ -422,13 +449,14 @@
         </div>
     </div>
 
-    <!-- MODAL: ADD PURCHASE WITH SUPPLIER PAYMENT -->
+    <!-- MODAL: ADD PURCHASE WITH SUPPLIER DROPDOWN -->
     <div id="modal-purchase" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
             <h3 class="text-lg font-bold">Log Item Purchase</h3>
             <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Supplier Name</label>
-                <input type="text" id="pur-supplier" placeholder="Supplier name" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Select Supplier</label>
+                <select id="pur-supplier-select" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                </select>
             </div>
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Select Item</label>
@@ -440,12 +468,12 @@
                     <input type="number" id="pur-qty" value="10" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Cost Per Unit ($)</label>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Cost Per Unit</label>
                     <input type="number" id="pur-cost" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
                 </div>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Initial Amount Paid to Supplier ($)</label>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Initial Amount Paid to Supplier</label>
                 <input type="number" id="pur-paid" value="0" placeholder="e.g. 50" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
             </div>
             <div class="flex justify-end gap-2 pt-2">
@@ -455,16 +483,24 @@
         </div>
     </div>
 
-    <!-- MODAL: RECORD SUPPLIER PAYMENT -->
+    <!-- MODAL: RECORD SUPPLIER PAYMENT (WITH AUTO PENDING DISPLAY) -->
     <div id="modal-supp-payout" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
             <h3 class="text-lg font-bold">Record Payment to Supplier</h3>
             <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Supplier Name</label>
-                <input type="text" id="spay-supplier" placeholder="Supplier name" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Select Supplier</label>
+                <select id="spay-supplier-select" onchange="updateSupplierPendingDisplay()" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                </select>
             </div>
+            
+            <!-- Dynamic Pending Display Box -->
+            <div class="p-3 bg-red-50 border border-red-200 rounded-lg flex justify-between items-center text-xs">
+                <span class="text-red-700 font-semibold">Current Total Pending:</span>
+                <span id="supp-calculated-pending" class="font-mono font-bold text-red-800 text-sm">0.00</span>
+            </div>
+
             <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Payment Amount ($)</label>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Payment Amount</label>
                 <input type="number" id="spay-amount" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
             </div>
             <div>
@@ -487,7 +523,7 @@
                 <input type="text" id="exp-title" placeholder="e.g. Rent, Electricity, Packaging" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Amount ($)</label>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Amount</label>
                 <input type="number" id="exp-amount" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
             </div>
             <div class="flex justify-end gap-2 pt-2">
@@ -502,7 +538,7 @@
         <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
             <h3 class="text-lg font-bold">Record Partner Payout</h3>
             <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Amount Paid ($)</label>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Amount Paid</label>
                 <input type="number" id="pay-amount" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
             </div>
             <div>
@@ -537,15 +573,31 @@
             { name: "CD Wall Collages", color: "Printed" }, { name: "High-Shine Lip Gloss", color: "Clear Pink" }
         ];
 
+        const defaultSuppliers = ["General Supplier", "Ali Fabrics", "Kaiser Tekstil", "YKK Fasteners"];
+
         let catalog = JSON.parse(localStorage.getItem('usman_catalog')) || defaultItems;
+        let suppliers = JSON.parse(localStorage.getItem('usman_suppliers')) || defaultSuppliers;
         let sales = JSON.parse(localStorage.getItem('usman_sales')) || [];
         let purchases = JSON.parse(localStorage.getItem('usman_purchases')) || [];
         let supplierPayments = JSON.parse(localStorage.getItem('usman_supp_payments')) || [];
         let expenses = JSON.parse(localStorage.getItem('usman_expenses')) || [];
         let payouts = JSON.parse(localStorage.getItem('usman_payouts')) || [];
         let partnerPct = parseFloat(localStorage.getItem('usman_partner_pct')) || 25;
+        let currentCurrency = localStorage.getItem('usman_currency') || 'PKR';
+
+        function formatMoney(val) {
+            const sym = currentCurrency === 'PKR' ? 'Rs. ' : '$';
+            return `${sym}${parseFloat(val).toFixed(2)}`;
+        }
+
+        function changeCurrency(val) {
+            currentCurrency = val;
+            localStorage.setItem('usman_currency', val);
+            updateUI();
+        }
 
         function initDropdowns() {
+            // Items
             const sSelect = document.getElementById('sale-item-select');
             const pSelect = document.getElementById('pur-item-select');
             sSelect.innerHTML = ''; pSelect.innerHTML = '';
@@ -554,7 +606,18 @@
                 sSelect.innerHTML += `<option value="${label}">${label}</option>`;
                 pSelect.innerHTML += `<option value="${label}">${label}</option>`;
             });
+
+            // Suppliers
+            const purSuppSelect = document.getElementById('pur-supplier-select');
+            const spaySuppSelect = document.getElementById('spay-supplier-select');
+            purSuppSelect.innerHTML = ''; spaySuppSelect.innerHTML = '';
+            suppliers.forEach(supp => {
+                purSuppSelect.innerHTML += `<option value="${supp}">${supp}</option>`;
+                spaySuppSelect.innerHTML += `<option value="${supp}">${supp}</option>`;
+            });
+
             document.getElementById('partner-pct-input').value = partnerPct;
+            document.getElementById('currency-select').value = currentCurrency;
         }
 
         function switchTab(tabId) {
@@ -567,13 +630,46 @@
         function openModal(id) { 
             const el = document.getElementById('modal-' + id);
             el.classList.remove('hidden'); 
-            el.classList.add('flex'); 
+            el.classList.add('flex');
+            if(id === 'supp-payout') {
+                updateSupplierPendingDisplay();
+            }
         }
 
         function closeModal(id) { 
             const el = document.getElementById('modal-' + id);
             el.classList.add('hidden'); 
             el.classList.remove('flex'); 
+        }
+
+        // SUPPLIER MANAGEMENT
+        function saveNewSupplier() {
+            const name = document.getElementById('supp-name-input').value.trim();
+            if(!name) return alert("سپلائر کا نام درج کریں!");
+            if(!suppliers.includes(name)) {
+                suppliers.push(name);
+                localStorage.setItem('usman_suppliers', JSON.stringify(suppliers));
+            }
+            document.getElementById('supp-name-input').value = '';
+            closeModal('add-supplier');
+            initDropdowns();
+            updateUI();
+        }
+
+        function calculateSupplierPending(suppName) {
+            let totalBills = purchases.filter(p => p.supplier.toLowerCase() === suppName.toLowerCase()).reduce((a, b) => a + b.total, 0);
+            let initialPaid = purchases.filter(p => p.supplier.toLowerCase() === suppName.toLowerCase()).reduce((a, b) => a + b.paid, 0);
+            let totalExtraPaid = supplierPayments.filter(sp => sp.supplier.toLowerCase() === suppName.toLowerCase()).reduce((a, b) => a + b.amount, 0);
+            
+            let pending = totalBills - (initialPaid + totalExtraPaid);
+            return pending > 0 ? pending : 0;
+        }
+
+        function updateSupplierPendingDisplay() {
+            const suppName = document.getElementById('spay-supplier-select').value;
+            if(!suppName) return;
+            let pending = calculateSupplierPending(suppName);
+            document.getElementById('supp-calculated-pending').innerText = formatMoney(pending);
         }
 
         // ITEM CATALOG FUNCTIONS
@@ -640,7 +736,7 @@
         }
 
         function savePurchase() {
-            const supplier = document.getElementById('pur-supplier').value || "General Supplier";
+            const supplier = document.getElementById('pur-supplier-select').value || "General Supplier";
             const item = document.getElementById('pur-item-select').value;
             const qty = parseInt(document.getElementById('pur-qty').value) || 0;
             const cost = parseFloat(document.getElementById('pur-cost').value) || 0;
@@ -654,7 +750,7 @@
         }
 
         function saveSupplierPayment() {
-            const supplier = document.getElementById('spay-supplier').value || "General Supplier";
+            const supplier = document.getElementById('spay-supplier-select').value || "General Supplier";
             const amount = parseFloat(document.getElementById('spay-amount').value) || 0;
             const notes = document.getElementById('spay-notes').value || "Payment";
 
@@ -707,20 +803,29 @@
             let partnerPending = partnerCut - totalPaidPartner;
 
             // DASHBOARD STATS ONLY
-            document.getElementById('card-total-sales').innerText = `$${totalSalesVal.toFixed(2)}`;
-            document.getElementById('card-collected-sub').innerText = `$${collectedVal.toFixed(2)} collected`;
-            document.getElementById('card-owner-expenses').innerText = `$${totalExpensesVal.toFixed(2)}`;
-            document.getElementById('card-net-profit').innerText = `$${ownerNet.toFixed(2)}`;
+            document.getElementById('card-total-sales').innerText = formatMoney(totalSalesVal);
+            document.getElementById('card-collected-sub').innerText = `${formatMoney(collectedVal)} collected`;
+            document.getElementById('card-owner-expenses').innerText = formatMoney(totalExpensesVal);
+            document.getElementById('card-net-profit').innerText = formatMoney(ownerNet);
 
-            document.getElementById('pb-total-sales').innerText = `$${totalSalesVal.toFixed(2)}`;
-            document.getElementById('pb-cost-goods').innerText = `-$${cogsVal.toFixed(2)}`;
-            document.getElementById('pb-gross-profit').innerText = `$${grossProfit.toFixed(2)}`;
-            document.getElementById('pb-expenses').innerText = `-$${totalExpensesVal.toFixed(2)}`;
-            document.getElementById('pb-final-net').innerText = `$${ownerNet.toFixed(2)}`;
+            document.getElementById('pb-total-sales').innerText = formatMoney(totalSalesVal);
+            document.getElementById('pb-cost-goods').innerText = `-${formatMoney(cogsVal)}`;
+            document.getElementById('pb-gross-profit').innerText = formatMoney(grossProfit);
+            document.getElementById('pb-expenses').innerText = `-${formatMoney(totalExpensesVal)}`;
+            document.getElementById('pb-final-net').innerText = formatMoney(ownerNet);
 
-            document.getElementById('partner-total-share-display').innerText = `$${partnerCut.toFixed(2)}`;
-            document.getElementById('partner-total-paid-display').innerText = `$${totalPaidPartner.toFixed(2)}`;
-            document.getElementById('partner-pending-balance-display').innerText = `$${partnerPending.toFixed(2)}`;
+            document.getElementById('partner-total-share-display').innerText = formatMoney(partnerCut);
+            document.getElementById('partner-total-paid-display').innerText = formatMoney(totalPaidPartner);
+            document.getElementById('partner-pending-balance-display').innerText = formatMoney(partnerPending);
+
+            // Render Suppliers Directory Tags
+            const suppTags = document.getElementById('suppliers-list-tags');
+            suppTags.innerHTML = suppliers.map(s => {
+                let p = calculateSupplierPending(s);
+                return `<span class="px-3 py-1 bg-gray-100 border border-gray-300 rounded-full text-xs font-semibold text-gray-700 flex items-center gap-2">
+                    👤 ${s} <span class="${p > 0 ? 'text-red-600' : 'text-emerald-600'} font-mono">(${formatMoney(p)})</span>
+                </span>`;
+            }).join('');
 
             // Render Catalog
             const catBody = document.getElementById('items-table-body');
@@ -736,24 +841,23 @@
                 </tr>`;
             });
 
-            // Render Purchases & Supplier Dues
+            // Render Purchases & Dynamic Balance Calculation
             const pBody = document.getElementById('purchases-table-body');
             pBody.innerHTML = purchases.length === 0 ? `<tr><td colspan="8" class="text-gray-400 text-center py-4">No purchases logged.</td></tr>` : '';
+            
             purchases.forEach(p => {
-                let suppExtraPaid = supplierPayments.filter(sp => sp.supplier.toLowerCase() === p.supplier.toLowerCase()).reduce((a,b) => a + b.amount, 0);
-                let effectivePaid = p.paid + suppExtraPaid;
-                let pending = p.total - effectivePaid;
-                if(pending < 0) pending = 0;
+                let totalSuppPaid = supplierPayments.filter(sp => sp.supplier.toLowerCase() === p.supplier.toLowerCase()).reduce((a,b) => a + b.amount, 0);
+                let overallPending = calculateSupplierPending(p.supplier);
 
                 pBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2">${p.date}</td>
                     <td class="py-2 font-semibold">${p.supplier}</td>
                     <td class="py-2">${p.item}</td>
                     <td class="py-2 font-mono">${p.qty}</td>
-                    <td class="py-2 font-mono">$${p.cost.toFixed(2)}</td>
-                    <td class="py-2 font-mono font-bold">$${p.total.toFixed(2)}</td>
-                    <td class="py-2 font-mono text-emerald-700 font-semibold">$${effectivePaid.toFixed(2)}</td>
-                    <td class="py-2 font-mono font-bold ${pending > 0 ? 'text-red-600' : 'text-gray-500'}">$${pending.toFixed(2)}</td>
+                    <td class="py-2 font-mono">${formatMoney(p.cost)}</td>
+                    <td class="py-2 font-mono font-bold">${formatMoney(p.total)}</td>
+                    <td class="py-2 font-mono text-emerald-700 font-semibold">${formatMoney(p.paid + totalSuppPaid)}</td>
+                    <td class="py-2 font-mono font-bold ${overallPending > 0 ? 'text-red-600' : 'text-gray-500'}">${formatMoney(overallPending)}</td>
                 </tr>`;
             });
 
@@ -764,7 +868,7 @@
                 spBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2">${sp.date}</td>
                     <td class="py-2 font-semibold">${sp.supplier}</td>
-                    <td class="py-2 font-mono font-bold text-emerald-700">$${sp.amount.toFixed(2)}</td>
+                    <td class="py-2 font-mono font-bold text-emerald-700">${formatMoney(sp.amount)}</td>
                     <td class="py-2 text-gray-500">${sp.notes}</td>
                 </tr>`;
             });
@@ -778,8 +882,8 @@
                     <td class="py-2 font-semibold">${s.customer}</td>
                     <td class="py-2">${s.item}</td>
                     <td class="py-2 font-mono">${s.qty}</td>
-                    <td class="py-2 font-mono">$${s.price.toFixed(2)}</td>
-                    <td class="py-2 font-mono font-bold">$${s.total.toFixed(2)}</td>
+                    <td class="py-2 font-mono">${formatMoney(s.price)}</td>
+                    <td class="py-2 font-mono font-bold">${formatMoney(s.total)}</td>
                     <td class="py-2">
                         <span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
                             ${s.status}
@@ -798,7 +902,7 @@
                 eBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2">${e.date}</td>
                     <td class="py-2 font-semibold">${e.title}</td>
-                    <td class="py-2 font-mono font-bold text-red-600">$${e.amount.toFixed(2)}</td>
+                    <td class="py-2 font-mono font-bold text-red-600">${formatMoney(e.amount)}</td>
                 </tr>`;
             });
 
@@ -808,7 +912,7 @@
             payouts.forEach(p => {
                 payBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2">${p.date}</td>
-                    <td class="py-2 font-mono font-bold text-emerald-700">$${p.amount.toFixed(2)}</td>
+                    <td class="py-2 font-mono font-bold text-emerald-700">${formatMoney(p.amount)}</td>
                     <td class="py-2 text-gray-500">${p.notes}</td>
                 </tr>`;
             });
@@ -847,8 +951,8 @@
                 resDiv.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-4">No matching records found.</p>`;
             } else {
                 let tot = filtered.reduce((a,b) => a+b.total, 0);
-                resDiv.innerHTML = `<p class="font-semibold mb-2">Found ${filtered.length} records (Filtered Total Sales: <span class="font-mono text-emerald-700">$${tot.toFixed(2)}</span>)</p>
-                <div class="space-y-1">${filtered.map(f => `<div class="flex justify-between py-1 border-b text-xs"><span>${f.date} — <strong>${f.customer}</strong> (${f.item})</span><span class="font-mono font-bold">$${f.total.toFixed(2)} [${f.status}]</span></div>`).join('')}</div>`;
+                resDiv.innerHTML = `<p class="font-semibold mb-2">Found ${filtered.length} records (Filtered Total Sales: <span class="font-mono text-emerald-700">${formatMoney(tot)}</span>)</p>
+                <div class="space-y-1">${filtered.map(f => `<div class="flex justify-between py-1 border-b text-xs"><span>${f.date} — <strong>${f.customer}</strong> (${f.item})</span><span class="font-mono font-bold">${formatMoney(f.total)} [${f.status}]</span></div>`).join('')}</div>`;
             }
         }
 
