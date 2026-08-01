@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock, Sales & Supplier Management System</title>
+    <title>Complete Apparel Stock & Supplier ERP System</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
         body { background-color: #f4f6f9; color: #333; padding: 20px; }
@@ -11,25 +11,26 @@
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .header h1 { font-size: 20px; color: #1e293b; }
         
-        .controls-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .controls-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .currency-toggle { background: #e2e8f0; border-radius: 6px; padding: 3px; display: flex; }
         .currency-toggle button { border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; background: transparent; }
         .currency-toggle button.active { background: #2563eb; color: white; }
         
         .rate-box { font-size: 13px; font-weight: 600; background: #f1f5f9; padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; }
-        .rate-box input { width: 60px; padding: 2px 5px; border: 1px solid #94a3b8; border-radius: 4px; text-align: center; }
+        .rate-box input { width: 55px; padding: 2px 5px; border: 1px solid #94a3b8; border-radius: 4px; text-align: center; }
 
-        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .btn { padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 13px; color: white; }
+        .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+        .btn { padding: 8px 12px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 12px; color: white; }
         .btn-primary { background-color: #0f172a; }
         .btn-success { background-color: #16a34a; }
         .btn-warning { background-color: #d97706; }
         .btn-info { background-color: #2563eb; }
+        .btn-purple { background-color: #9333ea; }
         .btn-danger { background-color: #dc2626; }
         .btn:hover { opacity: 0.9; }
         
         .card { background: white; border-radius: 8px; padding: 18px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .card-title { font-size: 14px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; }
+        .card-title { font-size: 14px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
 
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th { text-align: left; padding: 10px; color: #64748b; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; background: #f8fafc; }
@@ -39,10 +40,12 @@
         .badge-pending { background-color: #fef3c7; color: #d97706; }
         .badge-paid { background-color: #dcfce7; color: #15803d; }
         .badge-partial { background-color: #e0f2fe; color: #0369a1; }
+        .text-green { color: #16a34a; font-weight: bold; }
+        .text-red { color: #dc2626; font-weight: bold; }
 
         /* Modal Styles */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 400px; max-width: 90%; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 420px; max-width: 90%; }
         .modal-header { font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #475569; }
@@ -53,7 +56,7 @@
 <body>
 
     <div class="header">
-        <h1>Suppliers, Purchases & Sales System</h1>
+        <h1>Apparel Stock & Supplier ERP System</h1>
         <div class="controls-bar">
             <div class="rate-box">
                 1 USD = <input type="number" id="usdRate" value="278" oninput="updateUsdRate(this.value)"> PKR
@@ -63,13 +66,31 @@
                 <button id="btnPKR" onclick="setCurrency('PKR')">PKR (Rs)</button>
             </div>
             <div class="btn-group">
+                <button class="btn btn-purple" onclick="openModal('addProductModal')">+ New Product</button>
                 <button class="btn btn-info" onclick="openModal('addSupplierModal')">+ Add Supplier</button>
-                <button class="btn btn-warning" onclick="openModal('paymentModal')">💳 Record Payment</button>
                 <button class="btn btn-primary" onclick="openModal('purchaseModal')">+ Log Purchase</button>
+                <button class="btn btn-warning" onclick="openModal('paymentModal')">💳 Record Payment</button>
                 <button class="btn btn-success" onclick="openModal('saleModal')">+ Record Sale</button>
-                <button class="btn btn-danger" onclick="resetAllData()" title="Reset All Data">🔴 Reset Data</button>
+                <button class="btn btn-danger" onclick="resetAllData()" title="Reset All Data">🔴 Reset</button>
             </div>
         </div>
+    </div>
+
+    <!-- INVENTORY / LIVE STOCK DISPLAY -->
+    <div class="card">
+        <div class="card-title">Live Inventory & Stock Status</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Available Stock</th>
+                    <th>Cost Price / Unit</th>
+                    <th>Selling Price / Unit</th>
+                    <th>Total Inventory Value</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTable"></tbody>
+        </table>
     </div>
 
     <!-- SUPPLIERS DIRECTORY -->
@@ -98,7 +119,7 @@
                     <th>Date</th>
                     <th>Supplier</th>
                     <th>Item Name</th>
-                    <th>Qty</th>
+                    <th>Qty Purchased</th>
                     <th>Cost/Unit</th>
                     <th>Total Bill</th>
                     <th>Paid Amount</th>
@@ -112,20 +133,48 @@
 
     <!-- SALES LOG -->
     <div class="card">
-        <div class="card-title">Sales Records</div>
+        <div class="card-title">Sales Records & Revenue</div>
         <table>
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Item</th>
-                    <th>Qty</th>
+                    <th>Item Name</th>
+                    <th>Qty Sold</th>
                     <th>Cost Price</th>
                     <th>Sale Price</th>
                     <th>Total Revenue</th>
+                    <th>Profit</th>
                 </tr>
             </thead>
             <tbody id="salesTable"></tbody>
         </table>
+    </div>
+
+    <!-- Modal: Add New Product -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add New Product to Inventory</div>
+            <div class="form-group">
+                <label>Item Name</label>
+                <input type="text" id="prodItem" class="form-control" placeholder="e.g. Denim Mini Skirt">
+            </div>
+            <div class="form-group">
+                <label>Initial Stock Qty</label>
+                <input type="number" id="prodQty" class="form-control" value="10">
+            </div>
+            <div class="form-group">
+                <label>Cost Price ($ USD)</label>
+                <input type="number" id="prodCost" class="form-control" value="2.00">
+            </div>
+            <div class="form-group">
+                <label>Selling Price ($ USD)</label>
+                <input type="number" id="prodPrice" class="form-control" value="5.00">
+            </div>
+            <div class="modal-actions">
+                <button class="btn" style="background:#cbd5e1; color:#333;" onclick="closeModal('addProductModal')">Cancel</button>
+                <button class="btn btn-purple" onclick="saveNewProduct()">Save Product</button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal: Add Supplier -->
@@ -150,13 +199,13 @@
     <!-- Modal: Log Purchase -->
     <div id="purchaseModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">Log Stock Purchase</div>
+            <div class="modal-header">Log Stock Purchase (Add to Stock)</div>
             <div class="form-group">
                 <label>Select Supplier</label>
                 <select id="purSupplier" class="form-control"></select>
             </div>
             <div class="form-group">
-                <label>Item Name</label>
+                <label>Select Item / Item Name</label>
                 <input type="text" id="purItem" class="form-control" placeholder="e.g. White OK Shirt">
             </div>
             <div class="form-group">
@@ -166,6 +215,10 @@
             <div class="form-group">
                 <label>Cost Per Unit ($ USD)</label>
                 <input type="number" id="purCost" class="form-control" value="2.00" oninput="calcPurTotal()">
+            </div>
+            <div class="form-group">
+                <label>Selling Price ($ USD)</label>
+                <input type="number" id="purSellPrice" class="form-control" value="5.00">
             </div>
             <div class="form-group">
                 <label>Total Bill ($ USD)</label>
@@ -204,22 +257,22 @@
     <!-- Modal: Record Sale -->
     <div id="saleModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">Record Item Sale</div>
+            <div class="modal-header">Record Item Sale (Deduct Stock)</div>
             <div class="form-group">
-                <label>Item Name</label>
-                <input type="text" id="saleItem" class="form-control" placeholder="e.g. Baby Tees">
+                <label>Select Product</label>
+                <select id="saleItemSelect" class="form-control" onchange="autofillSaleDetails()"></select>
             </div>
             <div class="form-group">
-                <label>Quantity</label>
+                <label>Quantity Sold</label>
                 <input type="number" id="saleQty" class="form-control" value="2">
             </div>
             <div class="form-group">
                 <label>Cost Price ($ USD)</label>
-                <input type="number" id="saleCost" class="form-control" value="2">
+                <input type="number" id="saleCost" class="form-control" value="2.00">
             </div>
             <div class="form-group">
                 <label>Sale Price ($ USD)</label>
-                <input type="number" id="salePrice" class="form-control" value="5">
+                <input type="number" id="salePrice" class="form-control" value="5.00">
             </div>
             <div class="modal-actions">
                 <button class="btn" style="background:#cbd5e1; color:#333;" onclick="closeModal('saleModal')">Cancel</button>
@@ -229,24 +282,29 @@
     </div>
 
     <script>
-        // Configuration
+        // System Config
         let currentCurrency = 'USD';
         let exchangeRate = parseFloat(localStorage.getItem('usdRate')) || 278;
 
-        // Data Models
-        let suppliers = JSON.parse(localStorage.getItem('sys_suppliers')) || [
+        // Unified Persistent Data Stores
+        let products = JSON.parse(localStorage.getItem('erp_products')) || [
+            { id: 1, item: "White OK Shirt", stock: 50, cost: 2.00, price: 5.00 },
+            { id: 2, item: "Baby Tees", stock: 10, cost: 2.00, price: 5.00 }
+        ];
+
+        let suppliers = JSON.parse(localStorage.getItem('erp_suppliers')) || [
             { id: 1, name: "Usman", detail: "Main Supplier" }
         ];
 
-        let purchases = JSON.parse(localStorage.getItem('sys_purchases')) || [
+        let purchases = JSON.parse(localStorage.getItem('erp_purchases')) || [
             { id: 1, date: "2026-08-01", supplier: "Usman", item: "White OK Shirt", qty: 50, cost: 2.00, total: 100.00 }
         ];
 
-        let payments = JSON.parse(localStorage.getItem('sys_payments')) || [
+        let payments = JSON.parse(localStorage.getItem('erp_payments')) || [
             { id: 1, date: "2026-08-01", supplier: "Usman", amount: 50.00 }
         ];
 
-        let sales = JSON.parse(localStorage.getItem('sys_sales')) || [
+        let sales = JSON.parse(localStorage.getItem('erp_sales')) || [
             { id: 1, date: "2026-08-01", item: "Baby Tees", qty: 2, cost: 2.00, price: 5.00 }
         ];
 
@@ -274,7 +332,23 @@
         }
 
         function renderAll() {
-            // Render Suppliers Table
+            // 1. Render Inventory Table
+            let invHtml = "";
+            products.forEach(p => {
+                let totalVal = p.stock * p.cost;
+                invHtml += `
+                    <tr>
+                        <td><strong>${p.item}</strong></td>
+                        <td class="${p.stock < 5 ? 'text-red' : ''}">${p.stock} Pcs</td>
+                        <td>${fmt(p.cost)}</td>
+                        <td>${fmt(p.price)}</td>
+                        <td class="text-green">${fmt(totalVal)}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById("inventoryTable").innerHTML = invHtml || `<tr><td colspan="5" style="text-align:center;">No Products in Stock</td></tr>`;
+
+            // 2. Render Suppliers Table
             let supHtml = "";
             suppliers.forEach(s => {
                 let totalBilled = purchases.filter(p => p.supplier.toLowerCase() === s.name.toLowerCase()).reduce((sum, p) => sum + p.total, 0);
@@ -286,14 +360,14 @@
                         <td><strong>${s.name}</strong></td>
                         <td>${s.detail || 'N/A'}</td>
                         <td>${fmt(totalBilled)}</td>
-                        <td style="color:#16a34a; font-weight:bold;">${fmt(totalPaid)}</td>
-                        <td style="color:${pending > 0 ? '#dc2626' : '#16a34a'}; font-weight:bold;">${fmt(pending)}</td>
+                        <td class="text-green">${fmt(totalPaid)}</td>
+                        <td class="${pending > 0 ? 'text-red' : 'text-green'}">${fmt(pending)}</td>
                     </tr>
                 `;
             });
             document.getElementById("suppliersTable").innerHTML = supHtml || `<tr><td colspan="5" style="text-align:center;">No Suppliers Added</td></tr>`;
 
-            // Render Purchases Table
+            // 3. Render Purchases Table
             let purHtml = "";
             purchases.forEach(p => {
                 let totalPaidForSup = payments.filter(pay => pay.supplier.toLowerCase() === p.supplier.toLowerCase()).reduce((sum, pay) => sum + pay.amount, 0);
@@ -315,18 +389,19 @@
                         <td>${p.qty}</td>
                         <td>${fmt(p.cost)}</td>
                         <td>${fmt(p.total)}</td>
-                        <td style="color:#16a34a;">${fmt(paidAmount)}</td>
-                        <td style="color:#dc2626;">${fmt(pendingAmount)}</td>
+                        <td class="text-green">${fmt(paidAmount)}</td>
+                        <td class="text-red">${fmt(pendingAmount)}</td>
                         <td>${badge}</td>
                     </tr>
                 `;
             });
             document.getElementById("purchaseTable").innerHTML = purHtml || `<tr><td colspan="9" style="text-align:center;">No Purchases Found</td></tr>`;
 
-            // Render Sales Table
+            // 4. Render Sales Table
             let saleHtml = "";
             sales.forEach(s => {
                 let totalRev = s.qty * s.price;
+                let profit = (s.price - s.cost) * s.qty;
                 saleHtml += `
                     <tr>
                         <td>${s.date}</td>
@@ -334,17 +409,23 @@
                         <td>${s.qty}</td>
                         <td>${fmt(s.cost)}</td>
                         <td>${fmt(s.price)}</td>
-                        <td style="color:#16a34a; font-weight:bold;">${fmt(totalRev)}</td>
+                        <td class="text-green">${fmt(totalRev)}</td>
+                        <td class="${profit >= 0 ? 'text-green' : 'text-red'}">${fmt(profit)}</td>
                     </tr>
                 `;
             });
-            document.getElementById("salesTable").innerHTML = saleHtml || `<tr><td colspan="6" style="text-align:center;">No Sales Found</td></tr>`;
+            document.getElementById("salesTable").innerHTML = saleHtml || `<tr><td colspan="7" style="text-align:center;">No Sales Found</td></tr>`;
 
-            // Dynamic Dropdowns
-            let options = suppliers.map(s => `<option value="${s.name}">${s.name}</option>`).join("");
-            document.getElementById("purSupplier").innerHTML = options || `<option value="">-- No Supplier --</option>`;
-            document.getElementById("paySupplier").innerHTML = options || `<option value="">-- No Supplier --</option>`;
+            // Update Dynamic Dropdowns
+            let supOpts = suppliers.map(s => `<option value="${s.name}">${s.name}</option>`).join("");
+            document.getElementById("purSupplier").innerHTML = supOpts || `<option value="">-- No Supplier --</option>`;
+            document.getElementById("paySupplier").innerHTML = supOpts || `<option value="">-- No Supplier --</option>`;
+
+            let prodOpts = products.map(p => `<option value="${p.item}">${p.item}</option>`).join("");
+            document.getElementById("saleItemSelect").innerHTML = prodOpts || `<option value="">-- No Product --</option>`;
+
             updatePayPendingDisplay();
+            autofillSaleDetails();
         }
 
         function updatePayPendingDisplay() {
@@ -359,24 +440,46 @@
             document.getElementById("payPendingInfo").value = fmt(pending);
         }
 
+        function autofillSaleDetails() {
+            let itemStr = document.getElementById("saleItemSelect").value;
+            let prod = products.find(p => p.item === itemStr);
+            if(prod) {
+                document.getElementById("saleCost").value = prod.cost;
+                document.getElementById("salePrice").value = prod.price;
+            }
+        }
+
         function calcPurTotal() {
             let q = parseFloat(document.getElementById("purQty").value) || 0;
             let c = parseFloat(document.getElementById("purCost").value) || 0;
             document.getElementById("purTotal").value = (q * c).toFixed(2);
         }
 
-        // SAVE FUNCTIONS (WITH INSTANT UI SYNC)
+        // SAVE ACTIONS
+        function saveNewProduct() {
+            let item = document.getElementById("prodItem").value.trim();
+            let stock = parseFloat(document.getElementById("prodQty").value) || 0;
+            let cost = parseFloat(document.getElementById("prodCost").value) || 0;
+            let price = parseFloat(document.getElementById("prodPrice").value) || 0;
+
+            if(!item) return alert("Enter Product Name!");
+
+            products.push({ id: Date.now(), item, stock, cost, price });
+            localStorage.setItem('erp_products', JSON.stringify(products));
+            closeModal('addProductModal');
+            document.getElementById("prodItem").value = "";
+            renderAll();
+        }
+
         function saveSupplier() {
             let name = document.getElementById("supName").value.trim();
             let detail = document.getElementById("supDetail").value.trim();
             if(!name) return alert("Enter Supplier Name!");
 
             suppliers.push({ id: Date.now(), name, detail });
-            localStorage.setItem('sys_suppliers', JSON.stringify(suppliers));
-            
+            localStorage.setItem('erp_suppliers', JSON.stringify(suppliers));
             closeModal('addSupplierModal');
             document.getElementById("supName").value = "";
-            document.getElementById("supDetail").value = "";
             renderAll();
         }
 
@@ -385,8 +488,9 @@
             let item = document.getElementById("purItem").value.trim();
             let qty = parseFloat(document.getElementById("purQty").value) || 0;
             let cost = parseFloat(document.getElementById("purCost").value) || 0;
+            let sellPrice = parseFloat(document.getElementById("purSellPrice").value) || (cost * 2);
 
-            if(!supplier) return alert("Please select a Supplier first!");
+            if(!supplier) return alert("Select Supplier!");
             if(!item) return alert("Enter Item Name!");
 
             purchases.push({
@@ -395,7 +499,17 @@
                 supplier, item, qty, cost, total: qty * cost
             });
 
-            localStorage.setItem('sys_purchases', JSON.stringify(purchases));
+            // Update Stock Inventory automatically
+            let prod = products.find(p => p.item.toLowerCase() === item.toLowerCase());
+            if(prod) {
+                prod.stock += qty;
+                prod.cost = cost;
+            } else {
+                products.push({ id: Date.now(), item, stock: qty, cost, price: sellPrice });
+            }
+
+            localStorage.setItem('erp_purchases', JSON.stringify(purchases));
+            localStorage.setItem('erp_products', JSON.stringify(products));
             closeModal('purchaseModal');
             document.getElementById("purItem").value = "";
             renderAll();
@@ -405,8 +519,8 @@
             let supplier = document.getElementById("paySupplier").value;
             let amount = parseFloat(document.getElementById("payAmount").value) || 0;
 
-            if(!supplier) return alert("Please select a Supplier!");
-            if(amount <= 0) return alert("Enter valid Payment Amount!");
+            if(!supplier) return alert("Select Supplier!");
+            if(amount <= 0) return alert("Enter Payment Amount!");
 
             payments.push({
                 id: Date.now(),
@@ -414,19 +528,24 @@
                 supplier, amount
             });
 
-            localStorage.setItem('sys_payments', JSON.stringify(payments));
+            localStorage.setItem('erp_payments', JSON.stringify(payments));
             closeModal('paymentModal');
             document.getElementById("payAmount").value = "";
             renderAll();
         }
 
         function saveSale() {
-            let item = document.getElementById("saleItem").value.trim();
+            let item = document.getElementById("saleItemSelect").value;
             let qty = parseFloat(document.getElementById("saleQty").value) || 0;
             let cost = parseFloat(document.getElementById("saleCost").value) || 0;
             let price = parseFloat(document.getElementById("salePrice").value) || 0;
 
-            if(!item) return alert("Enter Item Name!");
+            if(!item) return alert("Select Product!");
+
+            let prod = products.find(p => p.item === item);
+            if(prod && prod.stock < qty) {
+                if(!confirm(`Warning: Stock only has ${prod.stock} Pcs available. Still want to sell?`)) return;
+            }
 
             sales.push({
                 id: Date.now(),
@@ -434,15 +553,21 @@
                 item, qty, cost, price
             });
 
-            localStorage.setItem('sys_sales', JSON.stringify(sales));
+            // Deduct from Live Inventory
+            if(prod) {
+                prod.stock = Math.max(0, prod.stock - qty);
+            }
+
+            localStorage.setItem('erp_sales', JSON.stringify(sales));
+            localStorage.setItem('erp_products', JSON.stringify(products));
             closeModal('saleModal');
-            document.getElementById("saleItem").value = "";
             renderAll();
         }
 
         function resetAllData() {
-            if (confirm("کیا آپ سارا پرانا ڈیٹا ڈیلیٹ کر کے ریسیٹ کرنا چاہتے ہیں؟")) {
+            if (confirm("کیا آپ سارا پرانا ڈیٹا ڈیلیٹ کر کے بالکل نیا لائیو ری اسٹارٹ کرنا چاہتے ہیں؟")) {
                 localStorage.clear();
+                products = [];
                 suppliers = [];
                 purchases = [];
                 payments = [];
@@ -454,7 +579,7 @@
         function openModal(id) { document.getElementById(id).style.display = "flex"; }
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
 
-        // Initial Dynamic Load
+        // Initial Load
         renderAll();
     </script>
 </body>
