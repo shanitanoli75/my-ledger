@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ur">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,11 +17,7 @@
                         sidebarBg: '#121816',
                         cardBg: '#ffffff',
                         borderWarm: '#e5e3da',
-                        textPrimary: '#1a1d1b',
-                        textMuted: '#6b7280',
-                        accentGreen: '#1b4d3e',
-                        accentGold: '#c59b27',
-                        accentRed: '#9b2c2c'
+                        accentGold: '#c59b27'
                     },
                     fontFamily: {
                         sans: ['Plus Jakarta Sans', 'sans-serif'],
@@ -34,7 +30,7 @@
     <style>
         body { background-color: #f6f5f0; color: #1a1d1b; font-family: 'Plus Jakarta Sans', sans-serif; }
         .card-shadow { box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #e5e3da; }
-        .nav-item.active { background-color: rgba(255,255,255,0.08); border-right: 3px solid #c59b27; color: #ffffff; }
+        .nav-item.active { background-color: rgba(255,255,255,0.08); border-right: 3px solid #c59b27; color: #ffffff; font-weight: 600; }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
@@ -42,7 +38,6 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-[#121816] text-gray-300 flex flex-col justify-between p-4 flex-shrink-0">
         <div>
-            <!-- Header/Logo -->
             <div class="flex items-center gap-3 p-2 mb-6">
                 <div class="w-9 h-9 bg-[#c59b27] text-white rounded-lg flex items-center justify-center font-bold text-lg font-mono">U</div>
                 <div>
@@ -51,7 +46,6 @@
                 </div>
             </div>
 
-            <!-- Navigation Links -->
             <nav class="space-y-1 text-xs font-medium">
                 <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
                     <span>📊</span> Dashboard
@@ -69,20 +63,19 @@
                     <span>💵</span> Owner Expenses
                 </button>
                 <button onclick="switchTab('partner')" id="btn-partner" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
-                    <span>⚖️</span> Partner Profit (25%)
+                    <span>⚖️</span> Partner Profit (<span id="partner-nav-pct">25</span>%)
                 </button>
             </nav>
         </div>
-
         <div class="p-2 border-t border-gray-800 text-[10px] text-gray-500">
-            Usman Trade Ledger System v2.0
+            Usman Trade Ledger System v3.0
         </div>
     </aside>
 
-    <!-- Main Content Area -->
+    <!-- Main Content -->
     <main class="flex-1 overflow-y-auto p-8">
         
-        <!-- Top Summary Cards (Always Visible) -->
+        <!-- Top Dynamic Stat Cards -->
         <div class="grid grid-cols-4 gap-4 mb-8">
             <div class="bg-white p-4 rounded-xl card-shadow border-t-4 border-emerald-700">
                 <div class="flex justify-between items-center text-xs font-semibold text-gray-500 tracking-wider">
@@ -90,16 +83,16 @@
                     <span class="text-emerald-700">🛒</span>
                 </div>
                 <div id="card-total-sales" class="text-2xl font-bold font-mono my-1">$0.00</div>
-                <div class="text-[11px] text-gray-400">$0.00 collected</div>
+                <div id="card-collected-sub" class="text-[11px] text-gray-400">$0.00 collected</div>
             </div>
 
             <div class="bg-white p-4 rounded-xl card-shadow border-t-4 border-amber-600">
                 <div class="flex justify-between items-center text-xs font-semibold text-gray-500 tracking-wider">
-                    PARTNER 25% CUT
+                    PARTNER CUT (<span id="partner-card-pct">25</span>%)
                     <span class="text-amber-600">⚖️</span>
                 </div>
                 <div id="card-partner-cut" class="text-2xl font-bold font-mono my-1">$0.00</div>
-                <div class="text-[11px] text-gray-400">Of gross profit</div>
+                <div class="text-[11px] text-gray-400">Of actual gross profit</div>
             </div>
 
             <div class="bg-white p-4 rounded-xl card-shadow border-t-4 border-red-700">
@@ -108,7 +101,7 @@
                     <span class="text-red-700">🧾</span>
                 </div>
                 <div id="card-owner-expenses" class="text-2xl font-bold font-mono my-1">$0.00</div>
-                <div class="text-[11px] text-gray-400">From owner's 75% share</div>
+                <div class="text-[11px] text-gray-400">From owner's share</div>
             </div>
 
             <div class="bg-white p-4 rounded-xl card-shadow border-t-4 border-emerald-800">
@@ -117,50 +110,48 @@
                     <span class="text-emerald-800">📈</span>
                 </div>
                 <div id="card-net-profit" class="text-2xl font-bold font-mono my-1">$0.00</div>
-                <div class="text-[11px] text-gray-400">After all deductions</div>
+                <div class="text-[11px] text-gray-400">Real profit after cost & expenses</div>
             </div>
         </div>
 
         <!-- TAB 1: DASHBOARD -->
         <div id="tab-dashboard" class="tab-content space-y-6">
-            <!-- Best / Least Sold Analytics Row -->
             <div class="grid grid-cols-2 gap-6">
                 <div class="bg-white p-5 rounded-xl card-shadow">
-                    <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-3">🔥 Top Selling Items (Most Volume)</h3>
+                    <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-3">🔥 Top Selling Items</h3>
                     <div id="top-selling-list" class="space-y-2 text-sm text-gray-600">
-                        <p class="text-xs text-gray-400 italic">No sales recorded yet.</p>
+                        <p class="text-xs text-gray-400 italic">No sales logged yet.</p>
                     </div>
                 </div>
                 <div class="bg-white p-5 rounded-xl card-shadow">
-                    <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-3">❄️ Least Selling Items (Low Volume)</h3>
+                    <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-3">❄️ Least Selling Items</h3>
                     <div id="least-selling-list" class="space-y-2 text-sm text-gray-600">
-                        <p class="text-xs text-gray-400 italic">No sales recorded yet.</p>
+                        <p class="text-xs text-gray-400 italic">No sales logged yet.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Profit Breakdown -->
             <div class="bg-white rounded-xl card-shadow p-6">
-                <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-4">Profit Breakdown</h3>
+                <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-4">Profit & Cost Breakdown</h3>
                 <div class="space-y-3 text-sm">
                     <div class="flex justify-between py-1 border-b border-gray-100">
-                        <span class="text-gray-600">Total Sales</span>
+                        <span class="text-gray-600">Total Sales Value</span>
                         <span id="pb-total-sales" class="font-mono font-medium">$0.00</span>
                     </div>
                     <div class="flex justify-between py-1 border-b border-gray-100 text-red-600">
-                        <span>Item Purchases Cost</span>
+                        <span>Cost of Goods Sold (Purchase Cost)</span>
                         <span id="pb-cost-goods" class="font-mono font-medium">-$0.00</span>
                     </div>
-                    <div class="flex justify-between py-1 border-b border-gray-100 font-semibold">
-                        <span class="text-gray-800">Gross Profit</span>
+                    <div class="flex justify-between py-1 border-b border-gray-100 font-bold text-gray-800">
+                        <span>Actual Gross Profit</span>
                         <span id="pb-gross-profit" class="font-mono">$0.00</span>
                     </div>
                     <div class="flex justify-between py-1 border-b border-gray-100 text-amber-700">
-                        <span>Partner Share (25%)</span>
-                        <span id="pb-partner-share" class="font-mono font-medium">$0.00</span>
+                        <span>Partner Share (<span id="pb-partner-pct">25</span>%)</span>
+                        <span id="pb-partner-share" class="font-mono font-medium">-$0.00</span>
                     </div>
                     <div class="flex justify-between py-1 border-b border-gray-100 text-emerald-700">
-                        <span>Owner Share Before Expenses (75%)</span>
+                        <span>Owner Share Before Expenses</span>
                         <span id="pb-owner-share" class="font-mono font-medium">$0.00</span>
                     </div>
                     <div class="flex justify-between py-1 border-b border-gray-100 text-red-600">
@@ -168,7 +159,7 @@
                         <span id="pb-expenses" class="font-mono font-medium">-$0.00</span>
                     </div>
                     <div class="flex justify-between py-2 pt-3 font-bold text-lg text-emerald-800 border-t border-gray-200">
-                        <span>Owner Final Net Profit</span>
+                        <span>Owner Final Real Net Profit</span>
                         <span id="pb-final-net" class="font-mono">$0.00</span>
                     </div>
                 </div>
@@ -178,20 +169,25 @@
         <!-- TAB 2: REPORTS -->
         <div id="tab-reports" class="tab-content hidden space-y-6">
             <h2 class="text-xl font-bold text-gray-800">Sales & Date Filter Report</h2>
-            <div class="bg-white p-6 rounded-xl card-shadow">
-                <p class="text-xs text-gray-500 mb-4">Filter all records by date range to see period-specific profit.</p>
-                <div class="flex items-center justify-between gap-4">
+            <div class="bg-white p-6 rounded-xl card-shadow space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-4">
                     <div class="flex gap-4">
                         <div>
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">From Date</label>
-                            <input type="date" id="filter-from" class="border border-gray-300 px-3 py-1.5 rounded-lg text-sm">
+                            <input type="date" id="filter-from" onchange="filterReports()" class="border border-gray-300 px-3 py-1.5 rounded-lg text-sm">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">To Date</label>
-                            <input type="date" id="filter-to" class="border border-gray-300 px-3 py-1.5 rounded-lg text-sm">
+                            <input type="date" id="filter-to" onchange="filterReports()" class="border border-gray-300 px-3 py-1.5 rounded-lg text-sm">
                         </div>
                     </div>
-                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-xs font-semibold">Beginning → Today</button>
+                    <div class="w-64">
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Search Item / Customer</label>
+                        <input type="text" id="filter-search" onkeyup="filterReports()" placeholder="Type to search..." class="w-full border border-gray-300 px-3 py-1.5 rounded-lg text-sm">
+                    </div>
+                </div>
+                <div id="report-results" class="pt-4 border-t border-gray-100 text-sm">
+                    <!-- Dynamic Filtered Results -->
                 </div>
             </div>
         </div>
@@ -200,16 +196,27 @@
         <div id="tab-suppliers" class="tab-content hidden space-y-6">
             <div class="flex justify-between items-center">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-800">Suppliers & Stock</h2>
-                    <p class="text-xs text-gray-500">Track vendors, purchases, and supplier payment balances.</p>
+                    <h2 class="text-xl font-bold text-gray-800">Suppliers & Stock Purchases</h2>
+                    <p class="text-xs text-gray-500">Log item buying cost so net profit calculates correctly.</p>
                 </div>
                 <button onclick="openModal('purchase')" class="bg-[#121816] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-gray-800">+ Add Purchase</button>
             </div>
-            <div class="bg-white p-6 rounded-xl card-shadow text-center py-12">
-                <div class="text-3xl mb-2">📦</div>
-                <p class="text-sm font-semibold text-gray-700">Purchases & Supplier Payments Ledger</p>
-                <p class="text-xs text-gray-400 mt-1 mb-4">Add purchases to calculate product cost correctly.</p>
-                <button onclick="openModal('purchase')" class="bg-[#121816] text-white px-4 py-2 rounded-lg text-xs font-semibold">+ Add Purchase</button>
+            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                            <th class="py-2">Date</th>
+                            <th class="py-2">Supplier</th>
+                            <th class="py-2">Item</th>
+                            <th class="py-2">Qty Purchased</th>
+                            <th class="py-2">Cost per Unit ($)</th>
+                            <th class="py-2">Total Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody id="purchases-table-body">
+                        <!-- Dynamic Purchases -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -217,24 +224,27 @@
         <div id="tab-sales" class="tab-content hidden space-y-6">
             <div class="flex justify-between items-center">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-800">Sales / Dispatches</h2>
-                    <p class="text-xs text-gray-500">Log sales and track payment collection status.</p>
+                    <h2 class="text-xl font-bold text-gray-800">Sales & Dispatches Log</h2>
+                    <p class="text-xs text-gray-500">Track dispatches, customer payment status (Paid / Pending).</p>
                 </div>
                 <button onclick="openModal('sale')" class="bg-[#121816] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-gray-800">+ Log New Sale</button>
             </div>
-            <div class="bg-white p-6 rounded-xl card-shadow">
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Sales Records</h3>
+            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto">
                 <table class="w-full text-left text-xs">
                     <thead>
                         <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                            <th class="py-2">Date</th>
+                            <th class="py-2">Customer / Client</th>
                             <th class="py-2">Item</th>
                             <th class="py-2">Qty</th>
                             <th class="py-2">Sale Price</th>
-                            <th class="py-2">Total Value</th>
+                            <th class="py-2">Total Sale</th>
+                            <th class="py-2">Payment Status</th>
+                            <th class="py-2">Action</th>
                         </tr>
                     </thead>
                     <tbody id="sales-table-body">
-                        <!-- Sales dynamic entries -->
+                        <!-- Dynamic Sales -->
                     </tbody>
                 </table>
             </div>
@@ -245,48 +255,182 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-xl font-bold text-gray-800">Business Expenses</h2>
-                    <p class="text-xs text-gray-500">Track operating expenses that reduce net profit.</p>
+                    <p class="text-xs text-gray-500">Track expenses deducted from owner's share.</p>
                 </div>
                 <button onclick="openModal('expense')" class="bg-[#121816] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-gray-800">+ Add Expense</button>
             </div>
-            <div class="bg-white p-6 rounded-xl card-shadow text-center py-12">
-                <p class="text-xs text-gray-400">No expenses logged yet.</p>
+            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                            <th class="py-2">Date</th>
+                            <th class="py-2">Expense Description</th>
+                            <th class="py-2">Amount ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenses-table-body">
+                        <!-- Dynamic Expenses -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
         <!-- TAB 6: PARTNER PROFIT -->
         <div id="tab-partner" class="tab-content hidden space-y-6">
-            <h2 class="text-xl font-bold text-gray-800">Partner Profit Share (25%)</h2>
-            <div class="bg-white p-6 rounded-xl card-shadow">
-                <p class="text-xs text-gray-500">Partner receives 25% of gross profit. Expenses are deducted from owner's 75% share.</p>
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Partner Profit & Payouts</h2>
+                    <p class="text-xs text-gray-500">Manage custom percentage share and payout records.</p>
+                </div>
+                <button onclick="openModal('payout')" class="bg-[#121816] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-gray-800">+ Record Payout</button>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl card-shadow space-y-3">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Partner Cut Settings</h3>
+                <div class="flex items-center gap-4 max-w-xs">
+                    <label class="text-xs font-semibold">Partner Share %:</label>
+                    <input type="number" id="partner-pct-input" value="25" onchange="updatePartnerPct(this.value)" class="border border-gray-300 px-3 py-1.5 rounded-lg text-sm w-24">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-xl card-shadow">
+                    <div class="text-xs font-semibold text-gray-400">TOTAL PARTNER SHARE</div>
+                    <div id="partner-total-share-display" class="text-xl font-bold font-mono my-1 text-amber-600">$0.00</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl card-shadow">
+                    <div class="text-xs font-semibold text-gray-400">TOTAL PAID TO PARTNER</div>
+                    <div id="partner-total-paid-display" class="text-xl font-bold font-mono my-1 text-emerald-600">$0.00</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl card-shadow">
+                    <div class="text-xs font-semibold text-gray-400">REMAINING PENDING BALANCE</div>
+                    <div id="partner-pending-balance-display" class="text-xl font-bold font-mono my-1 text-red-600">$0.00</div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Payout History</h3>
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                            <th class="py-2">Date</th>
+                            <th class="py-2">Amount Paid ($)</th>
+                            <th class="py-2">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payouts-table-body">
+                        <!-- Dynamic Payouts -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
     </main>
 
-    <!-- LOG SALE MODAL -->
-    <div id="modal-sale" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4">
+    <!-- MODAL: ADD SALE -->
+    <div id="modal-sale" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
-            <h3 class="text-lg font-bold">Log New Sale</h3>
+            <h3 class="text-lg font-bold">Log New Sale / Dispatch</h3>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Customer / Client Name</label>
+                <input type="text" id="sale-customer" placeholder="e.g. Fleck, Usman, etc." class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Select Item</label>
                 <select id="sale-item-select" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
-                    <!-- Items populated dynamically -->
                 </select>
             </div>
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-3 gap-2">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Quantity</label>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Qty</label>
                     <input type="number" id="sale-qty" value="1" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Sale Price ($)</label>
-                    <input type="number" id="sale-price" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Cost/Unit ($)</label>
+                    <input type="number" id="sale-cost" value="0" placeholder="Buying cost" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
                 </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Sale Price ($)</label>
+                    <input type="number" id="sale-price" value="0" placeholder="Selling price" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Payment Status</label>
+                <select id="sale-status" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                    <option value="Paid">Payment Received (Paid)</option>
+                    <option value="Pending">Payment Pending (Unpaid)</option>
+                </select>
             </div>
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeModal('sale')" class="px-4 py-2 text-xs font-semibold text-gray-500">Cancel</button>
                 <button onclick="saveSale()" class="px-4 py-2 bg-[#121816] text-white rounded-lg text-xs font-semibold">Save Sale</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD PURCHASE -->
+    <div id="modal-purchase" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-bold">Log Item Purchase</h3>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Supplier Name</label>
+                <input type="text" id="pur-supplier" placeholder="Supplier name" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Select Item</label>
+                <select id="pur-item-select" class="w-full border border-gray-300 rounded-lg p-2 text-sm"></select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Quantity</label>
+                    <input type="number" id="pur-qty" value="10" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Cost Per Unit ($)</label>
+                    <input type="number" id="pur-cost" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('purchase')" class="px-4 py-2 text-xs font-semibold text-gray-500">Cancel</button>
+                <button onclick="savePurchase()" class="px-4 py-2 bg-[#121816] text-white rounded-lg text-xs font-semibold">Save Purchase</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD EXPENSE -->
+    <div id="modal-expense" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-bold">Log Owner Expense</h3>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Expense Description</label>
+                <input type="text" id="exp-title" placeholder="e.g. Rent, Electricity, Packaging" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Amount ($)</label>
+                <input type="number" id="exp-amount" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('expense')" class="px-4 py-2 text-xs font-semibold text-gray-500">Cancel</button>
+                <button onclick="saveExpense()" class="px-4 py-2 bg-[#121816] text-white rounded-lg text-xs font-semibold">Save Expense</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PAYOUT -->
+    <div id="modal-payout" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-bold">Record Partner Payout</h3>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Amount Paid ($)</label>
+                <input type="number" id="pay-amount" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Notes / Reference</label>
+                <input type="text" id="pay-notes" placeholder="Cash, Bank Transfer, etc." class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('payout')" class="px-4 py-2 text-xs font-semibold text-gray-500">Cancel</button>
+                <button onclick="savePayout()" class="px-4 py-2 bg-[#121816] text-white rounded-lg text-xs font-semibold">Save Payout</button>
             </div>
         </div>
     </div>
@@ -302,18 +446,23 @@
             "Inflatable Chairs", "Lava Lamps", "CD Wall Collages", "High-Shine Lip Gloss"
         ];
 
-        let sales = [];
-        let itemSalesTracker = {};
+        let sales = JSON.parse(localStorage.getItem('usman_sales')) || [];
+        let purchases = JSON.parse(localStorage.getItem('usman_purchases')) || [];
+        let expenses = JSON.parse(localStorage.getItem('usman_expenses')) || [];
+        let payouts = JSON.parse(localStorage.getItem('usman_payouts')) || [];
+        let partnerPct = parseFloat(localStorage.getItem('usman_partner_pct')) || 25;
 
-        // Populate dropdown
-        const selectEl = document.getElementById('sale-item-select');
-        itemsList.forEach(item => {
-            let opt = document.createElement('option');
-            opt.value = item;
-            opt.innerText = item;
-            selectEl.appendChild(opt);
-            itemSalesTracker[item] = 0;
-        });
+        // Initialize Dropdowns
+        function initDropdowns() {
+            const sSelect = document.getElementById('sale-item-select');
+            const pSelect = document.getElementById('pur-item-select');
+            sSelect.innerHTML = ''; pSelect.innerHTML = '';
+            itemsList.forEach(item => {
+                sSelect.innerHTML += `<option value="${item}">${item}</option>`;
+                pSelect.innerHTML += `<option value="${item}">${item}</option>`;
+            });
+            document.getElementById('partner-pct-input').value = partnerPct;
+        }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -322,64 +471,217 @@
             document.getElementById('btn-' + tabId).classList.add('active');
         }
 
-        function openModal(id) { document.getElementById('modal-' + id).classList.remove('hidden'); document.getElementById('modal-' + id).classList.add('flex'); }
-        function closeModal(id) { document.getElementById('modal-' + id).classList.add('hidden'); document.getElementById('modal-' + id).classList.remove('flex'); }
+        function openModal(id) { 
+            const el = document.getElementById('modal-' + id);
+            el.classList.remove('hidden'); 
+            el.classList.add('flex'); 
+        }
+
+        function closeModal(id) { 
+            const el = document.getElementById('modal-' + id);
+            el.classList.add('hidden'); 
+            el.classList.remove('flex'); 
+        }
+
+        function updatePartnerPct(val) {
+            partnerPct = parseFloat(val) || 0;
+            localStorage.setItem('usman_partner_pct', partnerPct);
+            updateUI();
+        }
 
         function saveSale() {
-            const item = selectEl.value;
+            const customer = document.getElementById('sale-customer').value || "General";
+            const item = document.getElementById('sale-item-select').value;
             const qty = parseInt(document.getElementById('sale-qty').value) || 0;
+            const cost = parseFloat(document.getElementById('sale-cost').value) || 0;
             const price = parseFloat(document.getElementById('sale-price').value) || 0;
+            const status = document.getElementById('sale-status').value;
 
-            if(qty <= 0 || price <= 0) return alert("Valid quantity aur price enter karein!");
+            if(qty <= 0 || price <= 0) {
+                alert("Bhai sahi Quantity aur Price enter karein!");
+                return;
+            }
 
-            sales.push({ item, qty, price, total: qty * price });
-            itemSalesTracker[item] = (itemSalesTracker[item] || 0) + qty;
-
-            updateUI();
+            sales.push({ id: Date.now(), date: new Date().toISOString().slice(0,10), customer, item, qty, cost, price, total: qty * price, status });
+            localStorage.setItem('usman_sales', JSON.stringify(sales));
             closeModal('sale');
+            updateUI();
+        }
+
+        function toggleSaleStatus(id) {
+            sales = sales.map(s => s.id === id ? { ...s, status: s.status === 'Paid' ? 'Pending' : 'Paid' } : s);
+            localStorage.setItem('usman_sales', JSON.stringify(sales));
+            updateUI();
+        }
+
+        function savePurchase() {
+            const supplier = document.getElementById('pur-supplier').value || "General Supplier";
+            const item = document.getElementById('pur-item-select').value;
+            const qty = parseInt(document.getElementById('pur-qty').value) || 0;
+            const cost = parseFloat(document.getElementById('pur-cost').value) || 0;
+
+            purchases.push({ date: new Date().toISOString().slice(0,10), supplier, item, qty, cost, total: qty * cost });
+            localStorage.setItem('usman_purchases', JSON.stringify(purchases));
+            closeModal('purchase');
+            updateUI();
+        }
+
+        function saveExpense() {
+            const title = document.getElementById('exp-title').value || "Expense";
+            const amount = parseFloat(document.getElementById('exp-amount').value) || 0;
+
+            expenses.push({ date: new Date().toISOString().slice(0,10), title, amount });
+            localStorage.setItem('usman_expenses', JSON.stringify(expenses));
+            closeModal('expense');
+            updateUI();
+        }
+
+        function savePayout() {
+            const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
+            const notes = document.getElementById('pay-notes').value || "Payout";
+
+            payouts.push({ date: new Date().toISOString().slice(0,10), amount, notes });
+            localStorage.setItem('usman_payouts', JSON.stringify(payouts));
+            closeModal('payout');
+            updateUI();
         }
 
         function updateUI() {
-            let totalSales = sales.reduce((a, b) => a + b.total, 0);
-            let partnerCut = totalSales * 0.25;
-            let ownerNet = totalSales - partnerCut;
+            document.getElementById('partner-nav-pct').innerText = partnerPct;
+            document.getElementById('partner-card-pct').innerText = partnerPct;
+            document.getElementById('pb-partner-pct').innerText = partnerPct;
 
-            document.getElementById('card-total-sales').innerText = `$${totalSales.toFixed(2)}`;
+            let totalSalesVal = sales.reduce((a, b) => a + b.total, 0);
+            let collectedVal = sales.filter(s => s.status === 'Paid').reduce((a, b) => a + b.total, 0);
+            let cogsVal = sales.reduce((a, b) => a + (b.cost * b.qty), 0);
+            let grossProfit = totalSalesVal - cogsVal;
+            let partnerCut = grossProfit > 0 ? (grossProfit * (partnerPct / 100)) : 0;
+            let totalExpensesVal = expenses.reduce((a, b) => a + b.amount, 0);
+            let ownerShare = grossProfit - partnerCut;
+            let ownerNet = ownerShare - totalExpensesVal;
+
+            let totalPaidPartner = payouts.reduce((a, b) => a + b.amount, 0);
+            let partnerPending = partnerCut - totalPaidPartner;
+
+            document.getElementById('card-total-sales').innerText = `$${totalSalesVal.toFixed(2)}`;
+            document.getElementById('card-collected-sub').innerText = `$${collectedVal.toFixed(2)} collected`;
             document.getElementById('card-partner-cut').innerText = `$${partnerCut.toFixed(2)}`;
+            document.getElementById('card-owner-expenses').innerText = `$${totalExpensesVal.toFixed(2)}`;
             document.getElementById('card-net-profit').innerText = `$${ownerNet.toFixed(2)}`;
 
-            document.getElementById('pb-total-sales').innerText = `$${totalSales.toFixed(2)}`;
-            document.getElementById('pb-gross-profit').innerText = `$${totalSales.toFixed(2)}`;
-            document.getElementById('pb-partner-share').innerText = `$${partnerCut.toFixed(2)}`;
-            document.getElementById('pb-owner-share').innerText = `$${ownerNet.toFixed(2)}`;
+            document.getElementById('pb-total-sales').innerText = `$${totalSalesVal.toFixed(2)}`;
+            document.getElementById('pb-cost-goods').innerText = `-$${cogsVal.toFixed(2)}`;
+            document.getElementById('pb-gross-profit').innerText = `$${grossProfit.toFixed(2)}`;
+            document.getElementById('pb-partner-share').innerText = `-$${partnerCut.toFixed(2)}`;
+            document.getElementById('pb-owner-share').innerText = `$${ownerShare.toFixed(2)}`;
+            document.getElementById('pb-expenses').innerText = `-$${totalExpensesVal.toFixed(2)}`;
             document.getElementById('pb-final-net').innerText = `$${ownerNet.toFixed(2)}`;
 
-            // Render Sales Table
-            const tbody = document.getElementById('sales-table-body');
-            tbody.innerHTML = '';
+            document.getElementById('partner-total-share-display').innerText = `$${partnerCut.toFixed(2)}`;
+            document.getElementById('partner-total-paid-display').innerText = `$${totalPaidPartner.toFixed(2)}`;
+            document.getElementById('partner-pending-balance-display').innerText = `$${partnerPending.toFixed(2)}`;
+
+            // Render Sales
+            const sBody = document.getElementById('sales-table-body');
+            sBody.innerHTML = sales.length === 0 ? `<tr><td colspan="8" class="text-gray-400 text-center py-4">No sales logged.</td></tr>` : '';
             sales.forEach(s => {
-                tbody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2 font-medium">${s.item}</td>
+                sBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2">${s.date}</td>
+                    <td class="py-2 font-semibold">${s.customer}</td>
+                    <td class="py-2">${s.item}</td>
                     <td class="py-2 font-mono">${s.qty}</td>
                     <td class="py-2 font-mono">$${s.price.toFixed(2)}</td>
                     <td class="py-2 font-mono font-bold">$${s.total.toFixed(2)}</td>
+                    <td class="py-2">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                            ${s.status}
+                        </span>
+                    </td>
+                    <td class="py-2">
+                        <button onclick="toggleSaleStatus(${s.id})" class="text-[10px] underline text-gray-600 hover:text-black">Change Status</button>
+                    </td>
                 </tr>`;
             });
 
-            // Update Top / Least Selling
-            let sorted = Object.entries(itemSalesTracker).filter(([k, v]) => v > 0).sort((a, b) => b[1] - a[1]);
-            
+            // Render Purchases
+            const pBody = document.getElementById('purchases-table-body');
+            pBody.innerHTML = purchases.length === 0 ? `<tr><td colspan="6" class="text-gray-400 text-center py-4">No purchases logged.</td></tr>` : '';
+            purchases.forEach(p => {
+                pBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2">${p.date}</td>
+                    <td class="py-2 font-semibold">${p.supplier}</td>
+                    <td class="py-2">${p.item}</td>
+                    <td class="py-2 font-mono">${p.qty}</td>
+                    <td class="py-2 font-mono">$${p.cost.toFixed(2)}</td>
+                    <td class="py-2 font-mono font-bold">$${p.total.toFixed(2)}</td>
+                </tr>`;
+            });
+
+            // Render Expenses
+            const eBody = document.getElementById('expenses-table-body');
+            eBody.innerHTML = expenses.length === 0 ? `<tr><td colspan="3" class="text-gray-400 text-center py-4">No expenses logged.</td></tr>` : '';
+            expenses.forEach(e => {
+                eBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2">${e.date}</td>
+                    <td class="py-2 font-semibold">${e.title}</td>
+                    <td class="py-2 font-mono font-bold text-red-600">$${e.amount.toFixed(2)}</td>
+                </tr>`;
+            });
+
+            // Render Payouts
+            const payBody = document.getElementById('payouts-table-body');
+            payBody.innerHTML = payouts.length === 0 ? `<tr><td colspan="3" class="text-gray-400 text-center py-4">No payouts recorded.</td></tr>` : '';
+            payouts.forEach(p => {
+                payBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2">${p.date}</td>
+                    <td class="py-2 font-mono font-bold text-emerald-700">$${p.amount.toFixed(2)}</td>
+                    <td class="py-2 text-gray-500">${p.notes}</td>
+                </tr>`;
+            });
+
+            // Best / Least Selling Tracker
+            let tracker = {};
+            sales.forEach(s => tracker[s.item] = (tracker[s.item] || 0) + s.qty);
+            let sorted = Object.entries(tracker).sort((a,b) => b[1] - a[1]);
+
             let topEl = document.getElementById('top-selling-list');
             let leastEl = document.getElementById('least-selling-list');
-
             if(sorted.length === 0) {
-                topEl.innerHTML = `<p class="text-xs text-gray-400 italic">No sales recorded yet.</p>`;
-                leastEl.innerHTML = `<p class="text-xs text-gray-400 italic">No sales recorded yet.</p>`;
+                topEl.innerHTML = `<p class="text-xs text-gray-400 italic">No sales logged yet.</p>`;
+                leastEl.innerHTML = `<p class="text-xs text-gray-400 italic">No sales logged yet.</p>`;
             } else {
-                topEl.innerHTML = sorted.slice(0, 3).map(([k, v]) => `<div class="flex justify-between font-medium"><span class="text-gray-700">${k}</span><span class="font-mono text-emerald-700 font-bold">${v} sold</span></div>`).join('');
-                leastEl.innerHTML = sorted.slice(-3).reverse().map(([k, v]) => `<div class="flex justify-between font-medium"><span class="text-gray-700">${k}</span><span class="font-mono text-amber-700 font-bold">${v} sold</span></div>`).join('');
+                topEl.innerHTML = sorted.slice(0, 3).map(([k,v]) => `<div class="flex justify-between font-medium"><span>${k}</span><span class="font-mono text-emerald-700 font-bold">${v} sold</span></div>`).join('');
+                leastEl.innerHTML = sorted.slice(-3).reverse().map(([k,v]) => `<div class="flex justify-between font-medium"><span>${k}</span><span class="font-mono text-amber-700 font-bold">${v} sold</span></div>`).join('');
+            }
+
+            filterReports();
+        }
+
+        function filterReports() {
+            const from = document.getElementById('filter-from').value;
+            const to = document.getElementById('filter-to').value;
+            const q = document.getElementById('filter-search').value.toLowerCase();
+
+            let filtered = sales.filter(s => {
+                let matchDate = (!from || s.date >= from) && (!to || s.date <= to);
+                let matchSearch = !q || s.item.toLowerCase().includes(q) || s.customer.toLowerCase().includes(q);
+                return matchDate && matchSearch;
+            });
+
+            const resDiv = document.getElementById('report-results');
+            if(filtered.length === 0) {
+                resDiv.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-4">No matching records found.</p>`;
+            } else {
+                let tot = filtered.reduce((a,b) => a+b.total, 0);
+                resDiv.innerHTML = `<p class="font-semibold mb-2">Found ${filtered.length} records (Filtered Total Sales: <span class="font-mono text-emerald-700">$${tot.toFixed(2)}</span>)</p>
+                <div class="space-y-1">${filtered.map(f => `<div class="flex justify-between py-1 border-b text-xs"><span>${f.date} — <strong>${f.customer}</strong> (${f.item})</span><span class="font-mono font-bold">$${f.total.toFixed(2)} [${f.status}]</span></div>`).join('')}</div>`;
             }
         }
+
+        window.onload = () => {
+            initDropdowns();
+            updateUI();
+        };
     </script>
 </body>
 </html>
