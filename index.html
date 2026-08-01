@@ -65,7 +65,7 @@
                 <div class="w-9 h-9 bg-[#c59b27] text-white rounded-lg flex items-center justify-center font-bold text-lg font-mono">U</div>
                 <div>
                     <h1 class="text-white font-bold text-sm tracking-wide">Usman Trade</h1>
-                    <p class="text-xs text-gray-400">Ledger & Profit Suite</p>
+                    <p id="logged-user-display" class="text-xs text-amber-400 font-semibold">Admin</p>
                 </div>
             </div>
 
@@ -78,7 +78,7 @@
                 </select>
             </div>
 
-            <nav class="space-y-1 text-xs font-medium">
+            <nav class="space-y-1 text-xs font-medium" id="sidebar-nav">
                 <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
                     <span>📊</span> Dashboard
                 </button>
@@ -103,10 +103,13 @@
                 <button onclick="switchTab('partner')" id="btn-partner" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition">
                     <span>⚖️</span> Partner Profit (<span id="partner-nav-pct">25</span>%)
                 </button>
+                <button onclick="switchTab('users')" id="btn-users" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:text-white transition text-amber-400">
+                    <span>🔐</span> Users & Permissions
+                </button>
             </nav>
         </div>
         <div class="p-2 border-t border-gray-800 flex justify-between items-center text-[10px] text-gray-500">
-            <span>Usman Trade v8.0</span>
+            <span>Usman Trade v8.1</span>
             <div class="space-x-2">
                 <button onclick="openModal('change-pass')" class="text-amber-400 hover:underline">Change Pass</button>
                 <button onclick="handleLogout()" class="text-red-400 hover:underline">Logout</button>
@@ -441,9 +444,66 @@
             </div>
         </div>
 
+        <!-- TAB 7: USERS & PERMISSIONS (Admin Only) -->
+        <div id="tab-users" class="tab-content hidden space-y-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">User Management & Permissions</h2>
+                    <p class="text-xs text-gray-500">Create new users and select which specific tabs they are allowed to access.</p>
+                </div>
+                <button onclick="openUserModal(-1)" class="bg-[#121816] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-gray-800">+ Add New User</button>
+            </div>
+            <div class="bg-white p-6 rounded-xl card-shadow overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                            <th class="py-2">Username</th>
+                            <th class="py-2">Allowed Tabs / Sections</th>
+                            <th class="py-2 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </main>
 
     <!-- MODALS SECTION -->
+    <!-- MODAL: ADD / EDIT USER -->
+    <div id="modal-user-form" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-lg font-bold" id="user-modal-title">Add New User</h3>
+            <input type="hidden" id="edit-user-index" value="-1">
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Username</label>
+                <input type="text" id="form-username" placeholder="e.g. staff1" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Password</label>
+                <input type="password" id="form-userpass" placeholder="Enter password" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-2">Select Allowed Tabs for this User:</label>
+                <div class="space-y-2 border border-gray-200 p-3 rounded-lg text-xs max-h-48 overflow-y-auto" id="permissions-checkboxes">
+                    <label class="flex items-center gap-2"><input type="checkbox" value="dashboard" class="perm-chk"> Dashboard</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="items" class="perm-chk"> Item Catalog</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="inventory" class="perm-chk"> Inventory / Stock</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="reports" class="perm-chk"> Sales & Date Report</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="suppliers" class="perm-chk"> Suppliers & Purchases</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="sales" class="perm-chk"> Sales / Dispatches</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="expenses" class="perm-chk"> Owner Expenses</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="partner" class="perm-chk"> Partner Profit</label>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('user-form')" class="px-4 py-2 text-xs font-semibold text-gray-500">Cancel</button>
+                <button onclick="saveUserRecord()" class="px-4 py-2 bg-[#121816] text-white rounded-lg text-xs font-semibold">Save User</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: CHANGE PASSWORD -->
     <div id="modal-change-pass" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-xl p-6 space-y-4">
@@ -768,33 +828,116 @@
         let manualStock = JSON.parse(localStorage.getItem('usman_manual_stock')) || [];
         let expenses = JSON.parse(localStorage.getItem('usman_expenses')) || [];
         let payouts = JSON.parse(localStorage.getItem('usman_payouts')) || [];
+        let customUsers = JSON.parse(localStorage.getItem('usman_custom_users')) || [];
+        
         let partnerPct = parseFloat(localStorage.getItem('usman_partner_pct')) || 25;
         let currentCurrency = localStorage.getItem('usman_currency') || 'PKR';
         let savedPassword = localStorage.getItem('usman_password') || '12345';
 
+        let currentUser = localStorage.getItem('usman_current_user') || 'admin';
+
+        // 5 MINUTE AUTO LOGOUT TIMER LOGIC
+        let inactivityTimer;
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            if(localStorage.getItem('usman_logged_in') === 'true') {
+                // 5 minutes = 300,000 milliseconds
+                inactivityTimer = setTimeout(() => {
+                    alert("سسٹم پر 5 منٹ تک کوئی سرگرمی نہ ہونے کی وجہ سے آپ کو آٹو لاگ آؤٹ کر دیا گیا ہے!");
+                    handleLogout();
+                }, 300000);
+            }
+        }
+
+        // Track user mouse movements, clicks and keypresses to reset timer
+        window.onload = () => {
+            ['mousemove', 'keydown', 'click', 'scroll'].forEach(evt => {
+                window.addEventListener(evt, resetInactivityTimer);
+            });
+
+            if(localStorage.getItem('usman_logged_in') === 'true') {
+                document.getElementById('login-screen').classList.add('hidden');
+                applyUserPermissions(currentUser);
+            }
+            initDropdowns();
+            updateUI();
+        };
+
         // AUTHENTICATION LOGIC
         function handleLogin() {
-            const user = document.getElementById('login-user').value;
+            const user = document.getElementById('login-user').value.trim();
             const pass = document.getElementById('login-pass').value;
             const err = document.getElementById('login-error');
 
             if(user === 'admin' && pass === savedPassword) {
                 localStorage.setItem('usman_logged_in', 'true');
+                localStorage.setItem('usman_current_user', 'admin');
+                currentUser = 'admin';
                 document.getElementById('login-screen').classList.add('hidden');
+                applyUserPermissions('admin');
+                resetInactivityTimer();
             } else {
-                err.classList.remove('hidden');
+                let foundUser = customUsers.find(u => u.username === user && u.password === pass);
+                if(foundUser) {
+                    localStorage.setItem('usman_logged_in', 'true');
+                    localStorage.setItem('usman_current_user', user);
+                    currentUser = user;
+                    document.getElementById('login-screen').classList.add('hidden');
+                    applyUserPermissions(user);
+                    resetInactivityTimer();
+                } else {
+                    err.classList.remove('hidden');
+                }
             }
         }
 
         function handleLogout() {
             localStorage.removeItem('usman_logged_in');
+            localStorage.removeItem('usman_current_user');
+            clearTimeout(inactivityTimer);
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('login-user').value = '';
             document.getElementById('login-pass').value = '';
             document.getElementById('login-error').classList.add('hidden');
         }
 
+        function applyUserPermissions(uname) {
+            document.getElementById('logged-user-display').innerText = uname;
+            const allNavBtns = document.querySelectorAll('#sidebar-nav button');
+
+            if(uname === 'admin') {
+                allNavBtns.forEach(b => b.style.display = 'flex');
+                switchTab('dashboard');
+                return;
+            }
+
+            let uData = customUsers.find(u => u.username === uname);
+            if(!uData) return;
+
+            let allowed = uData.permissions || [];
+            // Always allow users & permissions tab for management or hide it if needed. Let's hide 'users' tab for sub-users unless specified.
+            allNavBtns.forEach(b => {
+                let tabName = b.id.replace('btn-', '');
+                if(tabName === 'users') {
+                    b.style.display = 'none';
+                } else if(allowed.includes(tabName)) {
+                    b.style.display = 'flex';
+                } else {
+                    b.style.display = 'none';
+                }
+            });
+
+            // Switch to first allowed tab
+            if(allowed.length > 0) {
+                switchTab(allowed[0]);
+            }
+        }
+
         function saveNewPassword() {
+            if(currentUser !== 'admin') {
+                alert("صرف ایڈمن پاس ورڈ تبدیل کر سکتا ہے!");
+                return;
+            }
             const currentPass = document.getElementById('current-pass-input').value;
             const newPass = document.getElementById('new-pass-input').value;
             const msg = document.getElementById('pass-msg');
@@ -825,6 +968,58 @@
                 msg.classList.add('hidden');
                 closeModal('change-pass');
             }, 1500);
+        }
+
+        // USERS & PERMISSIONS MANAGEMENT
+        function openUserModal(index) {
+            document.getElementById('edit-user-index').value = index;
+            const chks = document.querySelectorAll('.perm-chk');
+            chks.forEach(c => c.checked = false);
+
+            if(index >= 0) {
+                let u = customUsers[index];
+                document.getElementById('user-modal-title').innerText = "Edit User";
+                document.getElementById('form-username').value = u.username;
+                document.getElementById('form-userpass').value = u.password;
+                chks.forEach(c => {
+                    if(u.permissions && u.permissions.includes(c.value)) c.checked = true;
+                });
+            } else {
+                document.getElementById('user-modal-title').innerText = "Add New User";
+                document.getElementById('form-username').value = '';
+                document.getElementById('form-userpass').value = '';
+            }
+            openModal('user-form');
+        }
+
+        function saveUserRecord() {
+            const username = document.getElementById('form-username').value.trim();
+            const password = document.getElementById('form-userpass').value.trim();
+            const index = parseInt(document.getElementById('edit-user-index').value);
+
+            if(!username || !password) return alert("یوزر نیم اور پاس ورڈ دونوں درج کریں!");
+            if(username === 'admin') return alert("یوزر نیم 'admin' استعمال نہیں کیا جا سکتا!");
+
+            let permissions = [];
+            document.querySelectorAll('.perm-chk:checked').forEach(c => permissions.push(c.value));
+
+            if(index >= 0) {
+                customUsers[index] = { username, password, permissions };
+            } else {
+                customUsers.push({ username, password, permissions });
+            }
+
+            localStorage.setItem('usman_custom_users', JSON.stringify(customUsers));
+            closeModal('user-form');
+            updateUI();
+        }
+
+        function deleteUserRecord(index) {
+            if(confirm("کیا آپ اس یوزر کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
+                customUsers.splice(index, 1);
+                localStorage.setItem('usman_custom_users', JSON.stringify(customUsers));
+                updateUI();
+            }
         }
 
         function formatMoney(val) {
@@ -930,7 +1125,7 @@
         }
 
         function deleteSale(index) {
-            if(confirm("کیا آپ اس سیلز ریکارڈ کو ڈیلیٹ کرنا چاہتے ہیں؟ یہ رپورٹ سے بھی ختم ہو جائے گا۔")) {
+            if(confirm("کیا آپ اس سیلز ریکارڈ کو ڈیلیٹ کرنا چاہتے ہیں؟")) {
                 sales.splice(index, 1);
                 localStorage.setItem('usman_sales', JSON.stringify(sales));
                 updateUI();
@@ -1460,6 +1655,21 @@
 
             renderInventoryGroups();
 
+            // Render Users Table
+            const uBody = document.getElementById('users-table-body');
+            uBody.innerHTML = customUsers.length === 0 ? `<tr><td colspan="3" class="text-gray-400 text-center py-4">No custom users created yet.</td></tr>` : '';
+            customUsers.forEach((u, idx) => {
+                let permissionsList = (u.permissions || []).join(', ');
+                uBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
+                    <td class="py-2 font-semibold text-gray-800">${u.username}</td>
+                    <td class="py-2 text-gray-600">${permissionsList || 'No tabs allowed'}</td>
+                    <td class="py-2 text-right space-x-2">
+                        <button onclick="openUserModal(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
+                        <button onclick="deleteUserRecord(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
+                    </td>
+                </tr>`;
+            });
+
             const sBody = document.getElementById('sales-table-body');
             sBody.innerHTML = sales.length === 0 ? `<tr><td colspan="8" class="text-gray-400 text-center py-4">No sales logged.</td></tr>` : '';
             sales.forEach((s, idx) => {
@@ -1567,7 +1777,7 @@
             });
 
             const spBody = document.getElementById('supplier-payments-table-body');
-            spBody.innerHTML = supplierPayments.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No supplier payments logged.</td></tr>` : '';
+            spBody.innerHTML = supplierPayments.length ===`<tr><td colspan="5" class="text-gray-400 text-center py-4">No supplier payments logged.</td></tr>` ? `` : '';
             supplierPayments.forEach((sp, idx) => {
                 spBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2">${sp.date}</td>
@@ -1618,14 +1828,6 @@
                 <div class="space-y-1">${filtered.map(f => `<div class="flex justify-between py-1 border-b text-xs"><span>${f.date} — <strong>${f.customer}</strong> (${f.item})</span><span class="font-mono font-bold">${formatMoney(f.total)} [${f.status}]</span></div>`).join('')}</div>`;
             }
         }
-
-        window.onload = () => {
-            if(localStorage.getItem('usman_logged_in') === 'true') {
-                document.getElementById('login-screen').classList.add('hidden');
-            }
-            initDropdowns();
-            updateUI();
-        };
     </script>
 </body>
 </html>
