@@ -1794,8 +1794,6 @@
         }
 
         function updateUI() {
-            document.getElementById('partner-nav-pct').innerText = partnerPct;
-
             let totalSalesVal = sales.reduce((a, b) => a + (parseFloat(b.total)||0), 0);
             let collectedVal = sales.filter(s => s.status === 'Paid').reduce((a, b) => a + (parseFloat(b.total)||0), 0);
             let cogsVal = sales.reduce((a, b) => a + ((parseFloat(b.cost)||0) * (parseFloat(b.qty)||0)), 0);
@@ -2021,11 +2019,11 @@
                 spBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
                     <td class="py-2">${sp.date}</td>
                     <td class="py-2 font-semibold">${sp.supplier}</td>
-                    <td class="py-2 font-mono font-bold text-amber-600">${formatMoney(sp.amount)}</td>
+                    <td class="py-2 font-mono font-bold text-amber-700">${formatMoney(sp.amount)}</td>
                     <td class="py-2 text-gray-500">${sp.notes}</td>
                     <td class="py-2 text-right space-x-2">
                         <button onclick="editSupplierPayment(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deleteSupplierPayment(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Dash</button>
+                        <button onclick="deleteSupplierPayment(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
                     </td>
                 </tr>`;
             });
