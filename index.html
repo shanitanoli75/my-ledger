@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+[source: 2]<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -984,15 +984,11 @@
         let manualStock = JSON.parse(localStorage.getItem('usman_manual_stock')) || [];
         let expenses = JSON.parse(localStorage.getItem('usman_expenses')) || [];
         let payouts = JSON.parse(localStorage.getItem('usman_payouts')) || [];
-let defaultUsers = [
-    { username: "staff1", password: "yourpassword123", permissions: ["dashboard", "sales-general"] },
-    { username: "manager", password: "managerpassword123", permissions: ["dashboard", "inventory", "sales-general", "dispatches"] }
-];
-let customUsers = JSON.parse(localStorage.getItem('usman_custom_users')) || defaultUsers;
+        let customUsers = JSON.parse(localStorage.getItem('usman_custom_users')) || [];
         
         let partnerPct = parseFloat(localStorage.getItem('usman_partner_pct')) || 25;
         let currentCurrency = localStorage.getItem('usman_currency') || 'PKR';
-        let savedPassword = localStorage.getItem('usman_password') || 'YOUR_NEW_ADMIN_PASSWORD';
+        let savedPassword = localStorage.getItem('usman_password') || '12345';
         let currentUser = localStorage.getItem('usman_current_user') || 'admin';
 
         let inactivityTimer;
@@ -1458,11 +1454,66 @@ let customUsers = JSON.parse(localStorage.getItem('usman_custom_users')) || defa
             }
         }
 
+        function updatePartnerPct(val) {
+            partnerPct = parseFloat(val) || 0;
+            localStorage.setItem('usman_partner_pct', partnerPct);
+            updateUI();
+        }
+
+        function saveItemCatalog() {
+            const name = document.getElementById('item-name-input').value.trim();
+            const color = document.getElementById('item-color-input').value.trim();
+            const styleTag = document.getElementById('item-style-input').value;
+            const ageGroup = document.getElementById('item-age-input').value;
+            const itemType = document.getElementById('item-type-input').value;
+            const index = parseInt(document.getElementById('edit-item-index').value);
+
+            if(!name || !color) return alert("Please fill in both Item Name and Color!");
+
+            if(index >= 0) {
+                catalog[index] = { name, color, styleTag, ageGroup, itemType };
+            } else {
+                catalog.push({ name, color, styleTag, ageGroup, itemType });
+            }
+
+            localStorage.setItem('usman_catalog', JSON.stringify(catalog));
+            document.getElementById('edit-item-index').value = '-1';
+            document.getElementById('item-modal-title').innerText = "Add New Item";
+            document.getElementById('item-name-input').value = '';
+            document.getElementById('item-color-input').value = '';
+            closeModal('add-item');
+            initDropdowns();
+            updateUI();
+        }
+
+        function editItemCatalog(index) {
+            let item = catalog[index];
+            document.getElementById('item-modal-title').innerText = "Edit Item";
+            document.getElementById('item-name-input').value = item.name;
+            document.getElementById('item-color-input').value = item.color;
+            document.getElementById('item-style-input').value = item.styleTag || 'Y2K';
+            document.getElementById('item-age-input').value = item.ageGroup || 'Adults';
+            document.getElementById('item-type-input').value = item.itemType || 'Shirts';
+            document.getElementById('edit-item-index').value = index;
+            openModal('add-item');
+        }
+
+        function deleteItemCatalog(index) {
+            if(confirm("Are you sure you want to delete this item from catalog?")) {
+                catalog.splice(index, 1);
+                localStorage.setItem('usman_catalog', JSON.stringify(catalog));
+                initDropdowns();
+                updateUI();
+            }
+        }
+
         function saveManualStock() {
             const item = document.getElementById('adj-item-select').value;
             const qty = parseInt(document.getElementById('adj-qty-input').value) || 0;
             const cost = parseFloat(document.getElementById('adj-cost-input').value) || 0;
             const index = parseInt(document.getElementById('edit-stock-index').value);
+
+            if(qty === 0) return alert("Please enter quantity!");
 
             if(index >= 0) {
                 manualStock[index] = { item, qty, cost };
@@ -1477,39 +1528,13 @@ let customUsers = JSON.parse(localStorage.getItem('usman_custom_users')) || defa
             updateUI();
         }
 
-        function editStock(itemKey) {
-            let idx = manualStock.findIndex(m => m.item === itemKey);
-            if(idx >= 0) {
-                document.getElementById('adj-modal-title').innerText = "Edit Stock Entry";
-                document.getElementById('adj-item-select').value = manualStock[idx].item;
-                document.getElementById('adj-qty-input').value = manualStock[idx].qty;
-                document.getElementById('adj-cost-input').value = manualStock[idx].cost;
-                document.getElementById('edit-stock-index').value = idx;
-            } else {
-                document.getElementById('adj-modal-title').innerText = "Adjust Stock Quantity";
-                document.getElementById('adj-item-select').value = itemKey;
-                document.getElementById('adj-qty-input').value = 0;
-                document.getElementById('adj-cost-input').value = 0;
-                document.getElementById('edit-stock-index').value = -1;
-            }
-            openModal('adj-stock');
-        }
-
-        function deleteStock(itemKey) {
-            if(confirm(`Are you sure you want to delete all manual stock entries for (${itemKey})?`)) {
-                manualStock = manualStock.filter(m => m.item !== itemKey);
-                localStorage.setItem('usman_manual_stock', JSON.stringify(manualStock));
-                updateUI();
-            }
-        }
-
         function saveSupplier() {
             const name = document.getElementById('supp-name-input').value.trim();
-            const phone = document.getElementById('supp-phone-input').value.trim() || '-';
-            const address = document.getElementById('supp-address-input').value.trim() || '-';
+            const phone = document.getElementById('supp-phone-input').value.trim() || "-";
+            const address = document.getElementById('supp-address-input').value.trim() || "-";
             const index = parseInt(document.getElementById('edit-supp-index').value);
 
-            if(!name) return alert("Please enter the supplier name!");
+            if(!name) return alert("Please enter Supplier Name!");
 
             if(index >= 0) {
                 suppliers[index] = { name, phone, address };
@@ -1518,28 +1543,28 @@ let customUsers = JSON.parse(localStorage.getItem('usman_custom_users')) || defa
             }
 
             localStorage.setItem('usman_suppliers_v2', JSON.stringify(suppliers));
+            document.getElementById('edit-supp-index').value = '-1';
+            document.getElementById('supp-modal-title').innerText = "Add New Supplier";
             document.getElementById('supp-name-input').value = '';
             document.getElementById('supp-phone-input').value = '';
             document.getElementById('supp-address-input').value = '';
-            document.getElementById('edit-supp-index').value = '-1';
-            document.getElementById('supp-modal-title').innerText = "Add New Supplier";
-
             closeModal('add-supplier');
             initDropdowns();
             updateUI();
         }
 
         function editSupplier(index) {
+            let supp = suppliers[index];
             document.getElementById('supp-modal-title').innerText = "Edit Supplier";
-            document.getElementById('supp-name-input').value = suppliers[index].name;
-            document.getElementById('supp-phone-input').value = suppliers[index].phone;
-            document.getElementById('supp-address-input').value = suppliers[index].address;
+            document.getElementById('supp-name-input').value = supp.name;
+            document.getElementById('supp-phone-input').value = supp.phone;
+            document.getElementById('supp-address-input').value = supp.address;
             document.getElementById('edit-supp-index').value = index;
             openModal('add-supplier');
         }
 
         function deleteSupplier(index) {
-            if(confirm(`Are you sure you want to delete (${suppliers[index].name})?`)) {
+            if(confirm("Are you sure you want to delete this supplier?")) {
                 suppliers.splice(index, 1);
                 localStorage.setItem('usman_suppliers_v2', JSON.stringify(suppliers));
                 initDropdowns();
@@ -1547,47 +1572,23 @@ let customUsers = JSON.parse(localStorage.getItem('usman_custom_users')) || defa
             }
         }
 
-        function calculateSupplierPending(suppName) {
-            if(!suppName) return 0;
-            let totalBills = purchases.filter(p => p.supplier && p.supplier.toLowerCase() === suppName.toLowerCase()).reduce((a, b) => a + (parseFloat(b.total) || 0), 0);
-            let initialPaid = purchases.filter(p => p.supplier && p.supplier.toLowerCase() === suppName.toLowerCase()).reduce((a, b) => a + (parseFloat(b.paid) || 0), 0);
-            let totalExtraPaid = supplierPayments.filter(sp => sp.supplier && sp.supplier.toLowerCase() === suppName.toLowerCase()).reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
-            
-            let pending = totalBills - (initialPaid + totalExtraPaid);
-            return pending > 0 ? pending : 0;
-        }
-
-        function handleSupplierSelectChange() {
-            const val = document.getElementById('spay-supplier-select').value;
-            const manualContainer = document.getElementById('manual-supp-container');
-            const pendingBox = document.getElementById('pending-display-box');
-
-            if(val === '__MANUAL__') {
-                manualContainer.classList.remove('hidden');
-                pendingBox.classList.add('hidden');
-            } else {
-                manualContainer.classList.add('hidden');
-                pendingBox.classList.remove('hidden');
-                let pending = calculateSupplierPending(val);
-                document.getElementById('supp-calculated-pending').innerText = formatMoney(pending);
-            }
-        }
-
         function savePurchase() {
-            const supplier = document.getElementById('pur-supplier-select').value || "General Supplier";
+            const supplier = document.getElementById('pur-supplier-select').value;
             const item = document.getElementById('pur-item-select').value;
             const qty = parseInt(document.getElementById('pur-qty').value) || 0;
             const cost = parseFloat(document.getElementById('pur-cost').value) || 0;
             const paid = parseFloat(document.getElementById('pur-paid').value) || 0;
-            const total = qty * cost;
             const index = parseInt(document.getElementById('edit-pur-index').value);
 
-            if(qty <= 0) return alert("Please enter a correct quantity!");
+            if(qty <= 0) return alert("Please enter correct quantity!");
+
+            let total = qty * cost;
+            let pending = total - paid;
 
             if(index >= 0) {
-                purchases[index] = { ...purchases[index], supplier, item, qty, cost, total, paid };
+                purchases[index] = { ...purchases[index], supplier, item, qty, cost, total, paid, pending };
             } else {
-                purchases.push({ date: new Date().toISOString().slice(0,10), supplier, item, qty, cost, total, paid });
+                purchases.push({ date: new Date().toISOString().slice(0,10), supplier, item, qty, cost, total, paid, pending });
             }
 
             localStorage.setItem('usman_purchases', JSON.stringify(purchases));
@@ -1598,13 +1599,13 @@ let customUsers = JSON.parse(localStorage.getItem('usman_custom_users')) || defa
         }
 
         function editPurchase(index) {
-            let p = purchases[index];
+            let pur = purchases[index];
             document.getElementById('pur-modal-title').innerText = "Edit Purchase Record";
-            document.getElementById('pur-supplier-select').value = p.supplier;
-            document.getElementById('pur-item-select').value = p.item;
-            document.getElementById('pur-qty').value = p.qty;
-            document.getElementById('pur-cost').value = p.cost;
-            document.getElementById('pur-paid').value = p.paid;
+            document.getElementById('pur-supplier-select').value = pur.supplier;
+            document.getElementById('pur-item-select').value = pur.item;
+            document.getElementById('pur-qty').value = pur.qty;
+            document.getElementById('pur-cost').value = pur.cost;
+            document.getElementById('pur-paid').value = pur.paid;
             document.getElementById('edit-pur-index').value = index;
             openModal('purchase');
         }
@@ -1617,37 +1618,54 @@ let customUsers = JSON.parse(localStorage.getItem('usman_custom_users')) || defa
             }
         }
 
-        function saveSupplierPayment() {
-            const selectVal = document.getElementById('spay-supplier-select').value;
-            let supplier = selectVal;
-            if(selectVal === '__MANUAL__') {
-                supplier = document.getElementById('spay-manual-name').value.trim();
-                if(!supplier) return alert("Please enter the supplier name!");
-            }
+        function handleSupplierSelectChange() {
+            const suppVal = document.getElementById('spay-supplier-select').value;
+            const manualBox = document.getElementById('manual-supp-container');
+            const pendingText = document.getElementById('supp-calculated-pending');
 
+            if(suppVal === '__MANUAL__') {
+                manualBox.classList.remove('hidden');
+                pendingText.innerText = formatMoney(0);
+            } else {
+                manualBox.classList.add('hidden');
+                let totalPurchased = purchases.filter(p => p.supplier === suppVal).reduce((sum, p) => sum + (p.total || 0), 0);
+                let totalDirectlyPaid = purchases.filter(p => p.supplier === suppVal).reduce((sum, p) => sum + (p.paid || 0), 0);
+                let totalPayoutsMade = supplierPayments.filter(sp => sp.supplier === suppVal).reduce((sum, sp) => sum + (sp.amount || 0), 0);
+                let actualPending = totalPurchased - totalDirectlyPaid - totalPayoutsMade;
+                pendingText.innerText = formatMoney(actualPending);
+            }
+        }
+
+        function saveSupplierPayment() {
+            let selectedSupp = document.getElementById('spay-supplier-select').value;
+            if(selectedSupp === '__MANUAL__') {
+                selectedSupp = document.getElementById('spay-manual-name').value.trim() || "Manual Supplier";
+            }
             const amount = parseFloat(document.getElementById('spay-amount').value) || 0;
-            const notes = document.getElementById('spay-notes').value || "Payment";
+            const notes = document.getElementById('spay-notes').value.trim() || "Supplier Payment";
             const index = parseInt(document.getElementById('edit-spay-index').value);
 
-            if(amount <= 0) return alert("Please enter a correct amount!");
+            if(amount <= 0) return alert("Please enter valid payment amount!");
 
             if(index >= 0) {
-                supplierPayments[index] = { ...supplierPayments[index], supplier, amount, notes };
+                supplierPayments[index] = { ...supplierPayments[index], supplier: selectedSupp, amount, notes };
             } else {
-                supplierPayments.push({ date: new Date().toISOString().slice(0,10), supplier, amount, notes });
+                supplierPayments.push({ date: new Date().toISOString().slice(0,10), supplier: selectedSupp, amount, notes });
             }
 
             localStorage.setItem('usman_supp_payments', JSON.stringify(supplierPayments));
-            document.getElementById('spay-manual-name').value = '';
             document.getElementById('edit-spay-index').value = '-1';
             document.getElementById('spay-modal-title').innerText = "Record Payment to Supplier";
+            document.getElementById('spay-amount').value = '0';
+            document.getElementById('spay-notes').value = '';
+            document.getElementById('spay-manual-name').value = '';
             closeModal('supp-payout');
             updateUI();
         }
 
         function editSupplierPayment(index) {
             let sp = supplierPayments[index];
-            document.getElementById('spay-modal-title').innerText = "Edit Supplier Payment";
+            document.getElementById('spay-modal-title').innerText = "Edit Supplier Payment Record";
             document.getElementById('spay-supplier-select').value = sp.supplier;
             document.getElementById('spay-amount').value = sp.amount;
             document.getElementById('spay-notes').value = sp.notes;
@@ -1656,508 +1674,465 @@ let customUsers = JSON.parse(localStorage.getItem('usman_custom_users')) || defa
         }
 
         function deleteSupplierPayment(index) {
-            if(confirm("Are you sure you want to delete this supplier payment?")) {
+            if(confirm("Are you sure you want to delete this payment record?")) {
                 supplierPayments.splice(index, 1);
                 localStorage.setItem('usman_supp_payments', JSON.stringify(supplierPayments));
                 updateUI();
             }
         }
 
-        function saveItemCatalog() {
-            const name = document.getElementById('item-name-input').value.trim();
-            const color = document.getElementById('item-color-input').value.trim() || 'Standard';
-            const styleTag = document.getElementById('item-style-input').value;
-            const ageGroup = document.getElementById('item-age-input').value;
-            const itemType = document.getElementById('item-type-input').value;
-            const index = parseInt(document.getElementById('edit-item-index').value);
-
-            if(!name) return alert("Item name is required!");
-
-            if(index >= 0) {
-                catalog[index] = { name, color, styleTag, ageGroup, itemType };
-            } else {
-                catalog.push({ name, color, styleTag, ageGroup, itemType });
-            }
-
-            localStorage.setItem('usman_catalog', JSON.stringify(catalog));
-            closeModal('add-item');
-            document.getElementById('item-name-input').value = '';
-            document.getElementById('item-color-input').value = '';
-            document.getElementById('item-style-input').value = 'Y2K';
-            document.getElementById('item-age-input').value = 'Adults';
-            document.getElementById('item-type-input').value = 'Shirts';
-            document.getElementById('edit-item-index').value = '-1';
-            initDropdowns();
-            updateUI();
-        }
-
-        function editItem(index) {
-            document.getElementById('item-modal-title').innerText = "Edit Item";
-            document.getElementById('item-name-input').value = catalog[index].name;
-            document.getElementById('item-color-input').value = catalog[index].color;
-            document.getElementById('item-style-input').value = catalog[index].styleTag || 'Y2K';
-            document.getElementById('item-age-input').value = catalog[index].ageGroup || 'Adults';
-            document.getElementById('item-type-input').value = catalog[index].itemType || 'Other';
-            document.getElementById('edit-item-index').value = index;
-            openModal('add-item');
-        }
-
-        function deleteItem(index) {
-            if(confirm("Are you sure you want to delete this item?")) {
-                catalog.splice(index, 1);
-                localStorage.setItem('usman_catalog', JSON.stringify(catalog));
-                initDropdowns();
-                updateUI();
-            }
-        }
-
-        function updatePartnerPct(val) {
-            partnerPct = parseFloat(val) || 0;
-            localStorage.setItem('usman_partner_pct', partnerPct);
-            updateUI();
-        }
-
-        function renderInventoryGroups() {
-            const searchBox = document.getElementById('inventory-search');
-            const searchTerm = searchBox ? searchBox.value.trim().toLowerCase() : '';
-
-            let inventory = {};
-            catalog.forEach(item => {
-                let label = `${item.name} (${item.color})`;
-                inventory[label] = { qty: 0, totalCost: 0 };
-            });
-
-            purchases.forEach(p => {
-                if(!inventory[p.item]) inventory[p.item] = { qty: 0, totalCost: 0 };
-                inventory[p.item].qty += (parseInt(p.qty)||0);
-                inventory[p.item].totalCost += (parseFloat(p.total)||0);
-            });
-
-            manualStock.forEach(m => {
-                if(!inventory[m.item]) inventory[m.item] = { qty: 0, totalCost: 0 };
-                inventory[m.item].qty += (parseInt(m.qty)||0);
-                inventory[m.item].totalCost += ((parseInt(m.qty)||0) * (parseFloat(m.cost)||0));
-            });
-
-            sales.forEach(s => {
-                if(inventory[s.item]) {
-                    inventory[s.item].qty -= (parseInt(s.qty)||0);
-                }
-            });
-
-            fleekOrders.forEach(fo => {
-                if(inventory[fo.item]) {
-                    inventory[fo.item].qty -= (parseInt(fo.qty)||0);
-                }
-            });
-
-            let catalogMeta = {};
-            catalog.forEach(item => {
-                let label = `${item.name} (${item.color})`;
-                catalogMeta[label] = {
-                    styleTag: item.styleTag || 'Y2K',
-                    ageGroup: item.ageGroup || 'Adults',
-                    itemType: item.itemType || 'Other'
-                };
-            });
-
-            const typePriority = ['Shirts','Shorts','Pants','Skirts','Jackets','Tracksuits','Shoes','Bags','Glasses','Hats','Accessories','Jewelry','Electronics','Home Decor','Beauty','Other'];
-            let groupedByType = {};
-
-            Object.keys(inventory).forEach(key => {
-                if(searchTerm && !key.toLowerCase().includes(searchTerm)) return;
-
-                let itemData = inventory[key];
-                let currentQty = itemData.qty;
-                let totalSoldQty = sales.filter(s=>s.item===key).reduce((a,b)=>a+(parseInt(b.qty)||0),0) + fleekOrders.filter(fo=>fo.item===key).reduce((a,b)=>a+(parseInt(b.qty)||0),0);
-                let avgCost = currentQty > 0 && itemData.totalCost > 0 ? (itemData.totalCost / (currentQty + totalSoldQty)) : 0;
-                let stockVal = currentQty * avgCost;
-                let isLow = currentQty <= 5;
-
-                let meta = catalogMeta[key] || { styleTag: 'Y2K', ageGroup: 'Adults', itemType: 'Other' };
-                let type = meta.itemType || 'Other';
-
-                if(!groupedByType[type]) groupedByType[type] = [];
-                groupedByType[type].push({ key, currentQty, avgCost, stockVal, isLow });
-            });
-
-            const invContainer = document.getElementById('inventory-groups-container');
-            invContainer.innerHTML = '';
-
-            let typeKeys = Object.keys(groupedByType);
-
-            if(typeKeys.length === 0) {
-                invContainer.innerHTML = searchTerm
-                    ? `<p class="text-xs text-gray-400 italic text-center py-6">No matching items found for "${searchTerm}".</p>`
-                    : `<p class="text-xs text-gray-400 italic text-center py-6">No items in inventory yet.</p>`;
-                return;
-            }
-
-            typeKeys.sort((a, b) => {
-                let ia = typePriority.indexOf(a); if(ia === -1) ia = 999;
-                let ib = typePriority.indexOf(b); if(ib === -1) ib = 999;
-                return ia - ib;
-            });
-
-            typeKeys.forEach(type => {
-                const items = groupedByType[type];
-                let rows = items.map(it => `
-                    <tr class="border-b border-gray-100 py-2 ${it.isLow ? 'bg-red-50/50' : ''}">
-                        <td class="py-2 font-semibold text-gray-800">${it.key}</td>
-                        <td class="py-2 font-mono font-bold ${it.isLow ? 'text-red-600' : 'text-gray-700'}">${it.currentQty} Pcs</td>
-                        <td class="py-2 font-mono text-gray-600">${formatMoney(it.avgCost)}</td>
-                        <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(it.stockVal)}</td>
-                        <td class="py-2">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${it.isLow ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
-                                ${it.isLow ? '⚠️ LOW STOCK' : 'IN STOCK'}
-                            </span>
-                        </td>
-                        <td class="py-2 text-right space-x-2">
-                            <button onclick="editStock('${it.key}')" class="text-xs text-blue-600 font-semibold hover:underline">Edit Stock</button>
-                            <button onclick="deleteStock('${it.key}')" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                        </td>
-                    </tr>`).join('');
-
-                let typeCard = document.createElement('div');
-                typeCard.className = 'bg-white p-5 rounded-xl card-shadow overflow-x-auto mb-6';
-                typeCard.innerHTML = `
-                    <h3 class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-3">📁 ${type}</h3>
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="border-b border-gray-200 text-gray-400 uppercase">
-                                <th class="py-2">Item Name</th>
-                                <th class="py-2">Available Quantity (Pcs)</th>
-                                <th class="py-2">Avg Unit Cost</th>
-                                <th class="py-2">Total Stock Value</th>
-                                <th class="py-2">Status</th>
-                                <th class="py-2 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>`;
-                invContainer.appendChild(typeCard);
-            });
-        }
-
-        function updateUI() {
-            // ONLY INCLUDE DISPATCHED SALES & FLEEK ORDERS FOR PROFIT & SALES VALUES
-            let dispatchedGenSales = sales.filter(s => (s.dispatchStatus || 'Pending') === 'Dispatched');
-            let dispatchedFleekOrders = fleekOrders.filter(fo => (fo.status || 'Pending') === 'Dispatched');
-
-            let genSalesVal = dispatchedGenSales.reduce((a, b) => a + (parseFloat(b.total)||0), 0);
-            let fleekSalesVal = dispatchedFleekOrders.reduce((a, b) => a + (parseFloat(b.amount)||0), 0);
-            let totalSalesVal = genSalesVal + fleekSalesVal;
-
-            let genCollected = sales.filter(s => s.status === 'Paid').reduce((a, b) => a + (parseFloat(b.total)||0), 0);
-            let fleekCollected = fleekOrders.filter(fo => fo.payStatus === 'Paid').reduce((a, b) => a + (parseFloat(b.amount)||0), 0);
-            let collectedVal = genCollected + fleekCollected;
-
-            let genCogs = dispatchedGenSales.reduce((a, b) => a + ((parseFloat(b.cost)||0) * (parseFloat(b.qty)||0)), 0);
-            let fleekCogs = dispatchedFleekOrders.reduce((a, b) => a + ((parseFloat(b.cost)||0) * (parseFloat(b.qty)||0)), 0);
-            let cogsVal = genCogs + fleekCogs;
-
-            let grossProfit = totalSalesVal - cogsVal;
-            let partnerCut = grossProfit > 0 ? (grossProfit * (partnerPct / 100)) : 0;
-            let totalExpensesVal = expenses.reduce((a, b) => a + (parseFloat(b.amount)||0), 0);
-            let ownerNet = (grossProfit - partnerCut) - totalExpensesVal;
-
-            let totalPaidPartner = payouts.reduce((a, b) => a + (parseFloat(b.amount)||0), 0);
-            let partnerPending = partnerCut - totalPaidPartner;
-
-            // Calculate Total Suppliers Pending
-            let totalSuppliersPending = 0;
-            suppliers.forEach(s => {
-                totalSuppliersPending += calculateSupplierPending(s.name);
-            });
-
-            document.getElementById('card-total-sales').innerText = formatMoney(totalSalesVal);
-            document.getElementById('card-collected-sub').innerText = `${formatMoney(collectedVal)} collected`;
-            document.getElementById('card-owner-expenses').innerText = formatMoney(totalExpensesVal);
-            document.getElementById('card-suppliers-pending').innerText = formatMoney(totalSuppliersPending);
-            document.getElementById('card-net-profit').innerText = formatMoney(ownerNet);
-
-            document.getElementById('pb-total-sales').innerText = formatMoney(totalSalesVal);
-            document.getElementById('pb-cost-goods').innerText = `-${formatMoney(cogsVal)}`;
-            document.getElementById('pb-gross-profit').innerText = formatMoney(grossProfit);
-            document.getElementById('pb-expenses').innerText = `-${formatMoney(totalExpensesVal)}`;
-            document.getElementById('pb-final-net').innerText = formatMoney(ownerNet);
-
-            document.getElementById('partner-total-share-display').innerText = formatMoney(partnerCut);
-            document.getElementById('partner-total-paid-display').innerText = formatMoney(totalPaidPartner);
-            document.getElementById('partner-pending-balance-display').innerText = formatMoney(partnerPending);
-
-            renderInventoryGroups();
-
-            // Render Users Table
-            const uBody = document.getElementById('users-table-body');
-            uBody.innerHTML = customUsers.length === 0 ? `<tr><td colspan="3" class="text-gray-400 text-center py-4">No custom users created yet.</td></tr>` : '';
-            customUsers.forEach((u, idx) => {
-                let permissionsList = (u.permissions || []).join(', ');
-                uBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2 font-semibold text-gray-800">${u.username}</td>
-                    <td class="py-2 text-gray-600">${permissionsList || 'No tabs allowed'}</td>
-                    <td class="py-2 text-right space-x-2">
-                        <button onclick="openUserModal(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deleteUserRecord(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                    </td>
-                </tr>`;
-            });
-
-            // Render Fleek Orders Table
-            const foBody = document.getElementById('fleek-orders-table-body');
-            foBody.innerHTML = fleekOrders.length === 0 ? `<tr><td colspan="9" class="text-gray-400 text-center py-4">No Fleek orders logged yet.</td></tr>` : '';
-            fleekOrders.forEach((fo, idx) => {
-                let isDispatched = fo.status === 'Dispatched';
-                let isPaid = fo.payStatus === 'Paid';
-                foBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2 text-gray-500">${fo.date}</td>
-                    <td class="py-2 font-semibold text-gray-800">${fo.customer}</td>
-                    <td class="py-2 text-gray-600">${fo.item}</td>
-                    <td class="py-2 font-mono">${fo.qty} Pcs</td>
-                    <td class="py-2 font-mono text-gray-600">${formatMoney(fo.cost || 0)}</td>
-                    <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(fo.amount)}</td>
-                    <td class="py-2">
-                        <button onclick="toggleFleekPaymentStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                            ${isPaid ? '✅ PAID' : '⏳ PENDING'}
-                        </button>
-                    </td>
-                    <td class="py-2">
-                        <button onclick="toggleFleekStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${isDispatched ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                            ${isDispatched ? '🚚 DISPATCHED' : '⏳ PENDING'}
-                        </button>
-                    </td>
-                    <td class="py-2 text-right space-x-2">
-                        <button onclick="editFleekOrder(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deleteFleekOrder(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                    </td>
-                </tr>`;
-            });
-
-            // Render General Sales Table
-            const sBody = document.getElementById('sales-table-body');
-            sBody.innerHTML = sales.length === 0 ? `<tr><td colspan="9" class="text-gray-400 text-center py-4">No general sales logged yet.</td></tr>` : '';
-            sales.forEach((s, idx) => {
-                let isDispatched = s.dispatchStatus === 'Dispatched';
-                let isPaid = s.status === 'Paid';
-                sBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2 text-gray-500">${s.date}</td>
-                    <td class="py-2 font-semibold text-gray-800">${s.customer}</td>
-                    <td class="py-2 text-gray-600">${s.item}</td>
-                    <td class="py-2 font-mono">${s.qty}</td>
-                    <td class="py-2 font-mono">${formatMoney(s.price)}</td>
-                    <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(s.total)}</td>
-                    <td class="py-2">
-                        <button onclick="toggleSaleStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                            ${isPaid ? '✅ PAID' : '⏳ PENDING'}
-                        </button>
-                    </td>
-                    <td class="py-2">
-                        <button onclick="toggleSaleDispatchStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${isDispatched ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                            ${isDispatched ? '🚚 DISPATCHED' : '⏳ PENDING'}
-                        </button>
-                    </td>
-                    <td class="py-2 text-right space-x-2">
-                        <button onclick="editSale(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deleteSale(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                    </td>
-                </tr>`;
-            });
-
-            // Render Dispatches Table
-            const dBody = document.getElementById('dispatches-table-body');
-            let combinedDispatches = [];
-            sales.forEach((s, idx) => combinedDispatches.push({ type: 'General Sale', date: s.date, customer: s.customer, item: s.item, qty: s.qty, status: s.dispatchStatus || 'Pending', origIndex: idx, isFleek: false }));
-            fleekOrders.forEach((fo, idx) => combinedDispatches.push({ type: 'Fleek Order', date: fo.date, customer: fo.customer, item: fo.item, qty: fo.qty, status: fo.status || 'Pending', origIndex: idx, isFleek: true }));
-
-            dBody.innerHTML = combinedDispatches.length === 0 ? `<tr><td colspan="7" class="text-gray-400 text-center py-4">No dispatch records found.</td></tr>` : '';
-            combinedDispatches.forEach((d, i) => {
-                let isDispatched = d.status === 'Dispatched';
-                dBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2 text-gray-500">${d.date}</td>
-                    <td class="py-2 font-semibold text-amber-700">${d.type}</td>
-                    <td class="py-2 font-semibold text-gray-800">${d.customer}</td>
-                    <td class="py-2 text-gray-600">${d.item}</td>
-                    <td class="py-2 font-mono">${d.qty} Pcs</td>
-                    <td class="py-2">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isDispatched ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                            ${isDispatched ? '🚚 DISPATCHED' : '⏳ PENDING'}
-                        </span>
-                    </td>
-                    <td class="py-2 text-right">
-                        <button onclick="${d.isFleek ? `toggleFleekStatus(${d.origIndex})` : `toggleSaleDispatchStatus(${d.origIndex})`}" class="text-xs text-indigo-600 font-semibold hover:underline">Toggle Status</button>
-                    </td>
-                </tr>`;
-            });
-
-            // Render Expenses Table
-            const expBody = document.getElementById('expenses-table-body');
-            expBody.innerHTML = expenses.length === 0 ? `<tr><td colspan="4" class="text-gray-400 text-center py-4">No expenses logged yet.</td></tr>` : '';
-            expenses.forEach((e, idx) => {
-                expBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2 text-gray-500">${e.date}</td>
-                    <td class="py-2 font-semibold text-gray-800">${e.title}</td>
-                    <td class="py-2 font-mono font-bold text-red-600">-${formatMoney(e.amount)}</td>
-                    <td class="py-2 text-right space-x-2">
-                        <button onclick="editExpense(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deleteExpense(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                    </td>
-                </tr>`;
-            });
-
-            // Render Suppliers Table
-            const suppBody = document.getElementById('suppliers-table-body');
-            suppBody.innerHTML = suppliers.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No suppliers registered yet.</td></tr>` : '';
-            suppliers.forEach((s, idx) => {
-                let pendingBal = calculateSupplierPending(s.name);
-                suppBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2 font-semibold text-gray-800">${s.name}</td>
-                    <td class="py-2 text-gray-600">${s.phone}</td>
-                    <td class="py-2 text-gray-600">${s.address}</td>
-                    <td class="py-2 font-mono font-bold text-red-600">${formatMoney(pendingBal)}</td>
-                    <td class="py-2 text-right space-x-2">
-                        <button onclick="editSupplier(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deleteSupplier(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                    </td>
-                </tr>`;
-            });
-
-            // Render Purchases Table
-            const purBody = document.getElementById('purchases-table-body');
-            purBody.innerHTML = purchases.length === 0 ? `<tr><td colspan="9" class="text-gray-400 text-center py-4">No purchase records found.</td></tr>` : '';
-            purchases.forEach((p, idx) => {
-                let totalBill = parseFloat(p.total) || 0;
-                let paidAmt = parseFloat(p.paid) || 0;
-                let extraPaid = supplierPayments.filter(sp => sp.supplier && sp.supplier.toLowerCase() === (p.supplier||'').toLowerCase()).reduce((a,b)=>a+(parseFloat(b.amount)||0),0);
-                let bal = totalBill - (paidAmt + extraPaid);
-                if(bal < 0) bal = 0;
-
-                purBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2 text-gray-500">${p.date}</td>
-                    <td class="py-2 font-semibold text-gray-800">${p.supplier}</td>
-                    <td class="py-2 text-gray-600">${p.item}</td>
-                    <td class="py-2 font-mono">${p.qty} Pcs</td>
-                    <td class="py-2 font-mono">${formatMoney(p.cost)}</td>
-                    <td class="py-2 font-mono font-bold text-gray-800">${formatMoney(totalBill)}</td>
-                    <td class="py-2 font-mono text-emerald-600">${formatMoney(paidAmt)}</td>
-                    <td class="py-2 font-mono font-bold text-red-600">${formatMoney(bal)}</td>
-                    <td class="py-2 text-right space-x-2">
-                        <button onclick="editPurchase(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deletePurchase(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                    </td>
-                </tr>`;
-            });
-
-            // Render Supplier Payments Table
-            const spBody = document.getElementById('supplier-payments-table-body');
-            spBody.innerHTML = supplierPayments.length === 0 ? `<tr><td colspan="5" class="text-gray-400 text-center py-4">No supplier payments recorded yet.</td></tr>` : '';
-            supplierPayments.forEach((sp, idx) => {
-                spBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2 text-gray-500">${sp.date}</td>
-                    <td class="py-2 font-semibold text-gray-800">${sp.supplier}</td>
-                    <td class="py-2 font-mono font-bold text-emerald-600">${formatMoney(sp.amount)}</td>
-                    <td class="py-2 text-gray-600">${sp.notes}</td>
-                    <td class="py-2 text-right space-x-2">
-                        <button onclick="editSupplierPayment(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deleteSupplierPayment(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                    </td>
-                </tr>`;
-            });
-
-            // Render Payouts Table
-            const payBody = document.getElementById('payouts-table-body');
-            payBody.innerHTML = payouts.length === 0 ? `<tr><td colspan="4" class="text-gray-400 text-center py-4">No payout records found.</td></tr>` : '';
-            payouts.forEach((po, idx) => {
-                payBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2 text-gray-500">${po.date}</td>
-                    <td class="py-2 font-mono font-bold text-emerald-600">${formatMoney(po.amount)}</td>
-                    <td class="py-2 text-gray-600">${po.notes}</td>
-                    <td class="py-2 text-right space-x-2">
-                        <button onclick="editPayout(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deletePayout(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                    </td>
-                </tr>`;
-            });
-
-            // Render Item Catalog Table
-            const itemBody = document.getElementById('items-table-body');
-            itemBody.innerHTML = catalog.length === 0 ? `<tr><td colspan="6" class="text-gray-400 text-center py-4">No items in catalog.</td></tr>` : '';
-            catalog.forEach((item, idx) => {
-                itemBody.innerHTML += `<tr class="border-b border-gray-100 py-2">
-                    <td class="py-2 font-semibold text-gray-800">${item.name}</td>
-                    <td class="py-2 text-gray-600">${item.color}</td>
-                    <td class="py-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700">${item.styleTag || 'Y2K'}</span></td>
-                    <td class="py-2 text-gray-600">${item.ageGroup || 'Adults'}</td>
-                    <td class="py-2 text-gray-600">${item.itemType || 'Other'}</td>
-                    <td class="py-2 text-right space-x-2">
-                        <button onclick="editItem(${idx})" class="text-xs text-blue-600 font-semibold hover:underline">Edit</button>
-                        <button onclick="deleteItem(${idx})" class="text-xs text-red-600 font-semibold hover:underline">Delete</button>
-                    </td>
-                </tr>`;
-            });
-
-            updateTopAndLeastSelling();
-        }
-
-        function updateTopAndLeastSelling() {
-            let itemCounts = {};
-            sales.forEach(s => {
-                if(!itemCounts[s.item]) itemCounts[s.item] = 0;
-                itemCounts[s.item] += (parseInt(s.qty) || 0);
-            });
-            fleekOrders.forEach(fo => {
-                if(!itemCounts[fo.item]) itemCounts[fo.item] = 0;
-                itemCounts[fo.item] += (parseInt(fo.qty) || 0);
-            });
-
-            let sortedArr = Object.keys(itemCounts).map(k => ({ name: k, qty: itemCounts[k] })).sort((a,b) => b.qty - a.qty);
-
-            const topDiv = document.getElementById('top-selling-list');
-            const leastDiv = document.getElementById('least-selling-list');
-
-            if(sortedArr.length === 0) {
-                topDiv.innerHTML = `<p class="text-xs text-gray-400 italic">No sales logged yet.</p>`;
-                leastDiv.innerHTML = `<p class="text-xs text-gray-400 italic">No sales logged yet.</p>`;
-                return;
-            }
-
-            topDiv.innerHTML = sortedArr.slice(0, 3).map(i => `<div class="flex justify-between py-1 border-b border-gray-50"><span class="font-medium text-gray-800">${i.name}</span><span class="font-mono font-bold text-emerald-700">${i.qty} Sold</span></div>`).join('');
-            
-            let reversed = [...sortedArr].reverse();
-            leastDiv.innerHTML = reversed.slice(0, 3).map(i => `<div class="flex justify-between py-1 border-b border-gray-50"><span class="font-medium text-gray-800">${i.name}</span><span class="font-mono font-bold text-amber-700">${i.qty} Sold</span></div>`).join('');
-        }
-
         function filterReports() {
             const from = document.getElementById('filter-from').value;
             const to = document.getElementById('filter-to').value;
             const search = document.getElementById('filter-search').value.toLowerCase();
-            const resultsDiv = document.getElementById('report-results');
+            const container = document.getElementById('report-results');
 
-            let filteredSales = sales.filter(s => {
-                if(from && s.date < from) return false;
-                if(to && s.date > to) return false;
-                if(search && !s.customer.toLowerCase().includes(search) && !s.item.toLowerCase().includes(search)) return false;
-                return true;
+            let combinedSales = [
+                ...sales.map(s => ({ ...s, type: 'General' })),
+                ...fleekOrders.map(f => ({ date: f.date, customer: f.customer, item: f.item, qty: f.qty, price: f.amount/f.qty, total: f.amount, status: f.payStatus, dispatchStatus: f.status, type: 'Fleek' }))
+            ];
+
+            let filtered = combinedSales.filter(item => {
+                let matchDate = true;
+                if(from && item.date < from) matchDate = false;
+                if(to && item.date > to) matchDate = false;
+                let matchText = (item.customer || '').toLowerCase().includes(search) || (item.item || '').toLowerCase().includes(search);
+                return matchDate && matchText;
             });
 
-            let filteredFleek = fleekOrders.filter(fo => {
-                if(from && fo.date < from) return false;
-                if(to && fo.date > to) return false;
-                if(search && !fo.customer.toLowerCase().includes(search) && !fo.item.toLowerCase().includes(search)) return false;
-                return true;
+            if(filtered.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-400 italic">No matching records found.</p>`;
+                return;
+            }
+
+            let totalQty = filtered.reduce((a,b) => a + b.qty, 0);
+            let totalVal = filtered.reduce((a,b) => a + b.total, 0);
+
+            let html = `
+                <div class="mb-4 flex justify-between items-center bg-amber-50 p-3 rounded-lg border border-amber-200 text-xs">
+                    <div>Total Orders Count: <b>${filtered.length}</b></div>
+                    <div>Total Quantity: <b>${totalQty} pcs</b></div>
+                    <div>Total Filtered Revenue: <b>${formatMoney(totalVal)}</b></div>
+                </div>
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                            <th class="py-2">Date</th>
+                            <th class="py-2">Type</th>
+                            <th class="py-2">Customer</th>
+                            <th class="py-2">Item</th>
+                            <th class="py-2">Qty</th>
+                            <th class="py-2">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            filtered.forEach(item => {
+                html += `
+                    <tr class="border-b border-gray-100">
+                        <td class="py-2">${item.date}</td>
+                        <td class="py-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.type === 'Fleek' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">${item.type}</span></td>
+                        <td class="py-2 font-medium">${item.customer}</td>
+                        <td class="py-2">${item.item}</td>
+                        <td class="py-2 font-mono">${item.qty}</td>
+                        <td class="py-2 font-mono font-bold">${formatMoney(item.total)}</td>
+                    </tr>
+                `;
             });
 
-            let totalRev = filteredSales.reduce((a,b)=>a+(parseFloat(b.total)||0),0) + filteredFleek.reduce((a,b)=>a+(parseFloat(b.amount)||0),0);
-            
-            resultsDiv.innerHTML = `
-                <div class="space-y-4">
-                    <div class="flex justify-between bg-gray-50 p-3 rounded-lg font-bold">
-                        <span>Filtered Total Revenue:</span>
-                        <span class="font-mono text-emerald-700">${formatMoney(totalRev)}</span>
-                    </div>
-                    <p class="text-xs text-gray-500">Showing ${filteredSales.length} general sales and ${filteredFleek.length} Fleek orders matching your filter criteria.</p>
-                </div>`;
+            html += `</tbody></table>`;
+            container.innerHTML = html;
         }
-         </script>
+
+        function renderInventoryGroups() {
+            const container = document.getElementById('inventory-groups-container');
+            const searchVal = (document.getElementById('inventory-search').value || '').toLowerCase();
+            container.innerHTML = '';
+
+            let types = ["Shirts", "Shorts", "Pants", "Skirts", "Jackets", "Tracksuits", "Shoes", "Bags", "Glasses", "Hats", "Accessories", "Jewelry", "Electronics", "Home Decor", "Beauty", "Other"];
+
+            types.forEach(type => {
+                let typeItems = catalog.filter(c => (c.itemType || 'Shirts') === type);
+                
+                if(searchVal) {
+                    typeItems = typeItems.filter(c => c.name.toLowerCase().includes(searchVal) || c.color.toLowerCase().includes(searchVal));
+                }
+
+                if(typeItems.length === 0) return;
+
+                let groupHtml = `
+                    <div class="bg-white rounded-xl card-shadow overflow-hidden">
+                        <div class="bg-gray-100 px-6 py-3 border-b border-gray-200 font-bold text-xs uppercase text-gray-700 tracking-wider flex justify-between items-center">
+                            <span>📂 Category: ${type}</span>
+                            <span class="text-[10px] bg-gray-200 px-2 py-0.5 rounded text-gray-600">${typeItems.length} Variants</span>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="border-b border-gray-200 text-gray-400 uppercase">
+                                        <th class="py-2">Item Variant</th>
+                                        <th class="py-2">Style</th>
+                                        <th class="py-2">Purchased Stock</th>
+                                        <th class="py-2">Dispatched Sales</th>
+                                        <th class="py-2">Available Quantity</th>
+                                        <th class="py-2">Stock Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+
+                typeItems.forEach(item => {
+                    let label = `${item.name} (${item.color})`;
+                    
+                    let totalPur = purchases.filter(p => p.item === label).reduce((a,b) => a + b.qty, 0);
+                    let totalMan = manualStock.filter(m => m.item === label).reduce((a,b) => a + b.qty, 0);
+                    let purStock = totalPur + totalMan;
+
+                    let genSales = sales.filter(s => s.item === label && (s.dispatchStatus || 'Pending') === 'Dispatched').reduce((a,b) => a + b.qty, 0);
+                    let flkSales = fleekOrders.filter(f => f.item === label && f.status === 'Dispatched').reduce((a,b) => a + b.qty, 0);
+                    let soldStock = genSales + flkSales;
+
+                    let avail = purStock - soldStock;
+
+                    let purCosts = purchases.filter(p => p.item === label && p.cost > 0);
+                    let avgCost = purCosts.length > 0 ? (purCosts.reduce((a,b) => a + b.cost, 0) / purCosts.length) : 0;
+                    let stockVal = avail * avgCost;
+
+                    let availClass = avail < 5 ? 'text-red-600 font-bold' : (avail < 15 ? 'text-amber-600 font-semibold' : 'text-emerald-700 font-bold');
+
+                    groupHtml += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-2 font-bold text-gray-800">${item.name} <span class="text-gray-400 font-normal">(${item.color})</span></td>
+                            <td class="py-2"><span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px]">${item.styleTag || 'Y2K'}</span></td>
+                            <td class="py-2 font-mono text-gray-600">+${purStock}</td>
+                            <td class="py-2 font-mono text-red-500">-${soldStock}</td>
+                            <td class="py-2 font-mono text-sm ${availClass}">${avail} pcs</td>
+                            <td class="py-2 font-mono font-medium">${formatMoney(stockVal)}</td>
+                        </tr>
+                    `;
+                });
+
+                groupHtml += `</tbody></table></div></div>`;
+                container.innerHTML += groupHtml;
+            });
+
+            if(container.innerHTML === '') {
+                container.innerHTML = `<div class="bg-white p-6 rounded-xl card-shadow text-center text-xs text-gray-400 italic">No inventory items matched your search criteria.</div>`;
+            }
+        }
+
+        function updateUI() {
+            // Render Users Table
+            const uTbody = document.getElementById('users-table-body');
+            if(uTbody) {
+                uTbody.innerHTML = '';
+                customUsers.forEach((u, i) => {
+                    uTbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-2 font-bold text-gray-800">${u.username}</td>
+                            <td class="py-2">${(u.permissions || []).map(p => `<span class="bg-gray-100 px-2 py-0.5 rounded text-[10px] mr-1">${p}</span>`).join('')}</td>
+                            <td class="py-2 text-right space-x-2">
+                                <button onclick="openUserModal(${i})" class="text-blue-600 hover:underline">Edit</button>
+                                <button onclick="deleteUserRecord(${i})" class="text-red-600 hover:underline">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Item Catalog Table
+            const itemTbody = document.getElementById('items-table-body');
+            if(itemTbody) {
+                itemTbody.innerHTML = '';
+                catalog.forEach((item, i) => {
+                    itemTbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-2 font-bold text-gray-800">${item.name}</td>
+                            <td class="py-2 text-gray-600">${item.color}</td>
+                            <td class="py-2"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold">${item.styleTag || 'Y2K'}</span></td>
+                            <td class="py-2 text-gray-500">${item.ageGroup || 'Adults'}</td>
+                            <td class="py-2 text-gray-500">${item.itemType || 'Shirts'}</td>
+                            <td class="py-2 text-right space-x-2">
+                                <button onclick="editItemCatalog(${i})" class="text-blue-600 hover:underline">Edit</button>
+                                <button onclick="deleteItemCatalog(${i})" class="text-red-600 hover:underline">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Suppliers Table
+            const suppTbody = document.getElementById('suppliers-table-body');
+            if(suppTbody) {
+                suppTbody.innerHTML = '';
+                suppliers.forEach((s, i) => {
+                    let totalPur = purchases.filter(p => p.supplier === s.name).reduce((a,b) => a + (b.total||0), 0);
+                    let totalPaidDirect = purchases.filter(p => p.supplier === s.name).reduce((a,b) => a + (b.paid||0), 0);
+                    let totalPayouts = supplierPayments.filter(sp => sp.supplier === s.name).reduce((a,b) => a + (b.amount||0), 0);
+                    let pendingBal = totalPur - totalPaidDirect - totalPayouts;
+
+                    suppTbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-2 font-bold text-gray-800">${s.name}</td>
+                            <td class="py-2 font-mono text-gray-600">${s.phone}</td>
+                            <td class="py-2 text-gray-500">${s.address}</td>
+                            <td class="py-2 font-mono font-bold text-red-600">${formatMoney(pendingBal)}</td>
+                            <td class="py-2 text-right space-x-2">
+                                <button onclick="editSupplier(${i})" class="text-blue-600 hover:underline">Edit</button>
+                                <button onclick="deleteSupplier(${i})" class="text-red-600 hover:underline">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Purchases Table
+            const purTbody = document.getElementById('purchases-table-body');
+            if(purTbody) {
+                purTbody.innerHTML = '';
+                purchases.forEach((p, i) => {
+                    purTbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-2 text-gray-500">${p.date}</td>
+                            <td class="py-2 font-semibold text-gray-700">${p.supplier}</td>
+                            <td class="py-2 font-medium">${p.item}</td>
+                            <td class="py-2 font-mono">${p.qty}</td>
+                            <td class="py-2 font-mono">${formatMoney(p.cost)}</td>
+                            <td class="py-2 font-mono font-bold">${formatMoney(p.total)}</td>
+                            <td class="py-2 font-mono text-emerald-700">${formatMoney(p.paid)}</td>
+                            <td class="py-2 font-mono text-red-600 font-bold">${formatMoney(p.pending)}</td>
+                            <td class="py-2 text-right space-x-2">
+                                <button onclick="editPurchase(${i})" class="text-blue-600 hover:underline">Edit</button>
+                                <button onclick="deletePurchase(${i})" class="text-red-600 hover:underline">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Supplier Payments Table
+            const spayTbody = document.getElementById('supplier-payments-table-body');
+            if(spayTbody) {
+                spayTbody.innerHTML = '';
+                supplierPayments.forEach((sp, i) => {
+                    spayTbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-2 text-gray-500">${sp.date}</td>
+                            <td class="py-2 font-bold text-gray-800">${sp.supplier}</td>
+                            <td class="py-2 font-mono font-bold text-emerald-700">${formatMoney(sp.amount)}</td>
+                            <td class="py-2 text-gray-500">${sp.notes || '-'}</td>
+                            <td class="py-2 text-right space-x-2">
+                                <button onclick="editSupplierPayment(${i})" class="text-blue-600 hover:underline">Edit</button>
+                                <button onclick="deleteSupplierPayment(${i})" class="text-red-600 hover:underline">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render General Sales Table
+            const salesTbody = document.getElementById('sales-table-body');
+            if(salesTbody) {
+                salesTbody.innerHTML = '';
+                sales.forEach((s, i) => {
+                    let payBadge = s.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800';
+                    let dispBadge = (s.dispatchStatus || 'Pending') === 'Dispatched' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800';
+
+                    salesTbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-2 text-gray-500">${s.date}</td>
+                            <td class="py-2 font-semibold text-gray-700">${s.customer}</td>
+                            <td class="py-2 font-medium">${s.item}</td>
+                            <td class="py-2 font-mono">${s.qty}</td>
+                            <td class="py-2 font-mono">${formatMoney(s.price)}</td>
+                            <td class="py-2 font-mono font-bold">${formatMoney(s.total)}</td>
+                            <td class="py-2"><button onclick="toggleSaleStatus(${i})" class="px-2 py-0.5 rounded text-[10px] font-bold ${payBadge}">${s.status}</button></td>
+                            <td class="py-2"><button onclick="toggleSaleDispatchStatus(${i})" class="px-2 py-0.5 rounded text-[10px] font-bold ${dispBadge}">${s.dispatchStatus || 'Pending'}</button></td>
+                            <td class="py-2 text-right space-x-2">
+                                <button onclick="editSale(${i})" class="text-blue-600 hover:underline">Edit</button>
+                                <button onclick="deleteSale(${i})" class="text-red-600 hover:underline">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Fleek Orders Table
+            const fleekTbody = document.getElementById('fleek-orders-table-body');
+            if(fleekTbody) {
+                fleekTbody.innerHTML = '';
+                fleekOrders.forEach((f, i) => {
+                    let payBadge = (f.payStatus || 'Paid') === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800';
+                    let dispBadge = f.status === 'Dispatched' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800';
+
+                    fleekTbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-2 text-gray-500">${f.date}</td>
+                            <td class="py-2 font-semibold text-gray-700">${f.customer}</td>
+                            <td class="py-2 font-medium">${f.item}</td>
+                            <td class="py-2 font-mono">${f.qty}</td>
+                            <td class="py-2 font-mono text-red-600">${formatMoney(f.cost || 0)}</td>
+                            <td class="py-2 font-mono font-bold">${formatMoney(f.amount)}</td>
+                            <td class="py-2"><button onclick="toggleFleekPaymentStatus(${i})" class="px-2 py-0.5 rounded text-[10px] font-bold ${payBadge}">${f.payStatus || 'Paid'}</button></td>
+                            <td class="py-2"><button onclick="toggleFleekStatus(${i})" class="px-2 py-0.5 rounded text-[10px] font-bold ${dispBadge}">${f.status}</button></td>
+                            <td class="py-2 text-right space-x-2">
+                                <button onclick="editFleekOrder(${i})" class="text-blue-600 hover:underline">Edit</button>
+                                <button onclick="deleteFleekOrder(${i})" class="text-red-600 hover:underline">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Dispatches Table
+            const dispTbody = document.getElementById('dispatches-table-body');
+            if(dispTbody) {
+                dispTbody.innerHTML = '';
+
+                sales.forEach((s, i) => {
+                    let badge = (s.dispatchStatus || 'Pending') === 'Dispatched' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800';
+                    dispTbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-2 text-gray-500">${s.date}</td>
+                            <td class="py-2"><span class="bg-gray-100 px-2 py-0.5 rounded text-[10px] font-bold">General Sale</span></td>
+                            <td class="py-2 font-medium">${s.customer}</td>
+                            <td class="py-2">${s.item}</td>
+                            <td class="py-2 font-mono">${s.qty}</td>
+                            <td class="py-2"><button onclick="toggleSaleDispatchStatus(${i})" class="px-2 py-0.5 rounded text-[10px] font-bold ${badge}">${s.dispatchStatus || 'Pending'}</button></td>
+                            <td class="py-2 text-right"><button onclick="editSale(${i})" class="text-blue-600 hover:underline">Edit</button></td>
+                        </tr>
+                    `;
+                });
+
+                fleekOrders.forEach((f, i) => {
+                    let badge = f.status === 'Dispatched' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800';
+                    dispTbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-2 text-gray-500">${f.date}</td>
+                            <td class="py-2"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold">Fleek Order</span></td>
+                            <td class="py-2 font-medium">${f.customer}</td>
+                            <td class="py-2">${f.item}</td>
+                            <td class="py-2 font-mono">${f.qty}</td>
+                            <td class="py-2"><button onclick="toggleFleekStatus(${i})" class="px-2 py-0.5 rounded text-[10px] font-bold ${badge}">${f.status}</button></td>
+                            <td class="py-2 text-right"><button onclick="editFleekOrder(${i})" class="text-blue-600 hover:underline">Edit</button></td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Owner Expenses Table
+            const expTbody = document.getElementById('expenses-table-body');
+            if(expTbody) {
+                expTbody.innerHTML = '';
+                expenses.forEach((e, i) => {
+                    expTbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-2 text-gray-500">${e.date}</td>
+                            <td class="py-2 font-semibold text-gray-700">${e.title}</td>
+                            <td class="py-2 font-mono font-bold text-red-600">${formatMoney(e.amount)}</td>
+                            <td class="py-2 text-right space-x-2">
+                                <button onclick="editExpense(${i})" class="text-blue-600 hover:underline">Edit</button>
+                                <button onclick="deleteExpense(${i})" class="text-red-600 hover:underline">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Payouts Table
+            const payTbody = document.getElementById('payouts-table-body');
+            if(payTbody) {
+                payTbody.innerHTML = '';
+                payouts.forEach((p, i) => {
+                    payTbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-2 text-gray-500">${p.date}</td>
+                            <td class="py-2 font-mono font-bold text-emerald-700">${formatMoney(p.amount)}</td>
+                            <td class="py-2 text-gray-500">${p.notes}</td>
+                            <td class="py-2 text-right space-x-2">
+                                <button onclick="editPayout(${i})" class="text-blue-600 hover:underline">Edit</button>
+                                <button onclick="deletePayout(${i})" class="text-red-600 hover:underline">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // CALCULATIONS FOR DASHBOARD & PARTNER
+            let dispGenSales = sales.filter(s => (s.dispatchStatus || 'Pending') === 'Dispatched');
+            let dispFleekOrders = fleekOrders.filter(f => f.status === 'Dispatched');
+
+            let totalGenSalesVal = dispGenSales.reduce((a,b) => a + b.total, 0);
+            let totalFleekSalesVal = dispFleekOrders.reduce((a,b) => a + b.amount, 0);
+            let totalDispatchedSalesVal = totalGenSalesVal + totalFleekSalesVal;
+
+            let totalGenSalesCollected = dispGenSales.filter(s => s.status === 'Paid').reduce((a,b) => a + b.total, 0);
+            let totalFleekSalesCollected = dispFleekOrders.filter(f => (f.payStatus || 'Paid') === 'Paid').reduce((a,b) => a + b.amount, 0);
+            let totalCollectedVal = totalGenSalesCollected + totalFleekSalesCollected;
+
+            let totalExpensesVal = expenses.reduce((a,b) => a + b.amount, 0);
+
+            // Purchase Cost of Goods Sold
+            let totalGenCost = dispGenSales.reduce((a,b) => a + ((b.cost || 0) * b.qty), 0);
+            let totalFleekCost = dispFleekOrders.reduce((a,b) => a + (b.cost || 0), 0);
+            let totalCostOfGoods = totalGenCost + totalFleekCost;
+
+            let grossProfit = totalDispatchedSalesVal - totalCostOfGoods;
+            let netProfit = grossProfit - totalExpensesVal;
+
+            // Total Supplier Pending Dues
+            let totalPurBill = purchases.reduce((a,b) => a + (b.total || 0), 0);
+            let totalPurPaidDirect = purchases.reduce((a,b) => a + (b.paid || 0), 0);
+            let totalSuppPayouts = supplierPayments.reduce((a,b) => a + (b.amount || 0), 0);
+            let totalSuppliersPending = totalPurBill - totalPurPaidDirect - totalSuppPayouts;
+
+            // Update Cards
+            document.getElementById('card-total-sales').innerText = formatMoney(totalDispatchedSalesVal);
+            document.getElementById('card-collected-sub').innerText = `${formatMoney(totalCollectedVal)} collected`;
+            document.getElementById('card-owner-expenses').innerText = formatMoney(totalExpensesVal);
+            document.getElementById('card-suppliers-pending').innerText = formatMoney(totalSuppliersPending);
+            document.getElementById('card-net-profit').innerText = formatMoney(netProfit);
+
+            // Profit Breakdown Panel
+            document.getElementById('pb-total-sales').innerText = formatMoney(totalDispatchedSalesVal);
+            document.getElementById('pb-cost-goods').innerText = `-${formatMoney(totalCostOfGoods)}`;
+            document.getElementById('pb-gross-profit').innerText = formatMoney(grossProfit);
+            document.getElementById('pb-expenses').innerText = `-${formatMoney(totalExpensesVal)}`;
+            document.getElementById('pb-final-net').innerText = formatMoney(netProfit);
+
+            // Partner Share Calculations
+            let partnerShareVal = (netProfit > 0) ? (netProfit * (partnerPct / 100)) : 0;
+            let partnerPaidVal = payouts.reduce((a,b) => a + b.amount, 0);
+            let partnerPendingVal = partnerShareVal - partnerPaidVal;
+
+            document.getElementById('partner-total-share-display').innerText = formatMoney(partnerShareVal);
+            document.getElementById('partner-total-paid-display').innerText = formatMoney(partnerPaidVal);
+            document.getElementById('partner-pending-balance-display').innerText = formatMoney(partnerPendingVal);
+
+            // Top & Least Selling Items Breakdown
+            let itemQtyMap = {};
+            [...dispGenSales, ...dispFleekOrders].forEach(order => {
+                let itemName = order.item;
+                itemQtyMap[itemName] = (itemQtyMap[itemName] || 0) + order.qty;
+            });
+
+            let sortedItems = Object.keys(itemQtyMap).map(k => ({ name: k, qty: itemQtyMap[k] })).sort((a,b) => b.qty - a.qty);
+
+            const topList = document.getElementById('top-selling-list');
+            const leastList = document.getElementById('least-selling-list');
+
+            if(sortedItems.length > 0) {
+                topList.innerHTML = sortedItems.slice(0, 5).map(i => `<div class="flex justify-between py-1 border-b border-gray-100"><span>${i.name}</span><span class="font-bold font-mono text-emerald-700">${i.qty} pcs</span></div>`).join('');
+                leastList.innerHTML = sortedItems.slice(-5).reverse().map(i => `<div class="flex justify-between py-1 border-b border-gray-100"><span>${i.name}</span><span class="font-bold font-mono text-amber-700">${i.qty} pcs</span></div>`).join('');
+            } else {
+                topList.innerHTML = `<p class="text-xs text-gray-400 italic">No sales logged yet.</p>`;
+                leastList.innerHTML = `<p class="text-xs text-gray-400 italic">No sales logged yet.</p>`;
+            }
+
+            renderInventoryGroups();
+            filterReports();
+        }
+    </script>
 </body>
 </html>
-[cite: 1]
