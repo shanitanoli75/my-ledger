@@ -984,11 +984,15 @@
         let manualStock = JSON.parse(localStorage.getItem('usman_manual_stock')) || [];
         let expenses = JSON.parse(localStorage.getItem('usman_expenses')) || [];
         let payouts = JSON.parse(localStorage.getItem('usman_payouts')) || [];
-        let customUsers = JSON.parse(localStorage.getItem('usman_custom_users')) || [];
+let defaultUsers = [
+    { username: "staff1", password: "yourpassword123", permissions: ["dashboard", "sales-general"] },
+    { username: "manager", password: "managerpassword123", permissions: ["dashboard", "inventory", "sales-general", "dispatches"] }
+];
+let customUsers = JSON.parse(localStorage.getItem('usman_custom_users')) || defaultUsers;
         
         let partnerPct = parseFloat(localStorage.getItem('usman_partner_pct')) || 25;
         let currentCurrency = localStorage.getItem('usman_currency') || 'PKR';
-        let savedPassword = localStorage.getItem('usman_password') || '12345';
+        let savedPassword = localStorage.getItem('usman_password') || 'YOUR_NEW_ADMIN_PASSWORD';
         let currentUser = localStorage.getItem('usman_current_user') || 'admin';
 
         let inactivityTimer;
